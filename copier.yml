@@ -1,0 +1,79 @@
+# Copier configuration for newproj-generated projects. See docs/spec.md, section 19.
+# Questions are rendering inputs only (spec D17). Orchestration choices such as
+# remote creation, visibility, and GitHub owner are newproj flags, never questions.
+
+_min_copier_version: "9.18.2"
+_subdirectory: template
+_answers_file: .copier-answers.yml
+
+# Project-owned files (spec section 8). Kept identical in both lists below;
+# CI verifies they match the ownership table (spec section 23.1).
+#
+# _skip_if_exists protects existing files when a project is created or adopted.
+_skip_if_exists:
+  - AGENTS.md
+  - CLAUDE.md
+  - TASK.md
+  - HANDOFF.md
+  - README.md
+  - LICENSE
+  - .env.example
+  - docs/DECISIONS.md
+
+# Conditional exclusion keeps updates from overwriting, or recreating, any
+# project-owned file (spec section 19.2). Verified on Copier 9.18.2 (ERRATA E-001).
+# Setting _exclude replaces Copier's default exclusions, so those are restated first.
+_exclude:
+  - "copier.yml"
+  - "copier.yaml"
+  - "~*"
+  - "*.py[co]"
+  - "__pycache__"
+  - ".git"
+  - ".DS_Store"
+  - ".svn"
+  - "{% if _copier_operation == 'update' %}AGENTS.md{% endif %}"
+  - "{% if _copier_operation == 'update' %}CLAUDE.md{% endif %}"
+  - "{% if _copier_operation == 'update' %}TASK.md{% endif %}"
+  - "{% if _copier_operation == 'update' %}HANDOFF.md{% endif %}"
+  - "{% if _copier_operation == 'update' %}README.md{% endif %}"
+  - "{% if _copier_operation == 'update' %}LICENSE{% endif %}"
+  - "{% if _copier_operation == 'update' %}.env.example{% endif %}"
+  - "{% if _copier_operation == 'update' %}docs/DECISIONS.md{% endif %}"
+
+project_name:
+  type: str
+  help: Project name (lowercase letters, digits, and hyphens)
+  default: "{{ _folder_name }}"
+  validator: >-
+    {% if not (project_name | regex_search('^[a-z0-9]+(-[a-z0-9]+)*$')) %}
+    Use lowercase letters, digits, and single hyphens only.
+    {% endif %}
+
+description:
+  type: str
+  help: One-line description
+  default: ""
+
+languages:
+  type: str
+  help: Languages used (selects .gitignore snippets)
+  multiselect: true
+  choices:
+    Python: python
+    JavaScript/TypeScript: js-ts
+    C/C++: c-cpp
+    Java: java
+    Go: go
+    Rust: rust
+    Other: other
+  default: []
+
+license:
+  type: str
+  help: License
+  choices:
+    None: none
+    MIT: MIT
+    Apache-2.0: Apache-2.0
+  default: none
