@@ -2,15 +2,13 @@
 
 `newproj` is a cross-platform Python CLI and Copier template that creates and adopts projects whose state lives in repository files (`AGENTS.md`, `TASK.md`, `HANDOFF.md`) instead of AI chat history, so work can move between AI tools and between macOS and Windows. The design is specified in `docs/spec.md` (revision 10, frozen).
 
-## How to work in this repository
+## Agent protocol
 
-This repository is built with the workflow it implements, applied by hand until the tooling exists (spec section 2.5). Until `docs/AGENT_PROTOCOL.md` is generated into this repository, these rules stand in for it:
+At the start of every session, read and follow `template/docs/AGENT_PROTOCOL.md`.
 
-1. At the start of a session, read this file, then `TASK.md` and `HANDOFF.md`. Check `git status` and recent commits, and reconcile them with `HANDOFF.md` before continuing.
-2. `TASK.md` is the contract for the current milestone. Do not edit it. If it looks wrong, incomplete, or impossible, record the concern under `## Blockers / open questions` in `HANDOFF.md` and tell the user.
-3. Update `HANDOFF.md` at meaningful milestones and before a session ends with work unfinished. Keep it to what another agent needs to continue; it is not an activity log.
-4. Before reporting work as complete: check each acceptance criterion by ID, run the tests, inspect the diff for unintended changes, and separate what you verified from what you assumed. Record checks in `HANDOFF.md` as `PASS | command | result | environment | implementer`.
-5. Read only the spec sections that `TASK.md` cites. Do not load all of `docs/spec.md`.
+This repository is built with the workflow it implements (spec section 2.5), so it follows the protocol it ships. Paths the protocol and skills name under `.agents/skills/` and `docs/` (`AGENT_PROTOCOL.md`, `PROMPTS.md`) are under `template/` here; `TASK.md`, `HANDOFF.md`, `docs/DECISIONS.md`, and `docs/ERRATA.md` are at the repository root. `state.py` does not exist yet (M4), so use the raw Git commands in `template/.agents/skills/resume/SKILL.md`.
+
+Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec sections that `TASK.md` cites; never load all of `docs/spec.md`.
 
 ## Spec changes
 
@@ -50,6 +48,8 @@ This repository is built with the workflow it implements, applied by hand until 
 
 - `TASK.md`: the current milestone.
 - `HANDOFF.md`: progress on it.
+- `template/docs/AGENT_PROTOCOL.md`: the operating protocol.
+- `template/.agents/skills/`: the `resume`, `handoff`, and `bootstrap` procedures.
 - `docs/ROADMAP.md`: all Phase 1 milestones.
 - `docs/DECISIONS.md`: implementation decisions.
 - `docs/ERRATA.md`: changes to the frozen spec.
