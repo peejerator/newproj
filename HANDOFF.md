@@ -6,7 +6,7 @@ Task: standard
 
 ## Status
 
-Implemented and locally verified. Pull request and CI verification pending.
+M1 complete. All acceptance criteria verified. PR #1 is open and ready for review.
 
 ## Completed
 
@@ -17,7 +17,8 @@ Implemented and locally verified. Pull request and CI verification pending.
 
 ## Current working area
 
-- M1 changes ready for commit and pull request to main.
+- Pull request: https://github.com/peejerator/newproj/pull/1
+- Implementation commit: ed9e62f. Subsequent handoff updates only record validation.
 
 ## Validation
 
@@ -26,25 +27,27 @@ Implemented and locally verified. Pull request and CI verification pending.
 - PASS | uv run newproj --help; uv run pytest | AC-3: new, adopt, doctor listed; each stub prints not implemented and exits 2 | Windows, Python 3.13.5 | Codex
 - PASS | uv sync; uv run pytest | AC-4: 10 tests pass, invoking installed console script from outside repository | Windows, Python 3.13.5 | Codex
 - PASS | uv sync --locked --python 3.11; uv run pytest | AC-4: 10 tests pass on minimum supported Python | Windows, Python 3.11.17 | Codex
-- PASS | .github/workflows/ci.yml review | AC-5 configuration: push and pull_request, all three required OS runners, official setup-uv action, locked sync | static review; hosted execution pending | Codex
-- PASS | uv lock --check | AC-6: uv.lock generated and current, ready for commit | Windows, uv 0.12.24 | Codex
+- PASS | .github/workflows/ci.yml review | AC-5 configuration: push and pull_request, all three required OS runners, official setup-uv action, locked sync | static review; hosted execution also passed | Codex
+- PASS | uv lock --check | AC-6: uv.lock committed and current | Windows, uv 0.12.24 | Codex
 - PASS | uv build | source distribution and wheel build successfully | Windows, Python 3.13.5 | Codex
-- PASS | git diff --check | no whitespace errors | Windows | Codex
+- PASS | git diff --check; git diff --cached --check | no whitespace errors or unintended changes | Windows | Codex
+- PASS | gh pr checks 1 --repo peejerator/newproj | AC-5: all six push and pull-request matrix checks pass on implementation commit ed9e62f | GitHub Actions, ubuntu-latest/macOS-latest/windows-latest, Python 3.11 | Codex
+- PASS | gh run view 37947329865 --repo peejerator/newproj | PR CI run completed successfully on all three operating systems: https://github.com/peejerator/newproj/actions/runs/37947329865 | GitHub Actions | Codex
 
 ## Review
 
-Outcome: implementation reviewed; hosted CI pending.
+Outcome: implementation reviewed; local tests, builds, and hosted CI pass.
 
 - Reviewed source, tests, package configuration, CI workflow, and lockfile.
 - No edits to TASK.md, docs/spec.md, copier.yml, template/, or accepted decision entries. D-005 is appended.
 - Lockfile uses public PyPI sources and contains no personal paths.
-- Cross-platform execution will be verified by GitHub Actions; it is not assumed from local Windows tests.
+- Cross-platform execution verified by GitHub Actions on all three required runners.
+- No known blockers or unverified M1 acceptance criteria.
 
 ## Exact next steps
 
-1. Commit and push M1 changes.
-2. Open pull request to main.
-3. Confirm all three CI jobs pass and record the pull request and results here.
+1. Review and merge PR #1 when approved.
+2. After merge, write the M2 TASK.md per docs/ROADMAP.md.
 
 ## Blockers / open questions
 
