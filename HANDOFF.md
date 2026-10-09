@@ -7,7 +7,7 @@ Environment: Windows
 
 ## Status
 
-validating
+complete
 
 ## Completed
 
@@ -36,7 +36,7 @@ validating
 - PASS | git diff --check | no whitespace errors | Windows | implementer
 - PASS | uv run copier copy --defaults into a scratch directory | all eight agent files rendered byte-identical to template/ | Windows, Copier from uv.lock | implementer
 - PASS | read-through of protocol, skills, and prompts as a first-time agent | every instruction actionable with Phase 1 tooling; one vague rule ("the workflow requires it") made concrete | static review | implementer
-- NOT RUN | CI on all three operating systems | pending: runs on the pull request | | implementer
+- PASS | gh pr checks 2 | AC-6: push run 37950856148 and pull-request run 37951276473 pass on commit 41114dc, https://github.com/peejerator/newproj/actions/runs/37951276473 | GitHub Actions, ubuntu-latest/macos-latest/windows-latest, Python 3.11 | CI
 
 ## Review
 
@@ -44,7 +44,7 @@ Outcome: none
 
 ## Exact next steps
 
-1. Confirm CI passes on the pull request on Linux, macOS, and Windows, and record it here with `CI` provenance.
+1. Pull request: https://github.com/peejerator/newproj/pull/2. Implementation commit: 41114dc; later commits change `HANDOFF.md` only.
 2. Independent review by a different agent or model, using the record format in `template/.agents/skills/handoff/SKILL.md` (Review record).
 3. ROADMAP "done when" for M2 also needs the content copied by hand into one real project and used for a few days; that is the user's step.
 
