@@ -43,6 +43,7 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - Do not edit `docs/spec.md`.
 - Do not rewrite accepted entries in `docs/DECISIONS.md` or `docs/ERRATA.md`; supersede them with new entries.
 - Ask before adding a dependency.
+- Never add Co-Authored-By trailers, "Generated with" footers, or other AI attribution to commits or pull requests.
 
 ## Where to find more
 
