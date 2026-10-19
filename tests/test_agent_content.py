@@ -154,6 +154,27 @@ def test_handoff_skill_defers_to_review_and_accept() -> None:
     assert "git rev-parse HEAD" in text
 
 
+def test_accept_prints_one_block() -> None:
+    text = read(canonical("accept"))
+    blocks = re.findall(r"```text\n(.*?)```", text, re.S)
+    integrate = [b for b in blocks if "git merge --ff-only" in b]
+    assert len(integrate) == 1
+    block = integrate[0].strip()
+    assert "\n" not in block
+    steps = block.split(" && ")
+    assert steps[0].startswith('git commit -m "Accept ')
+    assert steps.index("git switch <target branch>") > 0
+    assert steps[1:] == [
+        "git push", "git switch <target branch>", "git pull --ff-only", "git merge --ff-only <task branch>",
+        "git push", "git branch -d <task branch>", "git push origin --delete <task branch>",
+    ]
+
+
+def test_agents_md_prints_push_and_pr() -> None:
+    text = read(ROOT / "AGENTS.md")
+    assert "`git push`" in text and "`gh pr create --base main" in text and "joined with `&&`" in text
+
+
 def test_resume_gives_state_py_and_git_fallback() -> None:
     text = read(TEMPLATE / ".agents" / "skills" / "resume" / "SKILL.md")
     assert "uv run --no-project .agents/skills/resume/scripts/state.py" in text

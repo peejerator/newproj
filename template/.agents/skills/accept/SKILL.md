@@ -23,24 +23,18 @@ Record the user's acceptance of the current task. Acceptance belongs to the user
 
    Copy with a tool that preserves bytes (`cp` in bash or zsh, `Copy-Item` in PowerShell). Then run `uv run --no-project .agents/skills/resume/scripts/state.py check` from the repository root, or, where `uv` is unavailable, `python3 .agents/skills/resume/scripts/state.py check` on macOS and Linux or `py -3 .agents/skills/resume/scripts/state.py check` on Windows. It is read-only and prints each violation with its file and line. It must report no violations; with both files neutral, it confirms they are byte-identical to the neutral copies. If no Python is available, check instead that `git hash-object` gives the same result for each copy and its source.
 5. Stage both files: `git add TASK.md HANDOFF.md`.
-6. Print the commit command for the user, with no AI attribution:
+6. Print the commands for the user as one block joined with `&&`, so a failing step stops the rest. The acceptance commit comes first, on the task branch, before any switch or merge. Use no AI attribution and the real branch names. On the default branch, the block is the commit alone:
 
    ```text
    git commit -m "Accept <task goal in a few words>"
    ```
 
-   If the user accepted without a current PASS, use `git commit -m "Accept <task goal in a few words> (override: no current PASS)"`, adding the user's stated reason as a second `-m` paragraph if given.
-7. If the current branch is not the default branch, also print the integration commands, with the real branch names:
+   On any other branch, it also integrates the task branch:
 
    ```text
-   git push
-   git switch <target branch>
-   git pull --ff-only
-   git merge --ff-only <task branch>
-   git push
-   git branch -d <task branch>
-   git push origin --delete <task branch>
+   git commit -m "Accept <task goal in a few words>" && git push && git switch <target branch> && git pull --ff-only && git merge --ff-only <task branch> && git push && git branch -d <task branch> && git push origin --delete <task branch>
    ```
 
-   If `git merge --ff-only` fails because the target branch has moved, the user merges the target branch into the task branch first (`git switch <task branch>`, then `git merge <target branch>`), reruns the checks, and fast-forwards again. Never rebase. A merge that changes files outside `TASK.md` and `HANDOFF.md` makes the review historical; tell the user, so they can decide whether to review again. Pushing the fast-forwarded default branch also marks an open pull request for the task branch as merged on GitHub.
-8. Report to the user what was staged and the commands to run, in order.
+   If the user accepted without a current PASS, the commit message is `"Accept <task goal in a few words> (override: no current PASS)"`, with the user's stated reason as a second `-m` paragraph if given. On Windows, `&&` needs PowerShell 7 or later, or Git Bash.
+7. If `git merge --ff-only` fails because the target branch has moved, the user merges the target branch into the task branch first (`git switch <task branch>`, then `git merge <target branch>`), reruns the checks, and fast-forwards again. Never rebase. A merge that changes files outside `TASK.md` and `HANDOFF.md` makes the review historical; tell the user, so they can decide whether to review again. Pushing the fast-forwarded default branch also marks an open pull request for the task branch as merged on GitHub.
+8. Report to the user what was staged and the block to run.

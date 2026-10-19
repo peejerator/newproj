@@ -1,7 +1,11 @@
 # Vendored from https://github.com/github/gitignore/blob/0e5d690153ca3da8a4a1aef2d053406f408f531c/Global/macOS.gitignore
-# Local change: the "Icon[\r]" and ".HFS+ Private Directory Data[\r]" rules are removed, because rendered files contain no carriage returns.
+# Local change: the "Icon[\r]" and ".HFS+ Private Directory Data[\r]" rules are removed, because rendered files contain no carriage returns; "Icon?" below replaces the first.
 # General
 .DS_Store
+# Custom folder icons are stored in a file named "Icon" followed by a carriage return.
+# Icon? matches that name without a carriage return in this file. It also matches any
+# other five-character name starting with "Icon", such as Icons.
+Icon?
 .localized
 __MACOSX/
 .AppleDouble

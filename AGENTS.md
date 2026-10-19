@@ -23,8 +23,10 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - Run tests: `uv run pytest`
 - Run the CLI from source: `uv run newproj --help`
 - Copy `src/newproj/state.py` into the template after changing it (a test asserts the copies are byte-identical, D-002): `uv run python scripts/sync_state.py`
+- Create a project from the working tree, for development: `uv run newproj new <name> --no-remote --template-path <path to this repository>` (E-002)
+- Check a project: `uv run newproj doctor [path]`
 
-(Added by milestone M1, extended in M4; update this section when commands change.)
+(Added by milestone M1, extended in M4 and M5; update this section when commands change.)
 
 ## Environment
 
@@ -48,6 +50,7 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - Do not rewrite accepted entries in `docs/DECISIONS.md` or `docs/ERRATA.md`; supersede them with new entries.
 - Ask before adding a dependency.
 - The user makes every commit. Stage the work and print the commit commands; never commit yourself (protocol, Session end and switching).
+- Print the commit commands, then `git push` and, when the branch has no pull request yet, `gh pr create --base main --title "<milestone title>"` (for example `"M5: newproj new and doctor"`), all as one block joined with `&&`.
 - Never add Co-Authored-By trailers, "Generated with" footers, or other AI attribution to commits or pull requests.
 
 ## Where to find more

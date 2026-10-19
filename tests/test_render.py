@@ -1,6 +1,7 @@
 """Render the template with Copier and check the generated project."""
 
 import configparser
+import os
 import re
 import shutil
 import socket
@@ -21,7 +22,7 @@ NEUTRAL = ".agents/skills/handoff/neutral"
 SKILLS = ["resume", "handoff", "bootstrap", "review", "accept"]
 USER_SKILLS = ["bootstrap", "review", "accept"]
 
-# Spec section 7, adjusted by ERRATA E-011 and E-012, plus state.py (D-002).
+# Spec section 7, adjusted by ERRATA E-011, E-012, and E-016, plus state.py (D-002).
 # LICENSE is added when chosen.
 LAYOUT = {
     "AGENTS.md",
@@ -34,6 +35,7 @@ LAYOUT = {
     ".gitignore",
     ".gitattributes",
     ".editorconfig",
+    ".githooks/commit-msg",
     "docs/AGENT_PROTOCOL.md",
     "docs/PROMPTS.md",
     "docs/DECISIONS.md",
@@ -247,6 +249,31 @@ def test_gitignore(case: tuple[dict[str, object], Path]) -> None:
     for language, headings in LANGUAGE_SECTIONS.items():
         for heading in headings:
             assert (heading in lines) == (language in selected), heading
+
+
+def test_gitignore_icon_rule(case: tuple[dict[str, object], Path]) -> None:
+    _, project = case
+    lines = read(project / ".gitignore").splitlines()
+    macos = lines[lines.index("# macOS") : lines.index("# Windows")]
+    rule = macos.index("Icon?")
+    assert macos[rule - 1].startswith("#") and "carriage return" in " ".join(macos[rule - 3 : rule])
+
+
+def test_commit_msg_hook(case: tuple[dict[str, object], Path]) -> None:
+    _, project = case
+    hook = project / ".githooks" / "commit-msg"
+    assert read(hook).startswith("#!/bin/sh\n")
+    if os.name != "nt":
+        assert os.access(hook, os.X_OK)
+    config = copier_config()
+    assert ".githooks/commit-msg" not in config["_skip_if_exists"]
+    assert "## E-016:" in read(ERRATA)
+
+
+def test_answers_file_ends_with_one_newline(case: tuple[dict[str, object], Path]) -> None:
+    _, project = case
+    data = (project / ".copier-answers.yml").read_bytes()
+    assert data.endswith(b"\n") and not data.endswith(b"\n\n")
 
 
 def test_gitignore_snippets_are_vendored() -> None:

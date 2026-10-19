@@ -178,3 +178,21 @@ Resolution: `copier.yml` adds a `copyright_holder` question:
 | `copyright_holder` | str | none | asked only when `license` is `MIT`; must not be empty |
 
 The MIT copyright line is `Copyright (c) <copyright_holder>`, with no year. Apache-2.0 renders its standard text unchanged, whose appendix keeps its own placeholder for projects that apply the license to files, so it asks no question. Like the others, the question is a rendering input only (D17).
+
+## E-016: A `commit-msg` hook that rejects AI attribution
+
+Date: 2026-10-19
+Sections: 7, 8, 20.1, 20.7
+
+Observed failure: Claude Code proposed a `Co-Authored-By` trailer for an ohm-manager commit during the trial (issue #20). The rule against AI attribution then existed only as prose in `AGENTS.md`, which an agent can miss, and each tool's own attribution setting covers only that tool (issue #22).
+
+Resolution: generated projects ship `.githooks/commit-msg`, a POSIX shell script (Git for Windows runs it with its bundled shell) that rejects a commit message containing a `Co-Authored-By:` line or a "Generated with" footer, ignoring Git's comment lines. The `.githooks/` folder is template-managed: it is added to the layout in section 7 and to the ownership table in section 8 as template-managed, so `copier update` keeps it current. `newproj new` runs `git config core.hooksPath .githooks` after `git init`, since Git never enables hooks from a clone by itself. `newproj doctor` WARNs when `core.hooksPath` is not `.githooks` or the hook is missing, and WARNs on attribution lines in the last 20 commits, which catches commits made with `--no-verify` or before the hook was enabled. Neither check is a FAIL, because a user may deliberately run without the hook.
+
+## E-017: Doctor's standard-task baseline and review checks in Phase 1
+
+Date: 2026-10-19
+Sections: 20.7
+
+Contradiction: section 20.7 tells `newproj doctor` to WARN when an active standard task has a Task ID or a baseline. E-007 now requires `Base commit:` for every active standard task, and `state.py check` already fails one without it, so the two disagree. Section 20.7 also puts review checks in Phase 2, but E-011 moved standard-task review into Phase 1.
+
+Resolution: for an active standard task, doctor requires `Base commit:` to be present and to resolve to a commit (FAIL otherwise, the same rule `state.py check` applies), and WARNs when `Task ID:` is not empty. `Target branch:` is not checked for standard tasks. In Phase 1, doctor also checks that `## Review` has an `Outcome:` line and, while a task is active, reports the review status in the two-part form of 20.7 (`Review:` with the recorded outcome, marked current or historical with the reasons from 13.6, then `Current review:`). The remaining checks for formal tasks stay in Phase 2. Doctor's tests need no hidden option beyond `--template-path` (E-002): they replace the template repository URL and the cache directory inside the test process only.
