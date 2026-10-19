@@ -40,9 +40,44 @@ validating
 - PASS | first-time read-through of all five skills with Phase 1 tooling | no step needs `state.py`; commands avoid shell-specific syntax | Linux | implementer
 - NOT RUN | CI on Linux, macOS, Windows | environment: requires the user's commit and push | implementer
 
+- PASS | uv run pytest | 75 passed; covers AC-2, AC-4, AC-8, AC-9, AC-12 | Linux, Python 3.13.5, reviewed HEAD | reviewer
+- PASS | git diff --check | no whitespace errors | reviewed HEAD, clean working tree before review record | reviewer
+- PASS | git diff --check 051eda11584b2a23b75b06d80ca5f7abb88877ae...HEAD | no whitespace errors in committed implementation | reviewed HEAD | reviewer
+- PASS | wc -l template/docs/AGENT_PROTOCOL.md | 114 lines; nine headings checked against base and test contract, AC-2 | Linux | reviewer
+- PASS | first-time read-through of all five skills with Phase 1 tooling; compare moved rules against added lines | AC-3, AC-5, AC-6, AC-7 verified; no required step depends on state.py | complete diff and changed files at reviewed HEAD | reviewer
+- PASS | errata preservation and protected-path comparison against Base commit | E-001/E-002 unchanged; E-003 to E-014 have required fields; spec, DECISIONS.md, copier files, src unchanged, AC-1 | Python assertions and Git diff | reviewer
+- PASS | gh run view 39305827684 --json headSha,conclusion,jobs,url,event | all test jobs passed on exact reviewed HEAD; AC-12; https://github.com/peejerator/newproj/actions/runs/39305827684 | CI evidence inspected for Linux, macOS, Windows, Python 3.11 | reviewer
+- PASS | E-010 Codex invocation-policy documentation check | agents/openai.yaml policy and explicit invocation documented as stated, AC-8; https://learn.chatgpt.com/docs/build-skills | official OpenAI documentation; behavioral testing remains M7 | reviewer
+
 ## Review
 
-Outcome: none
+Outcome: PASS
+Reviewer: Codex/GPT-6, 2026-10-19
+Reviewed at: be337b8b18ff99c504c9f6696da0bbb2e94a4a35
+Contract: 04cb15ccd182daab69eac8c5e389f0b8c3fa0116
+Working tree clean at review: yes
+Baseline: base-commit diff
+Artifact coverage: complete
+Validation provenance: reviewer-executed
+
+- AC-1: VERIFIED | Twelve consecutive entries E-003 to E-014 map to the accepted decisions, each naming sections, trial failure and resolution; header states the evidence bar; E-001/E-002 unchanged against base.
+- AC-2: VERIFIED | Protocol retains all nine headings in order, is 114 lines, and states all five required rules; reviewer read-through and tests pass.
+- AC-3: VERIFIED | Handoff skill records base/target, requires end-state criteria, gives the AC-based size guideline, delegates review/acceptance, and removes embedded review/neutral formats; moved rules checked against added lines.
+- AC-4: VERIFIED | Both neutral files match spec 12.8 byte for byte, including UTF-8 without BOM, LF and one trailing newline; reviewer tests pass.
+- AC-5: VERIFIED | Resume continues on coherent state and explicitly reports/stops on user-addressed questions without answering them.
+- AC-6: VERIFIED | Review skill implements every listed baseline, commitment, criterion, validation, moved-content, identity, snapshot, write-boundary and staging rule; moved record fields preserved in added lines.
+- AC-7: VERIFIED | Accept checks current PASS and contract, copies and checks neutral bytes, stages both files, prints commit/fast-forward/cleanup commands, and forbids committing, pushing or merging itself.
+- AC-8: VERIFIED | Required metadata and policy files exist for bootstrap/review/accept; resume/handoff retain only name/description; E-010 distinguishes documented Claude/Codex support from unverified tools and deferred behavior tests.
+- AC-9: VERIFIED | All five template Claude pointers and both root pointer sets match canonical frontmatter and required destinations; root policy copies match; reviewer tests pass.
+- AC-10: VERIFIED | Upload-only review/accept adapters delegate to canonical skills and describe evidence limits and byte-preserving acceptance.
+- AC-11: VERIFIED | Roadmap places M2.1 between M2 and M3, assigns neutral reference copies to M2.1, keeps rendering in M3, and adds state.py check mode to M4.
+- AC-12: VERIFIED | Tests cover headings/line budget, both frontmatter classes and policy files, pointer identity, neutral bytes and text hygiene; 75 tests pass locally; CI run 39305827684 passes all three OS jobs on reviewed HEAD.
+
+Findings:
+- No blocking findings. Full implementation diff and changed files inspected; no out-of-scope changes, added dependencies, or protected-path changes found.
+- The implementer wrote this standard task's acceptance criteria, so the evidence is weaker than for user-confirmed criteria. This is a separate review session and model family from the reported Claude Code/claude-opus-5-5 implementation.
+- Existing questions under `## Blockers / open questions` remain unanswered and unchanged. This review verifies the committed work against TASK.md; it does not resolve those user decisions.
+- The implementer's CI and next-step entries predate the successful runs on reviewed HEAD. The reviewer validation above supplies current evidence without changing implementer-owned sections. Tool behavior testing remains deferred to M7, as E-010 states.
 
 ## Exact next steps
 
