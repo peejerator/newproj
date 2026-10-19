@@ -6,7 +6,10 @@
 
 At the start of every session, read and follow `template/docs/AGENT_PROTOCOL.md`.
 
-This repository is built with the workflow it implements (spec section 2.5), so it follows the protocol it ships. Paths the protocol and skills name under `.agents/skills/` and `docs/` (`AGENT_PROTOCOL.md`, `PROMPTS.md`) are under `template/` here; `TASK.md`, `HANDOFF.md`, `docs/DECISIONS.md`, and `docs/ERRATA.md` are at the repository root. `state.py` does not exist yet (M4), so use the raw Git commands in `template/.agents/skills/resume/SKILL.md`.
+This repository is built with the workflow it implements (spec section 2.5), so it follows the protocol it ships. Paths the protocol and skills name under `.agents/skills/` and `docs/` (`AGENT_PROTOCOL.md`, `PROMPTS.md`) are under `template/` here; `TASK.md`, `HANDOFF.md`, `docs/DECISIONS.md`, and `docs/ERRATA.md` are at the repository root. The neutral copies live under `template/` here too, so wherever a skill runs `state.py`, run the template copy with `--neutral-dir` from the repository root instead:
+
+- Report: `uv run --no-project template/.agents/skills/resume/scripts/state.py --neutral-dir template/.agents/skills/handoff/neutral`
+- Check: `uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral`
 
 Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec sections that `TASK.md` cites; never load all of `docs/spec.md`.
 
@@ -19,8 +22,9 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - Install dependencies: `uv sync`
 - Run tests: `uv run pytest`
 - Run the CLI from source: `uv run newproj --help`
+- Copy `src/newproj/state.py` into the template after changing it (a test asserts the copies are byte-identical, D-002): `uv run python scripts/sync_state.py`
 
-(Added by milestone M1; update this section when commands change.)
+(Added by milestone M1, extended in M4; update this section when commands change.)
 
 ## Environment
 

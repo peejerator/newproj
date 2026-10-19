@@ -23,3 +23,11 @@ jobs:
         run: uv sync --locked --python 3.11
       - name: Run tests
         run: uv run pytest
+      - name: Run state.py under Python 3.9
+        shell: bash
+        run: |
+          # Full history, so check can resolve the task's Base commit.
+          git fetch --quiet --unshallow || true
+          uv python install 3.9
+          uv run --no-project --python 3.9 template/.agents/skills/resume/scripts/state.py --neutral-dir template/.agents/skills/handoff/neutral
+          uv run --no-project --python 3.9 template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral
