@@ -423,9 +423,13 @@ def size_budgets(report: Report, root: Path) -> None:
 
 
 def ignore_rules(report: Report, git: state.Git) -> None:
-    expected = [(".env", True, ".env"), (".env.local", True, ".env.*"), (".env.example", False, "!.env.example")]
-    missing = [rule for path, ignored, rule in expected
-               if git.ok("check-ignore", "-q", "--no-index", path) != ignored]
+    # The .env.* rule must match any suffix, so probe several names, one of them unlikely
+    # to be listed on its own; a single ignored name such as .env.local is not the rule.
+    wildcard = [".env.local", ".env.production", ".env.newproj-doctor-probe"]
+    expected = [(".env", True, ".env"), *[(path, True, ".env.*") for path in wildcard],
+                (".env.example", False, "!.env.example")]
+    missing = list(dict.fromkeys(rule for path, ignored, rule in expected
+                                 if git.ok("check-ignore", "-q", "--no-index", path) != ignored))
     if missing:
         report.add("WARN", "Secret-ignore rules missing from .gitignore", ["Add these lines:", *missing])
     else:

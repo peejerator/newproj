@@ -18,6 +18,7 @@ validating
 - AC-7: erratum E-017. No hidden hook beyond `--template-path`: tests replace `source.TEMPLATE_URL` and `source.cache_dir` in process.
 - AC-8: `--help` lists new, adopt, doctor; `adopt` exits 2; dependencies unchanged (test).
 - Review findings (FAIL at 44f0582): 1. the hook runs `grep` with `LC_ALL=C`, so `[:alnum:]` is ASCII only and an emoji before "Generated with" is rejected under Git for Windows too; doctor's `ATTRIBUTION` regex is now ASCII-only (`re.ASCII`, `[^a-z0-9\n]`) to match the hook exactly. 2. `doctor.disallows_implicit_invocation` requires `allow_implicit_invocation: false` directly under the top-level `policy:` mapping; regression tests for a misplaced key, a nested key and a top-level key, plus hook/doctor agreement cases for `é` and `_` before "Generated with".
+- Review findings (FAIL at 219351a): 1. `--template-path` passes `vcs_ref="HEAD"`, so a local Git repository with release tags renders its working tree, uncommitted changes included, instead of the latest tag (E-002); regression test with a tagged local repository plus a committed and an uncommitted change after the tag. 2. doctor's `.env.*` check probes `.env.local`, `.env.production` and `.env.newproj-doctor-probe`, so a single listed name no longer passes as the wildcard rule; regression tests replace `.env.*` with `.env.local`, and with `.env.local` plus `.env.production`.
 - AC-9: `tests/test_new.py`, `tests/test_doctor.py`, `tests/conftest.py`, `tests/fake_gh.py`.
 
 ## Current working area
@@ -57,6 +58,10 @@ validating
 - FAIL | by hand: newproj new tagged-demo --no-remote --template-path <local tagged repository> | selects v0.0.1 and omits a file committed after that tag; finding 1 (AC-1) | Linux, isolated template source with a release tag and a later commit | reviewer
 - FAIL | by hand: replace .env.* with .env.local in generated .gitignore; run doctor and git check-ignore -q --no-index .env.production | doctor reports PASS for the missing wildcard rule; .env.production is unignored; finding 2 (AC-3) | Linux, isolated generated project | reviewer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | No violations found | Linux | reviewer
+- PASS | uv run pytest, after the second review fixes | 332 passed; the three new regression tests fail without the fixes (AC-1, AC-3, AC-9) | Linux (Raspberry Pi), Python 3.13 | implementer
+- PASS | git diff --check; state.py check --neutral-dir template/.agents/skills/handoff/neutral | no whitespace errors; No violations found | Linux | implementer
+- PASS | by hand: newproj new demo --no-remote --template-path <repo>, doctor before and after a README commit, then .env.* replaced with .env.local | 0 FAIL, 0 WARN both times; then WARN listing .env.* | Linux, isolated GIT_CONFIG_GLOBAL | implementer
+- NOT RUN | CI on Linux, macOS, Windows for the second review fixes | environment: needs the push of the fix commit | implementer
 
 ## Review
 
@@ -88,9 +93,9 @@ Findings:
 
 ## Exact next steps
 
-1. The user commits the review fixes and pushes; the PR already exists.
-2. Check CI on all three operating systems, especially `test_hook_and_doctor_agree` on Windows.
-3. Record the CI result here with `CI` provenance, set Status to `complete`, then the user runs the `review` skill in a different agent.
+1. The user commits the second review fixes and pushes; the PR already exists.
+2. Check CI on all three operating systems for the fix commit and record it here with `CI` provenance.
+3. Set Status to `complete`, then the user runs the `review` skill in a different agent.
 
 ## Blockers / open questions
 

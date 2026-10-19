@@ -74,7 +74,9 @@ def render(args: argparse.Namespace, target: Path) -> None:
         print("stdin is not a terminal: using the template's default answers.")
     options = dict(data={"project_name": args.name}, defaults=not interactive, skip_tasks=True)
     if args.template_path is not None:
-        copier.run_copy(str(args.template_path.resolve()), target, **options)
+        # HEAD renders the working tree, uncommitted changes included, even when the
+        # directory is a Git repository with release tags (E-002).
+        copier.run_copy(str(args.template_path.resolve()), target, vcs_ref="HEAD", **options)
         return
     tag = source.tag()
     clone = source.template_clone(tag)

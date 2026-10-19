@@ -560,6 +560,19 @@ def test_ignore_rules(rule: str, project: Path, capfd: pytest.CaptureFixture[str
     assert f"        {rule}\n" in out
 
 
+@pytest.mark.parametrize("replacement", [".env.local", ".env.local\n.env.production"])
+def test_ignore_rules_need_the_wildcard(replacement: str, project: Path, capfd: pytest.CaptureFixture[str]) -> None:
+    path = project / ".gitignore"
+    text = path.read_text(encoding="utf-8")
+    assert "\n.env.*\n" in text
+    path.write_text(text.replace("\n.env.*\n", f"\n{replacement}\n"), encoding="utf-8", newline="\n")
+    code, out, checks = run_doctor(project, capfd)
+    assert code == 0
+    assert has(checks, "WARN", "Secret-ignore rules missing")
+    assert "        .env.*\n" in out
+    assert out.count("        .env.*\n") == 1
+
+
 # AC-3: default branch
 
 

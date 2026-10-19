@@ -215,6 +215,20 @@ def upstream(env: Env, monkeypatch: pytest.MonkeyPatch) -> Path:
     return repo
 
 
+def test_template_path_renders_working_tree_of_tagged_repository(env: Env, upstream: Path) -> None:
+    git(upstream, "tag", "v0.0.1")
+    (upstream / "template" / "development-change.txt").write_text("committed\n", encoding="utf-8")
+    git(upstream, "add", "-A")
+    git(upstream, "commit", "--quiet", "-m", "Change after the tag")
+    (upstream / "template" / "dirty-change.txt").write_text("uncommitted\n", encoding="utf-8")
+    assert new_local(env, "--no-remote") == 0
+    project = env.work / "demo"
+    assert_committed(project)
+    assert (project / "development-change.txt").is_file()
+    assert (project / "dirty-change.txt").is_file()
+    assert "_commit: v0.0.1\n" not in (project / ".copier-answers.yml").read_text(encoding="utf-8")
+
+
 def test_template_from_cached_clone(env: Env, upstream: Path) -> None:
     git(upstream, "tag", TAG)
     assert newproj("new", "demo", "--no-remote") == 0
