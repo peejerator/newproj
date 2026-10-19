@@ -4,6 +4,7 @@ from importlib.metadata import version
 from pathlib import Path
 import subprocess
 import sysconfig
+import tomllib
 
 import pytest
 
@@ -35,12 +36,29 @@ def test_help(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-@pytest.mark.parametrize("command", ["new", "adopt", "doctor"])
-def test_subcommand_stub(command: str, tmp_path: Path) -> None:
-    result = run_cli(command, cwd=tmp_path)
+def test_adopt_not_implemented(tmp_path: Path) -> None:
+    result = run_cli("adopt", cwd=tmp_path)
     assert result.returncode == 2
-    assert result.stdout.strip() == f"newproj {command} is not implemented yet."
+    assert result.stdout.strip() == "newproj adopt is not implemented yet."
     assert result.stderr == ""
+
+
+def test_new_requires_name(tmp_path: Path) -> None:
+    result = run_cli("new", cwd=tmp_path)
+    assert result.returncode == 2
+    assert "the following arguments are required: name" in result.stderr
+
+
+def test_new_help_hides_template_path(tmp_path: Path) -> None:
+    result = run_cli("new", "--help", cwd=tmp_path)
+    for flag in ["--public", "--no-remote", "--owner"]:
+        assert flag in result.stdout
+    assert "--template-path" not in result.stdout
+
+
+def test_no_new_runtime_dependency() -> None:
+    pyproject = tomllib.loads((Path(__file__).resolve().parent.parent / "pyproject.toml").read_text("utf-8"))
+    assert pyproject["project"]["dependencies"] == ["copier>=9.18.2,<10"]
 
 
 @pytest.mark.parametrize("command", ["new", "adopt", "doctor"])
