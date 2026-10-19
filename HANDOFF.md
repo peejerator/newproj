@@ -17,6 +17,7 @@ validating
 - AC-6: `accept` prints one `&&` block with the commit first; answers file ends with one newline; `Icon?` rule with comment; root `AGENTS.md` push and PR rule.
 - AC-7: erratum E-017. No hidden hook beyond `--template-path`: tests replace `source.TEMPLATE_URL` and `source.cache_dir` in process.
 - AC-8: `--help` lists new, adopt, doctor; `adopt` exits 2; dependencies unchanged (test).
+- Review findings (FAIL at 44f0582): 1. the hook runs `grep` with `LC_ALL=C`, so `[:alnum:]` is ASCII only and an emoji before "Generated with" is rejected under Git for Windows too; doctor's `ATTRIBUTION` regex is now ASCII-only (`re.ASCII`, `[^a-z0-9\n]`) to match the hook exactly. 2. `doctor.disallows_implicit_invocation` requires `allow_implicit_invocation: false` directly under the top-level `policy:` mapping; regression tests for a misplaced key, a nested key and a top-level key, plus hook/doctor agreement cases for `é` and `_` before "Generated with".
 - AC-9: `tests/test_new.py`, `tests/test_doctor.py`, `tests/conftest.py`, `tests/fake_gh.py`.
 
 ## Current working area
@@ -45,6 +46,9 @@ validating
 - FAIL | gh run view 39318449835 --log-failed | confirmed Windows CI failure at reviewed HEAD: 323 passed, 1 failed; Linux and macOS passed in the same run (AC-5, AC-9) | https://github.com/peejerator/newproj/actions/runs/39318449835 | reviewer
 - FAIL | by hand: replace policy: with unrelated: in a generated bootstrap/agents/openai.yaml, then run doctor | doctor exits 0 and reports PASS for all five skills; misplaced invocation policy goes undetected (AC-3) | Linux, isolated generated project | reviewer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | No violations found | Linux | reviewer
+- PASS | uv run pytest, after the review fixes | 329 passed, including the new policy and attribution cases (AC-3, AC-5, AC-9) | Linux (Raspberry Pi), Python 3.13 | implementer
+- PASS | git diff --check, after the review fixes | no whitespace errors | Linux | implementer
+- NOT RUN | CI on Windows for the hook fix | environment: needs the push of the fix commit; the failure was Windows only and cannot be reproduced here | implementer
 
 ## Review
 
@@ -75,13 +79,13 @@ Findings:
 
 ## Exact next steps
 
-1. The user commits and pushes, and opens the PR.
-2. Check CI on all three operating systems; on a Windows failure, look first at the fake `gh.cmd` launcher in `tests/conftest.py` and the hook under Git for Windows' shell.
+1. The user commits the review fixes and pushes; the PR already exists.
+2. Check CI on all three operating systems, especially `test_hook_and_doctor_agree` on Windows.
 3. Record the CI result here with `CI` provenance, set Status to `complete`, then the user runs the `review` skill in a different agent.
 
 ## Blockers / open questions
 
-- None blocking. Implementation choices for the reviewer and user to confirm:
+- None. The user confirmed these implementation choices on 2026-10-19:
   - `new` rewrites `_src_path` in `.copier-answers.yml` from the cache path to the template URL, so the file names no local path and works on every machine (not done for `--template-path`, per E-002).
   - When stdin is not a terminal, `new` uses the template's default answers and says so.
   - Missing `gh` or `uv`, unauthenticated `gh`, and no credential setup are WARN; missing `git` and Git identity are FAIL.

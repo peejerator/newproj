@@ -284,9 +284,15 @@ def test_skill_file_missing(path: str, expected: str, project: Path, capfd: pyte
     assert expected in out
 
 
-def test_openai_yaml_policy(project: Path, capfd: pytest.CaptureFixture[str]) -> None:
+@pytest.mark.parametrize("policy", [
+    "policy:\n  allow_implicit_invocation: true\n",
+    "unrelated:\n  allow_implicit_invocation: false\n",
+    "policy:\n  other:\n    allow_implicit_invocation: false\n",
+    "allow_implicit_invocation: false\n",
+])
+def test_openai_yaml_policy(policy: str, project: Path, capfd: pytest.CaptureFixture[str]) -> None:
     path = project / ".agents" / "skills" / "bootstrap" / "agents" / "openai.yaml"
-    path.write_text("policy:\n  allow_implicit_invocation: true\n", encoding="utf-8", newline="\n")
+    path.write_text(policy, encoding="utf-8", newline="\n")
     code, out, _ = run_doctor(project, capfd)
     assert code == 1
     assert "lacks allow_implicit_invocation: false" in out
@@ -615,6 +621,8 @@ ATTRIBUTED = [
     "  Co-authored-by: bot",
     "\U0001F916 Generated with [Some Tool](https://example.com)",
     "Generated with Some Tool",
+    "\u00e9 Generated with Some Tool",
+    "_generated with care",
 ]
 CLEAN = [
     "Fix the parser",

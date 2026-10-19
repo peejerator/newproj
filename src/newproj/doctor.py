@@ -31,7 +31,8 @@ HOOKS_PATH = ".githooks"
 HOOK = ".githooks/commit-msg"
 ATTRIBUTION_COMMITS = 20
 # Kept equivalent to the grep patterns in template/.githooks/commit-msg (a test checks both).
-ATTRIBUTION = re.compile(r"^\s*co-authored-by:|^[^\w]*generated with", re.IGNORECASE | re.MULTILINE)
+ATTRIBUTION = re.compile(r"^[ \t]*co-authored-by:|^[^a-z0-9\n]*generated with",
+                         re.IGNORECASE | re.MULTILINE | re.ASCII)
 CONFLICT_MARKERS = "^(<<<<<<<|>>>>>>>)( |$)"
 MAX_DETAILS = 40
 
@@ -222,6 +223,26 @@ def frontmatter(text: str) -> tuple[str, dict[str, str]] | None:
     return block, fields
 
 
+def disallows_implicit_invocation(policy: str) -> bool:
+    """Whether the top-level `policy:` mapping sets `allow_implicit_invocation: false` (ERRATA E-010)."""
+    in_policy, indent = False, None
+    for line in policy.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        depth = len(line) - len(line.lstrip(" \t"))
+        if depth == 0:
+            in_policy, indent = re.fullmatch(r"policy:\s*", line) is not None, None
+            continue
+        if not in_policy:
+            continue
+        if indent is None:
+            indent = depth
+        if depth == indent and re.fullmatch(r"allow_implicit_invocation:\s*false", stripped):
+            return True
+    return False
+
+
 def skill_problems(root: Path, name: str) -> list[str]:
     base = f".agents/skills/{name}"
     text = read_text(root / base / "SKILL.md")
@@ -242,7 +263,7 @@ def skill_problems(root: Path, name: str) -> list[str]:
         policy = read_text(root / base / "agents" / "openai.yaml")
         if policy is None:
             problems.append(f"{base}/agents/openai.yaml is missing")
-        elif not re.search(r"^\s+allow_implicit_invocation:\s*false\s*$", policy, re.MULTILINE):
+        elif not disallows_implicit_invocation(policy):
             problems.append(f"{base}/agents/openai.yaml lacks allow_implicit_invocation: false")
     if name == "handoff":
         problems += [f"{base}/neutral/{doc} is missing" for doc in state.TASK_FILES

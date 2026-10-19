@@ -2,8 +2,10 @@
 # Rejects AI attribution in commit messages: Co-Authored-By trailers and
 # "Generated with" footers (AGENTS.md, project-specific rules). Enabled by
 # `git config core.hooksPath .githooks`, which newproj new runs.
-# Lines starting with # are Git's comments and are ignored.
-if grep -v '^#' "$1" | grep -Eiq '^[[:space:]]*co-authored-by:|^[^[:alnum:]]*generated with'; then
+# Lines starting with # are Git's comments and are ignored. LC_ALL=C makes
+# [:alnum:] ASCII only on every platform, so an emoji before "Generated with"
+# never counts as a letter (Git for Windows' grep differs otherwise).
+if grep -v '^#' "$1" | LC_ALL=C grep -Eiq '^[[:space:]]*co-authored-by:|^[^[:alnum:]]*generated with'; then
     echo "commit-msg: remove the AI attribution line (Co-Authored-By trailer or \"Generated with\" footer) and commit again." >&2
     exit 1
 fi
