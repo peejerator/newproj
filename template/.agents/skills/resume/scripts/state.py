@@ -471,12 +471,9 @@ def history_signals(state: State, head: str, dirty: list[str]) -> list[str]:
     return signals
 
 
-def review_signal(state: State, head: str, dirty: list[str]) -> str:
-    """Spec section 13.6: a review is current only while its snapshot still describes the work."""
+def review_invalidations(state: State, head: str, dirty: list[str]) -> list[str]:
+    """Spec section 13.6: why the recorded review no longer describes the work; empty while it is current."""
     fields = review_fields(state.handoff)
-    outcome = fields.get("Outcome", (0, ""))[1]
-    if not outcome or outcome == "none":
-        return "No review recorded (Outcome: none)"
     git = state.git
     reasons = []
     reviewed = git.commit(fields.get("Reviewed at", (0, ""))[1])
@@ -494,6 +491,14 @@ def review_signal(state: State, head: str, dirty: list[str]) -> str:
     contract = fields.get("Contract", (0, ""))[1]
     if not contract or git.out("hash-object", "TASK.md") != contract:
         reasons.append("TASK.md amended since review")
+    return reasons
+
+
+def review_signal(state: State, head: str, dirty: list[str]) -> str:
+    outcome = review_fields(state.handoff).get("Outcome", (0, ""))[1]
+    if not outcome or outcome == "none":
+        return "No review recorded (Outcome: none)"
+    reasons = review_invalidations(state, head, dirty)
     if reasons:
         return f"Review {outcome} is historical: " + "; ".join(reasons)
     return f"Review {outcome} is current"
