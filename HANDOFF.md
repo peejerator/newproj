@@ -38,10 +38,40 @@ validating
 - PASS | state.py check --neutral-dir template/.agents/skills/handoff/neutral | No violations found | Linux | implementer
 - PASS | by hand: newproj new demo --no-remote --template-path <repo>, then newproj doctor, before and after a small commit | 0 FAIL, 0 WARN both times; hook rejected a Co-Authored-By line and a "Generated with" footer | Linux, isolated GIT_CONFIG_GLOBAL | implementer
 - NOT RUN | CI on Linux, macOS, Windows | environment: needs the push of this branch | implementer
+- PASS | uv run pytest | 324 passed; local coverage of AC-1 to AC-9 | Linux, Python 3.13.5 | reviewer
+- PASS | git diff --check | no whitespace errors | Linux | reviewer
+- PASS | uv run newproj --help | lists new, adopt and doctor (AC-8) | Linux | reviewer
+- PASS | by hand: uv run --project <repo> --no-sync newproj new demo --no-remote --template-path <repo>; uv run --project <repo> --no-sync newproj doctor before and after a README commit | 0 FAIL, 0 WARN both times (AC-1, AC-3, AC-9) | Linux, scratch directory, isolated Git configuration and fake gh | reviewer
+- FAIL | gh run view 39318449835 --log-failed | confirmed Windows CI failure at reviewed HEAD: 323 passed, 1 failed; Linux and macOS passed in the same run (AC-5, AC-9) | https://github.com/peejerator/newproj/actions/runs/39318449835 | reviewer
+- FAIL | by hand: replace policy: with unrelated: in a generated bootstrap/agents/openai.yaml, then run doctor | doctor exits 0 and reports PASS for all five skills; misplaced invocation policy goes undetected (AC-3) | Linux, isolated generated project | reviewer
+- PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | No violations found | Linux | reviewer
 
 ## Review
 
-Outcome: none
+Outcome: FAIL
+Reviewer: Codex/GPT-6, 2026-10-19
+Reviewed at: 44f0582f637f21db419570eb29cc05b49ede7307
+Contract: 7468b69ee92da1856e5816b1c0c91d69f1dd38f5
+Working tree clean at review: yes
+Baseline: base-commit diff
+Artifact coverage: complete
+Validation provenance: reviewer-executed
+
+- AC-1: VERIFIED | Complete preflight, cache/tag selection, rendering, Git initialization and remote/recovery paths inspected; local tests exercise local tagged repositories, fake gh and local bare remotes; manual creation succeeds. Real GitHub publication was not exercised.
+- AC-2: VERIFIED | Environment, Git identity, authentication and credential checks inspected and independently tested with isolated inputs.
+- AC-3: UNSATISFIED | Project checks and shared parsers otherwise covered, but a misplaced invocation policy is accepted as healthy; see finding 2.
+- AC-4: VERIFIED | Report classifies checks and returns 1 on FAIL, 0 otherwise; classification and exit-code tests pass. Invalid input paths return 2 as a usage error.
+- AC-5: UNSATISFIED | Hook, hooksPath and history checks exist and pass locally, but Windows accepts an attribution footer; see finding 1.
+- AC-6: VERIFIED | Added lines preserve acceptance safeguards, put the task-branch commit first in one && block, fix the answers newline, add the documented Icon? rule and add the root push/PR rule; content/render tests pass.
+- AC-7: VERIFIED | E-016 and E-017 are append-only additions; E-017 records baseline/review behavior and the absence of another hidden test hook.
+- AC-8: VERIFIED | CLI help and adopt exit 2 checked by tests; only Copier remains a runtime dependency, and no dependency files changed.
+- AC-9: UNSATISFIED | All 324 tests pass locally; exact-HEAD CI passes Linux/macOS but fails Windows. Local repository fixtures and shared-parser spies are present. The malformed-policy regression also needs test coverage.
+
+Findings:
+- 1. [P1] template/.githooks/commit-msg:6: Windows accepts a message whose footer is an emoji followed by "Generated with [Some Tool](https://example.com)". Exact-HEAD CI fails tests/test_doctor.py:636 because git commit returns 0 instead of rejecting it (323 passed, 1 failed). This bypasses the attribution rule on a supported platform and blocks AC-5 and AC-9. Make footer detection work under Git for Windows and rerun all three CI jobs. Evidence: https://github.com/peejerator/newproj/actions/runs/39318449835/job/118285943936.
+- 2. [P2] src/newproj/doctor.py:245: The regex accepts any indented allow_implicit_invocation: false line, without requiring the policy mapping. In a generated .agents/skills/bootstrap/agents/openai.yaml, replace policy: with unrelated: and leave the indented setting unchanged. Reviewer reproduction: skill_problems returns [], doctor exits 0, and the protocol/skills check reports PASS. The file no longer expresses the E-010 policy, so this is a false health report for a user-invoked skill. Validate the policy mapping and add a misplaced-key regression test (AC-3).
+- The implementer authored the acceptance criteria for this standard task; this is weaker evidence than user-confirmed criteria. Review used a separate session and model from the recorded Claude Code/claude-opus-5-5 implementer.
+- Earlier implementer entries and next steps remain unchanged per the review skill. Their claim that CI still needs a push is superseded by the exact-HEAD CI evidence above.
 
 ## Exact next steps
 
