@@ -1,0 +1,28 @@
+{%- set snippets = [
+    ("python", ["Python"]),
+    ("js-ts", ["Node"]),
+    ("c-cpp", ["C", "C++"]),
+    ("java", ["Java"]),
+    ("go", ["Go"]),
+    ("rust", ["Rust"]),
+] -%}
+# Composed by the project template from vendored github/gitignore snippets.
+# Add project entries anywhere; keep the environment section last so its
+# rules take precedence.
+{% for language, names in snippets if language in languages %}
+{%- for name in names %}
+# {{ name }}
+{% include "template/_includes/gitignore/" ~ name ~ ".gitignore" %}
+{%- endfor %}
+{%- endfor %}
+# macOS
+{% include "template/_includes/gitignore/macOS.gitignore" %}
+# Windows
+{% include "template/_includes/gitignore/Windows.gitignore" %}
+# VS Code
+{% include "template/_includes/gitignore/VisualStudioCode.gitignore" %}
+# Environment files, and the context bundle (context.md)
+.env
+.env.*
+!.env.example
+context.md

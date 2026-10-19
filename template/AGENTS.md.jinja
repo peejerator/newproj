@@ -1,0 +1,52 @@
+# {{ project_name }}
+
+Project instructions for AI agents. Keep this file under about 150 lines; move reusable or conditional detail into `docs/` and cite it here.
+
+## Project
+
+Name: `{{ project_name }}`
+
+{{ description if description else "TODO: describe the project in one paragraph." }}
+
+## Agent protocol
+
+At the start of every session, read and follow `docs/AGENT_PROTOCOL.md`.
+
+## Commands
+
+- Build: TODO
+- Test: TODO
+- Run: TODO
+- Lint and format: TODO (remove if not applicable)
+
+## Environment
+
+Fill in only when the project has non-obvious requirements, so an agent can tell a check it cannot run from a check that failed:
+
+- runtime and toolchain versions, and the lockfiles that pin dependencies;
+- OS or hardware requirements;
+- required environment variables, by name only, never values;
+- external services, and the fixtures or test doubles that stand in for them;
+- what each environment (local machines, CI, remote agents) can and cannot run.
+
+A check an environment cannot run is recorded as `NOT RUN` with the reason, never as `FAIL`.
+
+## Conventions
+
+- LF line endings everywhere (`.gitattributes`).
+- TODO: language and style conventions, commit conventions, module boundaries, files not to modify, platform constraints.
+
+## Project-specific rules
+
+- Never commit secrets or credentials.
+- Never add Co-Authored-By trailers, "Generated with" footers, or other AI attribution to commits or pull requests.
+- Do not rewrite accepted entries in `docs/DECISIONS.md`; supersede them with new entries.
+- TODO: areas that always count as formal tier for this project, if any.
+
+## Where to find more
+
+- `TASK.md`: the current task, if any.
+- `HANDOFF.md`: progress on it.
+- `docs/AGENT_PROTOCOL.md`: the operating protocol.
+- `docs/DECISIONS.md`: project decisions.
+- `.agents/skills/`: the `resume`, `handoff`, `bootstrap`, `review`, and `accept` procedures, and any `project-*` skills.

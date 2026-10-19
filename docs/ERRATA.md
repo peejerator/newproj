@@ -163,3 +163,18 @@ Sections: 17.7, 2.5
 Observed failure: newproj follows its own protocol (2.5), but its skills lived only under `template/`, so `resume`, `handoff`, and `bootstrap` were not discoverable as skills in this repository; agents found them only through the path mapping in `AGENTS.md`. Issue #25.
 
 Resolution: this repository has root `.agents/skills/<name>/SKILL.md` and `.claude/skills/<name>/SKILL.md` pointer skills for every template skill, each with the canonical frontmatter and the one-line body ``Read and follow `template/.agents/skills/<name>/SKILL.md`.``, plus root copies of each `agents/openai.yaml`. No symlinks (unreliable on Windows, D5) and no copies of skill bodies. Tests check that the pointers match. `newproj new` and `newproj adopt` are never run on this repository; `template/` stays the single source.
+
+## E-015: Copyright holder question for the MIT license
+
+Date: 2026-10-19
+Sections: 19.1
+
+Problem: section 19.1 lets `license` render an MIT `LICENSE`, but the MIT text begins with a copyright line naming a holder, and none of the questions supplies one. Rendering it would leave a placeholder in a legal file. The user decided on 2026-10-19 that an MIT license asks for a copyright holder (M3 `TASK.md`, AC-7).
+
+Resolution: `copier.yml` adds a `copyright_holder` question:
+
+| Key | Type | Default | Notes |
+|---|---|---|---|
+| `copyright_holder` | str | none | asked only when `license` is `MIT`; must not be empty |
+
+The MIT copyright line is `Copyright (c) <copyright_holder>`, with no year. Apache-2.0 renders its standard text unchanged, whose appendix keeps its own placeholder for projects that apply the license to files, so it asks no question. Like the others, the question is a rendering input only (D17).
