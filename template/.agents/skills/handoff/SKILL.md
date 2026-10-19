@@ -16,7 +16,8 @@ Bring `HANDOFF.md` up to date so that an agent with no access to this session ca
 5. Move findings that are durable and likely to be reused to `docs/research/` or `docs/specs/`, and cite them in `HANDOFF.md` instead of copying them.
 6. Record exact next steps and the relevant decision IDs from `docs/DECISIONS.md`.
 7. Record any concern about the task itself under `## Blockers / open questions`. Never edit an active `TASK.md`.
-8. Do not commit unless the user asks. If the user makes every commit, stage the files and print the commit command instead. If the user is switching machines, offer to commit to a short-lived task branch and push (protocol, Session end and switching), because an uncommitted handoff does not travel.
+8. Check the mechanical rules: run `uv run --no-project .agents/skills/resume/scripts/state.py check` from the repository root, or, where `uv` is unavailable, `python3 .agents/skills/resume/scripts/state.py check` on macOS and Linux or `py -3 .agents/skills/resume/scripts/state.py check` on Windows. It is read-only and prints each violation with its file and line. Fix violations in `HANDOFF.md`. Record a violation in an active `TASK.md` under `## Blockers / open questions` instead of fixing it. If no Python is available, check `HANDOFF.md` against the format and rules below by hand.
+9. Do not commit unless the user asks. If the user makes every commit, stage the files and print the commit command instead. If the user is switching machines, offer to commit to a short-lived task branch and push (protocol, Session end and switching), because an uncommitted handoff does not travel.
 
 ## `HANDOFF.md` format
 

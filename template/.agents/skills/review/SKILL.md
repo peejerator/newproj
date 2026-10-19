@@ -33,8 +33,9 @@ Check committed work against its contract and record the outcome. You are the re
 9. Separately from the criteria, check the diff against `AGENTS.md` rules and project conventions, and look for regressions, omissions, scope creep (changes outside the task's scope or outside `## Relevant areas`), and unsupported completion claims. Never treat `complete` in `HANDOFF.md`, or an implementer-reported `PASS`, as proof, and never infer PASS from the absence of found problems.
 10. Capture the snapshot from command output: run `git rev-parse HEAD` and `git hash-object TASK.md`, and copy their output into `Reviewed at:` and `Contract:`. Never type or abbreviate them.
 11. Write the review record (below). Change only `## Review` and your own `reviewer` validation entries in `HANDOFF.md`; leave every other section, and every other file, unchanged.
-12. Stage `HANDOFF.md` alone with `git add HANDOFF.md` and print the commit command for the user, for example `git commit -m "Record review of <task>: <outcome>"`, with no AI attribution. Commit it yourself only if the user asked you to.
-13. Report the outcome to the user with the status of every criterion.
+12. Check the mechanical rules: run `uv run --no-project .agents/skills/resume/scripts/state.py check` from the repository root, or, where `uv` is unavailable, `python3 .agents/skills/resume/scripts/state.py check` on macOS and Linux or `py -3 .agents/skills/resume/scripts/state.py check` on Windows. It is read-only and prints each violation with its file and line. Fix violations in your review record and your own validation entries. Report any other violation to the user and under `Findings:`, without fixing it. If no Python is available, check the record against the format below by hand.
+13. Stage `HANDOFF.md` alone with `git add HANDOFF.md` and print the commit command for the user, for example `git commit -m "Record review of <task>: <outcome>"`, with no AI attribution. Commit it yourself only if the user asked you to.
+14. Report the outcome to the user with the status of every criterion.
 
 ## Review record
 

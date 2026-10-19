@@ -21,7 +21,7 @@ Record the user's acceptance of the current task. Acceptance belongs to the user
    - `.agents/skills/handoff/neutral/TASK.md` to `TASK.md`;
    - `.agents/skills/handoff/neutral/HANDOFF.md` to `HANDOFF.md`.
 
-   Copy with a tool that preserves bytes (`cp` in bash or zsh, `Copy-Item` in PowerShell). Then check that `git hash-object` gives the same result for each copy and its source.
+   Copy with a tool that preserves bytes (`cp` in bash or zsh, `Copy-Item` in PowerShell). Then run `uv run --no-project .agents/skills/resume/scripts/state.py check` from the repository root, or, where `uv` is unavailable, `python3 .agents/skills/resume/scripts/state.py check` on macOS and Linux or `py -3 .agents/skills/resume/scripts/state.py check` on Windows. It is read-only and prints each violation with its file and line. It must report no violations; with both files neutral, it confirms they are byte-identical to the neutral copies. If no Python is available, check instead that `git hash-object` gives the same result for each copy and its source.
 5. Stage both files: `git add TASK.md HANDOFF.md`.
 6. Print the commit command for the user, with no AI attribution:
 
