@@ -8,8 +8,9 @@ Upload these files by hand:
 
 - `AGENTS.md`, `docs/AGENT_PROTOCOL.md`, `TASK.md`, and `HANDOFF.md`;
 - the output of `git status` and `git diff --stat`;
-- the skill the prompt names (`.agents/skills/resume/SKILL.md`, `.agents/skills/handoff/SKILL.md`, or `.agents/skills/bootstrap/SKILL.md`);
-- any files relevant to the work, and for bootstrap the output of `git log --oneline -30`.
+- the skill the prompt names (`.agents/skills/<name>/SKILL.md`, where `<name>` is `resume`, `handoff`, `bootstrap`, `review`, or `accept`);
+- any files relevant to the work, and for bootstrap the output of `git log --oneline -30`;
+- for review and accept, the output of the commands that skill runs (for example `git rev-parse HEAD`, `git hash-object TASK.md`, and `git diff <Base commit>...HEAD`), and any CI results for the reviewed commit.
 
 Review everything before uploading it. Do not upload secrets, credentials, or private data unless you have decided to (`docs/AGENT_PROTOCOL.md`, Trust boundaries and authority). Results come back as text: paste them into the repository yourself, or give them to a repo-aware agent.
 
@@ -41,4 +42,16 @@ Draft the agent files for this existing project, following the uploaded .agents/
 - suggestions for architecture or roadmap documents, only if warranted.
 
 Mark every uncertain conclusion with (unverified) for my review. Where a file already exists, propose additions rather than replacing it, and list every collision. Output each file as its own Markdown code block.
+```
+
+## Review
+
+```text
+Review the committed work in the uploaded files against TASK.md, following the uploaded .agents/skills/review/SKILL.md and docs/AGENT_PROTOCOL.md as far as a session that cannot run commands can. You cannot rerun checks, so apply the skill's status and outcome rules with only the uploaded output and CI results as evidence. Take Reviewed at and Contract from the uploaded command output; if it is missing, say so. Ask me for your model name. Output the complete ## Review section, and any reviewer validation entries, as a single Markdown code block.
+```
+
+## Accept
+
+```text
+I am accepting the current task. Check the uploaded command output against the checks in the uploaded .agents/skills/accept/SKILL.md and report each one as met or not met. Do not write the neutral files yourself: tell me to copy them byte for byte from .agents/skills/handoff/neutral/. Then list the commands from that skill that I should run, in order, with the real branch names.
 ```

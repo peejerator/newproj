@@ -19,12 +19,15 @@ Reconstruct the state of the work from the repository, then continue it. The rul
 
 | Situation | Action |
 |---|---|
-| `TASK.md` has `Status: draft` | Summarize it and ask the user whether to start it. Do not implement. If the user agrees, rewrite it with `Status: active` and `Tier: standard`; if it is formal-risk, the user must also confirm its acceptance criteria first (protocol, Workflow tiers). Reset `## Review` in `HANDOFF.md` to `Outcome: none`. |
+| `TASK.md` has `Status: draft` | Summarize it and ask the user whether to start it. Do not implement. If the user agrees, rewrite it with `Status: active` and `Tier: standard`, setting `Base commit:` and `Target branch:` as the `handoff` skill describes under Writing a task; if it is formal-risk, the user must also confirm its acceptance criteria first (protocol, Workflow tiers). Reset `## Review` in `HANDOFF.md` to `Outcome: none`. |
+| `## Blockers / open questions` in `HANDOFF.md` contains a question addressed to the user | Report the reconciled state (task, status, next step, any discrepancies) and quote the question. Then stop: do not continue, and do not answer the question yourself, until the user answers it. |
 | `## Review` in `HANDOFF.md` has `Outcome: FAIL` or `Outcome: INCONCLUSIVE` | Treat its findings as the next work. Set `## Status` to `in progress`. Leave `## Review` itself unchanged. |
 | Unfinished work in the working tree or branch, but no active task | Escalate to standard (protocol, Workflow tiers). If the intent is not evident from the diff, the history, and the user's request, ask the user. Then write `TASK.md` and `HANDOFF.md` as the `handoff` skill describes under Writing a task. Tell the user this recovery is best-effort. |
 | State is coherent | State in one or two sentences what you are resuming (goal, status, next step), then continue from `## Exact next steps`. |
 | A material ambiguity remains after inspection | Ask the user one specific question. |
 | Both files are neutral and the working tree is clean | Report that no task is in progress and continue with the user's request. |
+
+A question is addressed to the user when it asks for a decision or judgment, or names the user, as opposed to a fact you can settle from the repository (protocol, Task rules). If you are not sure, treat it as addressed to the user.
 
 ## Signals
 

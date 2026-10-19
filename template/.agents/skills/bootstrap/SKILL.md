@@ -1,6 +1,7 @@
 ---
 name: bootstrap
 description: Use once, when adopting this template into an existing project, to draft or reconcile AGENTS.md, CLAUDE.md, TASK.md, and HANDOFF.md from the project's code, documentation, and Git history. Not for new projects or ordinary sessions.
+disable-model-invocation: true
 ---
 
 # Bootstrap
@@ -28,7 +29,7 @@ Fit the template's agent files to an existing project without losing anything th
    - `## Agent protocol`: exactly the line ``At the start of every session, read and follow `docs/AGENT_PROTOCOL.md`.``;
    - `## Commands`: build, test, run, and lint or format, taken from the configuration you inspected;
    - `## Environment`: only where the repository makes requirements evident (runtime and toolchain versions, lockfiles, OS requirements, environment variable names but never values, external services and their test doubles, and what each environment can and cannot run);
-   - `## Conventions`;
+   - `## Conventions`: including who makes commits, if the user makes every commit;
    - `## Project-specific rules`: including any areas that always count as formal tier for this project;
    - `## Where to find more`: `TASK.md`, `HANDOFF.md`, `docs/AGENT_PROTOCOL.md`, `docs/DECISIONS.md`, and any architecture or roadmap documents.
 
@@ -37,7 +38,7 @@ Fit the template's agent files to an existing project without losing anything th
 5. `TASK.md`:
    - If the user has stated current work that is standard, write it as an active task, as the `handoff` skill describes under Writing a task.
    - If the stated work is formal-risk, write it the same way but with `Status: draft`, and ask the user to confirm its acceptance criteria before anyone implements it.
-   - Otherwise write the neutral state, as the `handoff` skill describes under Neutral state.
-6. `HANDOFF.md`: the neutral state if `TASK.md` is neutral; otherwise the `handoff` skill's format with `## Status` set to `not started` and `Outcome: none` under `## Review`.
+   - Otherwise copy `.agents/skills/handoff/neutral/TASK.md` byte for byte.
+6. `HANDOFF.md`: a byte-for-byte copy of `.agents/skills/handoff/neutral/HANDOFF.md` if `TASK.md` is neutral; otherwise the `handoff` skill's format with `## Status` set to `not started` and `Outcome: none` under `## Review`.
 7. If the project would benefit, suggest `docs/ARCHITECTURE.md` or `docs/ROADMAP.md`. Do not write them unless the user asks.
 8. Report to the user: files created, files changed and how, collisions, and every `(unverified)` item.

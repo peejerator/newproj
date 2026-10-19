@@ -11,12 +11,12 @@ Bring `HANDOFF.md` up to date so that an agent with no access to this session ca
 
 1. If the work is unfinished and there is no active task (`TASK.md` missing or `Status: none`), escalate to standard: write `TASK.md` first, as described under Writing a task.
 2. Reconcile the repository against `TASK.md`: compare it and the current `HANDOFF.md` with `git status --short`, the diff, and recent commits (the `resume` skill lists the signals).
-3. Update `HANDOFF.md` in the format below. Record outcomes, not activities.
+3. Update `HANDOFF.md` in the format below. Record outcomes, not activities, and keep to the size guideline.
 4. Record validation in the entry format below, referencing acceptance criteria by ID.
 5. Move findings that are durable and likely to be reused to `docs/research/` or `docs/specs/`, and cite them in `HANDOFF.md` instead of copying them.
 6. Record exact next steps and the relevant decision IDs from `docs/DECISIONS.md`.
 7. Record any concern about the task itself under `## Blockers / open questions`. Never edit an active `TASK.md`.
-8. Do not commit unless the user asks. If the user is switching machines, offer to commit to a non-default branch and push, because an uncommitted handoff does not travel.
+8. Do not commit unless the user asks. If the user makes every commit, stage the files and print the commit command instead. If the user is switching machines, offer to commit to a short-lived task branch and push (protocol, Session end and switching), because an uncommitted handoff does not travel.
 
 ## `HANDOFF.md` format
 
@@ -67,6 +67,15 @@ Rules:
 - `Last updated:`, `Branch:`, and `Task:` are required; `Environment:` is optional. `Task:` is `standard` while a task is in progress and `none` otherwise.
 - `## Status` holds exactly one of these values and nothing else: `none` (no task), `not started`, `in progress`, `blocked`, `validating` (implementation done, checks such as CI still running), `complete` (the implementer's claim that the Definition of Done holds). Put explanations in the other sections.
 - `## Current working area` lists the files and modules expected to change. Dirty paths outside it are a reconciliation signal for the next agent.
+- `## Review` is written only by an independent reviewer, in the format in the `review` skill. As the implementer, leave it exactly as you found it, except that writing a new task resets it to `Outcome: none`.
+
+## Size guideline
+
+`HANDOFF.md` is read in full by every resuming agent, so keep it short enough to read in one pass; a few dozen lines is typical.
+
+- `## Completed` lists outcomes by acceptance criterion ID, one line each (`AC-3: handoff skill restructured`), not a narrative of what was done.
+- `## Validation` keeps one current entry per check. Replace an entry when the check is rerun; do not append history.
+- Long inventories, such as a list of every rewritten line, go in the commit message or a task-scoped file that `HANDOFF.md` cites.
 
 ## Validation entries
 
@@ -79,31 +88,6 @@ Rules:
 - A `NOT RUN` entry always states why, distinguishing an environment limitation (`environment: no Xcode on Windows`) from a choice (`skipped: slow suite, run in CI`). A check the environment cannot run is never recorded as `FAIL`.
 - Where results depend on external runtime state, the environment field names it (model version, dataset snapshot ID, schema version), never the private data itself.
 
-## Review record
-
-`## Review` records the latest independent review and is written only by the reviewer, never by the agent that implemented the work. As the implementer, leave it exactly as you found it, except that writing a new task resets it to `Outcome: none`. A reviewer, who must be a different agent or model, writes:
-
-```markdown
-Outcome: <PASS | FAIL | INCONCLUSIVE>
-Reviewer: <tool/model>, YYYY-MM-DD
-Reviewed at: <literal output of git rev-parse HEAD>
-Contract: <literal output of git hash-object TASK.md>
-Working tree clean at review: <yes | no>
-Baseline: <default-branch diff | reduced confidence>
-Artifact coverage: <complete | partial (what was missing)>
-Validation provenance: <reviewer-executed | CI-confirmed | implementer-reported only | none>
-
-- AC-1: <VERIFIED | INFERRED | UNSATISFIED | NOT CHECKED> | <evidence>
-
-Findings:
-- <finding>
-```
-
-- `Reviewed at:` and `Contract:` are copied from command output, never typed.
-- VERIFIED: supported by the complete relevant code and, for runtime behavior, by `reviewer` or `CI` checks. INFERRED: probably satisfied, but the evidence is indirect or implementer-reported only. UNSATISFIED: demonstrably not met. NOT CHECKED: evidence missing, truncated, or not runnable.
-- PASS: every criterion VERIFIED, artifact coverage complete, no blocking findings. FAIL: at least one criterion UNSATISFIED, or a blocking regression found. INCONCLUSIVE: anything else.
-- After FAIL or INCONCLUSIVE, the reviewer puts the remaining work in `## Exact next steps` and `## Blockers / open questions` and sets `## Status` to `in progress`. The reviewer does not modify source code or `TASK.md`.
-- For a standard task the implementer wrote the criteria, so the reviewer notes that the evidence is weaker.
 
 ## Writing a task
 
@@ -115,8 +99,8 @@ Use this when escalating lightweight work, or when the user asks for a standard 
 Status: active
 Tier: standard
 Task ID:
-Base commit:
-Target branch:
+Base commit: <literal output of git rev-parse HEAD>
+Target branch: <the branch the work will merge into>
 Issue:
 PR:
 
@@ -137,7 +121,11 @@ PR:
 ## Open questions
 ```
 
-- Take the goal and scope from the user's request. Write acceptance criteria as checkable statements with IDs (`AC-1`, `AC-2`, ...). Leave `Task ID:`, `Base commit:`, and `Target branch:` empty; never write an ID or a commit hash there.
+- `Base commit:` is the pre-implementation code state, copied from the output of `git rev-parse HEAD`, never typed. If implementation commits already exist, use the commit before the first of them and say so under `## Context`. The `review` skill diffs against it.
+- `Target branch:` is the default branch unless the user names another. Find it with `git symbolic-ref --short refs/remotes/origin/HEAD` and drop the `origin/` prefix; if that fails, ask the user.
+- Leave `Task ID:` empty; only formal activation sets it.
+- Take the goal and scope from the user's request.
+- Each acceptance criterion has an ID (`AC-1`, `AC-2`, ...) and describes a checkable property of the finished work at `HEAD`, because the reviewer judges every criterion at the reviewed commit. Session instructions (stop points, handoff requirements, who commits, which branch) go under `## Scope`, never under `## Acceptance criteria`.
 - If the work is formal-risk, follow the protocol's Workflow tiers rule: the user confirms the acceptance criteria before implementation continues.
 - Then write `HANDOFF.md` in the format above with `Task: standard`, the current branch, a status, and `Outcome: none` under `## Review`.
 - From this point the task is active: do not edit `TASK.md` again.
@@ -145,71 +133,8 @@ PR:
 ## Marking the task complete
 
 1. Check the Definition of Done in `docs/AGENT_PROTOCOL.md`, condition by condition. Record each acceptance criterion's evidence under `## Validation` and any exception under `## Blockers / open questions`.
-2. Set `## Status` to `complete`, or to `validating` while checks such as CI are still running.
-3. Recommend an independent review by a different agent or model. It is required before acceptance for formal-risk work.
-4. If the branch contains WIP or `checkpoint(` commits, remind the user to squash them before merging.
-5. Acceptance belongs to the user. Only when the user explicitly accepts the task, on the task's branch and before merging, replace `TASK.md` and `HANDOFF.md` with the neutral state and commit both.
-
-## Neutral state
-
-Copy `.agents/skills/handoff/neutral/TASK.md` and `.agents/skills/handoff/neutral/HANDOFF.md` byte for byte. If those files do not exist, write exactly the content below: UTF-8 without a byte-order mark, LF line endings, one blank line between sections, and a single trailing newline.
-
-`TASK.md`:
-
-```markdown
-# Task
-
-Status: none
-Tier:
-Task ID:
-Base commit:
-Target branch:
-Issue:
-PR:
-
-## Goal
-
-## Context
-
-## Scope
-
-## Acceptance criteria
-
-## Relevant areas
-
-## Validation
-
-## Do not change
-
-## Open questions
-```
-
-`HANDOFF.md`:
-
-```markdown
-# Handoff
-
-Last updated: none
-Branch: none
-Task: none
-
-## Status
-
-none
-
-## Completed
-
-## Current working area
-
-## Validation
-
-## Review
-
-Outcome: none
-
-## Exact next steps
-
-## Blockers / open questions
-
-## Relevant decisions
-```
+2. List any claim about system behavior you could not verify under `## Blockers / open questions`, so the reviewer checks it against the code.
+3. Set `## Status` to `complete`, or to `validating` while checks such as CI are still running.
+4. Recommend an independent review with the `review` skill, run by the user in a different agent or model. It is expected when the work moves, rewrites, or removes safety rules or instruction-file content, and required for formal-risk work. The implementation must be committed before the review starts.
+5. If the branch contains WIP or `checkpoint(` commits, remind the user to squash them before merging.
+6. Acceptance belongs to the user and follows the `accept` skill, which resets `TASK.md` and `HANDOFF.md` to the neutral state on the task's branch before it is merged.

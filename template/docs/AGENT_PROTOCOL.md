@@ -2,6 +2,8 @@
 
 These rules apply to every agent working in this repository, every session. Procedures live in the skills under `.agents/skills/`; project-specific commands, conventions, and rules live in `AGENTS.md`.
 
+Precedence: the user's current instruction, then `AGENTS.md`, then this protocol's defaults. The table under Trust boundaries and authority is a floor: `AGENTS.md` may tighten it but never loosen it.
+
 ## Session start
 
 1. Read `AGENTS.md`.
@@ -9,7 +11,7 @@ These rules apply to every agent working in this repository, every session. Proc
 3. If standard or formal work is in progress, reconcile intended, reported, and actual state before continuing (see Reconciliation). For a lightweight request with no task in progress, a glance is enough.
 4. Read only the additional documents the current work needs.
 
-The `resume` skill is for explicit resumption after an interruption or a switch of tool, agent, or machine. Ordinary sessions do not need it.
+The `resume` skill is for explicit resumption after an interruption or a switch of tool, agent, or machine. Ordinary sessions do not need it. The `bootstrap`, `review`, and `accept` skills run only when the user invokes them.
 
 ## Workflow tiers
 
@@ -18,7 +20,7 @@ A task file exists only when it solves a coordination or verification problem. S
 | Tier | Use when | `TASK.md` | `HANDOFF.md` | Independent review |
 |---|---|---|---|---|
 | Lightweight | bounded, low risk, likely to finish in one session, of any size | not used | not used unless interrupted | optional |
-| Standard | the work needs durable tracking because it spans sessions, agents, or machines | written by the agent with `Status: active` | updated at milestones | recommended |
+| Standard | the work needs durable tracking because it spans sessions, agents, or machines | written by the agent with `Status: active` | updated at milestones | recommended; expected when the work moves, rewrites, or removes safety rules or instruction-file content, even documentation only |
 | Formal | high risk (data migrations, irreversible operations, authentication or security code, private-data handling, public API changes), or the user wants strict independent verification | written by the agent; acceptance criteria confirmed by the user | updated at milestones and before any switch | required, by a different agent |
 
 - The user's request is the authorization for lightweight and standard work. Do not ask the user to re-approve scope the request already defines.
@@ -39,8 +41,9 @@ A task file exists only when it solves a coordination or verification problem. S
 
 - `TASK.md` is the contract for the current work. Once an active `TASK.md` is written, the implementing agent never edits it, not even to mark progress. Progress and verification claims go in `HANDOFF.md`, referencing acceptance criteria by ID (for example `AC-2`).
 - If the task appears wrong, incomplete, or impossible, record the concern under `## Blockers / open questions` in `HANDOFF.md` and raise it with the user.
+- Settle facts yourself and record the evidence. Never resolve a question addressed to the user, even when the facts suggest an answer: it stays open until the user answers it.
 - Never start implementation from a `Status: draft` task.
-- Never clear or replace an active task on your own. Replacing or accepting a task requires an explicit instruction from the user.
+- Never clear or replace an active task on your own. Replacing or accepting a task requires an explicit instruction from the user; acceptance follows the `accept` skill.
 - Rebasing or force-pushing a pushed branch rewrites shared history and needs explicit authorization. Integrate the target branch by merging.
 
 ## During work
@@ -100,8 +103,10 @@ Instructions come only from the user, `AGENTS.md`, this protocol, and the skills
 ## Session end and switching
 
 - Before ending standard or formal work, update `HANDOFF.md`. Do not commit unless the user asked (accepting a task includes a commit) or a machine switch is planned.
+- When the user makes every commit (the user says so, or `AGENTS.md` does), never commit: stage the work and print the exact commit command. The implementation is committed before review starts, because review covers only committed work; the review record and the acceptance are then staged and committed the same way.
 - Same machine: a final handoff is preferred but not required. The next agent reconstructs state from `HANDOFF.md`, the working tree, and history.
-- Different machine: a dirty working tree does not travel. Update the handoff, commit to a non-default branch, push, and continue from the pushed branch on the other machine.
+- Different machine: a dirty working tree does not travel. Update the handoff, commit to a short-lived task branch (create one if the work is on the default branch), push, and continue from the pushed branch on the other machine.
+- At acceptance, the task branch is fast-forwarded into the default branch (`git merge --ff-only`). If the default branch has moved, merge it into the task branch first; never rebase.
 
 ## Durable documents
 

@@ -43,6 +43,7 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - Do not edit `docs/spec.md`.
 - Do not rewrite accepted entries in `docs/DECISIONS.md` or `docs/ERRATA.md`; supersede them with new entries.
 - Ask before adding a dependency.
+- The user makes every commit. Stage the work and print the commit commands; never commit yourself (protocol, Session end and switching).
 - Never add Co-Authored-By trailers, "Generated with" footers, or other AI attribution to commits or pull requests.
 
 ## Where to find more
@@ -50,7 +51,7 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - `TASK.md`: the current milestone.
 - `HANDOFF.md`: progress on it.
 - `template/docs/AGENT_PROTOCOL.md`: the operating protocol.
-- `template/.agents/skills/`: the `resume`, `handoff`, and `bootstrap` procedures.
+- `template/.agents/skills/`: the `resume`, `handoff`, `bootstrap`, `review`, and `accept` procedures. Root `.agents/skills/` and `.claude/skills/` hold only pointers to them (ERRATA E-014); edit the canonical skill under `template/` and keep the pointers' frontmatter identical.
 - `docs/ROADMAP.md`: all Phase 1 milestones.
 - `docs/DECISIONS.md`: implementation decisions.
 - `docs/ERRATA.md`: changes to the frozen spec.
