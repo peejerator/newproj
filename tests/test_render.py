@@ -21,7 +21,8 @@ NEUTRAL = ".agents/skills/handoff/neutral"
 SKILLS = ["resume", "handoff", "bootstrap", "review", "accept"]
 USER_SKILLS = ["bootstrap", "review", "accept"]
 
-# Spec section 7, adjusted by ERRATA E-011 and E-012. LICENSE is added when chosen.
+# Spec section 7, adjusted by ERRATA E-011 and E-012, plus state.py (D-002).
+# LICENSE is added when chosen.
 LAYOUT = {
     "AGENTS.md",
     "CLAUDE.md",
@@ -39,6 +40,7 @@ LAYOUT = {
     f"{NEUTRAL}/TASK.md",
     f"{NEUTRAL}/HANDOFF.md",
     *(f".agents/skills/{name}/SKILL.md" for name in SKILLS),
+    ".agents/skills/resume/scripts/state.py",
     *(f".agents/skills/{name}/agents/openai.yaml" for name in USER_SKILLS),
     *(f".claude/skills/{name}/SKILL.md" for name in SKILLS),
 }
@@ -139,7 +141,7 @@ def test_layout(case: tuple[dict[str, object], Path]) -> None:
         expected.add("LICENSE")
     files = rendered_files(project)
     assert files == expected
-    assert not any("delegate" in f or f.endswith("state.py") for f in files)
+    assert not any("delegate" in f for f in files)
 
 
 # AC-2
