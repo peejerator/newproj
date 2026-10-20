@@ -22,6 +22,20 @@ Use at most 10 numbered questions per round. Group closely related choices with 
 
 After each answered round, update the draft with settled decisions in `## Context` and remaining choices in `## Open questions`. Before the next round, gather the facts the latest answers made relevant. Preserve the distinction between user choices and facts inferred from repository evidence.
 
+## Draft resumption cases
+
+Apply the branch preflight in `SKILL.md` before continuing an interview. These cases distinguish creating a branch from reusing one:
+
+| Starting state | Expected path |
+|---|---|
+| No task, on target `main`, with `main` up to date with its upstream | Propose a task branch in Round 1, create it after the answers and before writing, then record its name and the target under the draft's Context. |
+| Interrupted draft on its recorded task branch `m6-adopt`, with no upstream for `m6-adopt` and a neutral handoff | Check `main` against `main`'s upstream. Reuse `m6-adopt` without creating it again; preserve settled answers and continue unresolved questions or final confirmation. Expected draft-state report warnings do not require a handoff rewrite. |
+| Draft imported from a session without repository access, on target `main`, with no existing task branch | Check `main`'s freshness, settle the branch name, then create that branch before updating the draft. |
+| Existing interview draft on `main` after the user switched away from its recorded `m6-adopt` branch | Stop and direct the user back to `m6-adopt`; do not try to create it again or treat it as an imported draft. |
+| Draft on `m6-adopt` while target `main` is behind its upstream | Stop and ask the user to update `main` and return to `m6-adopt`; the task branch's missing upstream is unrelated. |
+
+If branch identity is ambiguous, resolve it with the user before writing. Do not reuse an unrelated current branch merely because a draft is present.
+
 ## Finish conditions
 
 The interview is finished when the goal and scope are clear, every open decision is settled, formal-risk work has the user's go-ahead, and the draft has checkable acceptance criteria with IDs, validation, relevant areas, and protected areas under the `handoff` skill's Writing a task rules. Each criterion describes the finished result, not an earlier session step. A remaining decision means another round is needed, however many rounds have already happened.

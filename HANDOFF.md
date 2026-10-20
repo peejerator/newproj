@@ -7,45 +7,35 @@ Environment: other
 
 ## Status
 
-in progress
+validating
 
 ## Completed
 
 - AC-1: added canonical start-task metadata, invocation policy, three matching pointers, and root policy copy.
-- AC-2: documented all three sources, preconditions, branch creation, question rounds, draft updates, confirmation, staging, and stop/go behavior.
+- AC-2: documented sources, preconditions, rounds, confirmation, and handoff; user-approved E-019 now reuses an interrupted draft's task branch and checks the target's freshness. Expected draft-state warnings are explained.
 - AC-3: contract headers, baseline, target, and end-state criterion rules stay in handoff's Writing a task section.
-- AC-4: added and linked the interview reference for facts, decisions, recommendations, comprehensive rounds, and finish conditions.
+- AC-4: linked interview guidance covers facts, decisions, recommendations, comprehensive rounds, finish conditions, and five branch/draft scenarios.
 - AC-5: aligned protocol, review, resume, handoff, prompts, and both AGENTS files; protocol remains 114 lines.
 - AC-6: doctor checks six skills, start-task metadata/policy/reference, and its Claude pointer.
-- AC-7: appended E-018 covering decisions 1 to 11 and added the M5.1 roadmap row and M6 first-use reminder.
-- AC-8: render, pointer, confirmation-marker, policy, doctor failure, and healthy-project tests pass locally; reviewer recorded passing three-OS CI for 4c3aaad.
+- AC-7: E-018 and roadmap cover the milestone; appended E-019 records the user's approved draft-resumption exception without changing TASK.md or accepted errata.
+- AC-8: 363 tests pass after the fix; existing three-OS CI covers 4c3aaad only. CI and independent review of this fix are pending.
 
 ## Current working area
 
 - `HANDOFF.md`
-- `template/.agents/skills/`
-- `template/.claude/skills/start-task/`
-- `.agents/skills/start-task/`
-- `.claude/skills/start-task/`
-- `template/docs/`
-- `template/AGENTS.md.jinja`
-- `src/newproj/doctor.py`
-- `tests/`
-- `AGENTS.md`
+- `template/.agents/skills/start-task/SKILL.md`
+- `template/.agents/skills/start-task/references/interview.md`
 - `docs/ERRATA.md`
-- `docs/ROADMAP.md`
 
 ## Validation
 
-- PASS | uv run pytest | 363 passed; AC-1, AC-5, AC-6, AC-8 regression coverage; one expected Copier dirty-template warning | Linux, Python 3.13.5, Copier 9.18.2 | implementer
-- PASS | uv run pytest tests/test_agent_content.py tests/test_render.py | 160 passed after final skill wording changes; AC-1, AC-3, AC-4, AC-5, AC-8 | Linux | implementer
-- PASS | AC-2 manual inspection | every behavior in Context decisions 2 to 9 is present in start-task/SKILL.md | working-tree skill and interview reference | implementer
-- PASS | AC-3, AC-4 manual inspection | format is referenced rather than copied; interview guidance covers all four requested topics and is linked before Round 1 | working-tree skill, reference, handoff | implementer
-- PASS | AC-5, AC-7 manual inspection | all named instruction surfaces agree; protocol 114 lines; E-018 records decisions 1 to 11; M5.1 sits between M5 and M6 | working-tree diff | implementer
+- PASS | uv run pytest | 363 passed after draft-resumption fix; AC-1, AC-3 to AC-6, AC-8; one expected Copier dirty-template warning | Linux, Python 3.13.5, Copier 9.18.2 | implementer
+- PASS | AC-2, AC-3, AC-4, AC-5, AC-7 manual inspection | E-019 exception implemented; existing decisions and confirmation preserved; format still referenced; branch scenarios documented; other instruction surfaces unchanged | working-tree skill, reference, erratum | implementer
+- PASS | isolated Git recipe checks and state.py check | five documented Git/draft-state scenarios exercised with synthetic local remotes: new task, interrupted draft without upstream, imported draft, identifiable task branch after switching, stale target; draft check passes with expected report signals; interview routing inspected manually | Linux, temporary fixtures | implementer
 - PASS | git diff --check | no whitespace errors; full diff inspected; TASK.md, spec, state copies, bootstrap, accept, and Review section unchanged | working tree | implementer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | repository root | implementer
-- PASS | uv run --project <repo> newproj new demo --no-remote --template-path <repo>; uv run --project <repo> newproj doctor | generated demo; doctor: 19 PASS, 1 WARN, 0 FAIL; six skills present (AC-6, AC-8); warning is unauthenticated isolated gh config | scratch directory, synthetic Git identity, Linux | implementer
-- FAIL | uv run python <skill-creator>/scripts/quick_validate.py template/.agents/skills/start-task | generic validator rejects disable-model-invocation, which AC-1 and E-010 require; repository metadata, policy, pointer, and render tests pass | supplementary validator compatibility limitation | implementer
+- FAIL | .venv/bin/python <skill-creator>/scripts/quick_validate.py template/.agents/skills/start-task | unchanged generic-validator limitation: rejects disable-model-invocation required by AC-1 and E-010; repository metadata, policy, pointer, and render tests pass | supplementary check, Linux | implementer
+- NOT RUN | CI and independent review of the draft-resumption fix | user must commit and push these changes before new CI and committed-work review | working-tree changes only | implementer
 - PASS | uv run pytest | 363 passed, one expected Copier dirty-template warning; AC-1, AC-3 to AC-6, AC-8 | Linux, Python 3.13.5, commit 4c3aaad | reviewer
 - PASS | git diff --check 02c79ac...HEAD | no whitespace errors | commit 4c3aaad | reviewer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | repository root, commit 4c3aaad | reviewer
@@ -82,16 +72,16 @@ Findings:
 
 ## Exact next steps
 
-1. Obtain the user's decision on the draft-resumption exception below. Implementation and review are already committed (4c3aaad and 9497bf6); the PR already exists.
-2. After the decision, fix the draft-resumption path, clarify expected draft-state signals, add regression coverage, and append an erratum superseding the affected E-018 rules. Leave the active TASK.md and Review unchanged.
-3. Run relevant validation, stage the fixes, and print commit and push commands for the user. Then check three-OS CI for the new implementation and request independent review in a different agent.
+1. User commits the staged fix and pushes: `git commit -m "Fix start-task draft resumption" && git push`. The PR already exists.
+2. Check three-OS CI on that implementation commit; prior CI covers 4c3aaad only.
+3. User invokes review in a different agent against the committed fix. Leave TASK.md active and Review unchanged until then.
 
 ## Blockers / open questions
 
-- User decision required: May draft resumption reuse the existing task branch without creating it again, check the target branch's freshness instead of HEAD, and retain target-branch preflight and branch creation for new or imported drafts? Recommended: yes. This amends Context decisions 3 and 4 in TASK.md; the implementer must not change that active contract. Append the accepted amendment to ERRATA.md instead of rewriting E-018.
-- Review FAIL remains current. Inspection confirms the branch-preflight and branch-creation conflict in start-task/SKILL.md. The old next steps and pending-CI claims were stale; the implementation, review, and recorded CI results are already present. No implementation changes made during resume.
+- No unanswered user question. On 2026-10-19 the user approved reusing the existing draft branch, checking target freshness, and retaining branch creation for new/imported drafts; E-019 records the exception to TASK.md Context decisions 3 and 4.
+- The recorded FAIL is historical after these skill changes. Its blocking and minor findings are addressed by the implementer; a new independent review and three-OS CI remain pending. The generic skill validator's required-metadata incompatibility remains supplementary and nonblocking.
 
 ## Relevant decisions
 
 - The user's decisions for this milestone are under `## Context` in `TASK.md`.
-- E-018 records the new workflow and its amendments; E-007, E-008, E-010, and E-014 remain applicable.
+- E-019 supersedes E-018's conflicting branch rules; E-007, E-008, E-010, and E-014 remain applicable.
