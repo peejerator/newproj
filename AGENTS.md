@@ -58,7 +58,7 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - `TASK.md`: the current milestone.
 - `HANDOFF.md`: progress on it.
 - `template/docs/AGENT_PROTOCOL.md`: the operating protocol.
-- `template/.agents/skills/`: the `resume`, `handoff`, `bootstrap`, `review`, and `accept` procedures. Root `.agents/skills/` and `.claude/skills/` hold only pointers to them (ERRATA E-014); edit the canonical skill under `template/` and keep the pointers' frontmatter identical.
+- `template/.agents/skills/`: the `resume`, `handoff`, `bootstrap`, `start-task`, `review`, and `accept` procedures. Root `.agents/skills/` and `.claude/skills/` hold only pointers to them (ERRATA E-014); edit the canonical skill under `template/` and keep the pointers' frontmatter identical.
 - `docs/ROADMAP.md`: all Phase 1 milestones.
 - `docs/DECISIONS.md`: implementation decisions.
 - `docs/ERRATA.md`: changes to the frozen spec.

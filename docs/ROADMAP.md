@@ -14,7 +14,8 @@ Each milestone is one branch and one pull request. CI must pass on macOS and Win
 | M3 | Template content: hygiene files, vendored `.gitignore` snippets, `TASK.md` and `HANDOFF.md` rendered from the neutral copies, `AGENTS.md`, `CLAUDE.md`, `docs/DECISIONS.md`, `LICENSE` choices | 7 to 10, 12.8, 14, 18, 19 | Render tests pass: neutral files byte-identical, LF endings, ownership lists match `copier.yml` |
 | M4 | Core library: default-branch resolution, `TASK.md` and `HANDOFF.md` parser, recovery signals, `state.py`, and a `state.py` `check` mode that verifies the mechanical rules (fixed headings, status and outcome values, provenance, `Base commit:` on an active task, neutral-state bytes) | 4, 12.3, 13.1, 13.4, 17.2 | Signal and check-mode tests pass, including neutral state and missing `origin/HEAD` |
 | M5 | `newproj new` and `newproj doctor` (Phase 1 checks) | 20 intro, 20.1, 20.7, 21 | A fresh project is healthy before and after a lightweight change, on both machines |
-| M6 | `newproj adopt` | 20.2 | Tests pass for hygiene-file preservation, the renormalization report, and dirty-tree refusal |
+| M5.1 | User-invoked `start-task` skill and user-confirmed criteria | 11.2, 12.2, 12.4, 12.5, 16.6, 17, D8, D22; E-018 | Interview, draft, and confirmation procedures ship with matching pointers; doctor checks all six skills |
+| M6 | `newproj adopt` | 20.2 | Tests pass for hygiene-file preservation, the renormalization report, and dirty-tree refusal; first real use of `start-task` recorded in M6's handoff |
 | M7 | Behavioral fixtures B1, B4, B5, B6, B9, B10, B11 on Claude Code and Codex, two runs each | 23.2 | Results recorded |
 | M8 | Dogfooding and exit | 24.1 to 24.3, 28.1 | Two real projects in use; an interrupted session recovered by the other agent; tag `v0.1.0` |
 

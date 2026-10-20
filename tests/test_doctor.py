@@ -125,6 +125,7 @@ def test_fresh_project_has_no_fail(project: Path, capfd: pytest.CaptureFixture[s
     assert has(checks, "INFO", "Template update check: arrives with newproj update")
     assert has(checks, "PASS", "Default branch: main")
     assert has(checks, "INFO", "git remote set-head origin --auto")
+    assert has(checks, "PASS", "the 6 skills, and their pointers")
 
 
 def test_lightweight_change_keeps_no_fail(project: Path, capfd: pytest.CaptureFixture[str]) -> None:
@@ -259,23 +260,27 @@ def test_skill_missing(name: str, project: Path, capfd: pytest.CaptureFixture[st
 
 @pytest.mark.parametrize("edit, expected", [
     (lambda t: t.replace("---\n", "", 1), "has no well-formed frontmatter"),
-    (lambda t: t.replace("name: review", "name: other"), "expected 'review'"),
+    (lambda t: re.sub(r"name: [^\n]+", "name: other", t, count=1), "expected {name!r}"),
     (lambda t: re.sub(r"description: .*", "description:", t, count=1), "has no description"),
     (lambda t: t.replace("disable-model-invocation: true\n", ""), "lacks disable-model-invocation: true"),
 ])
-def test_skill_malformed(edit: object, expected: str, project: Path, capfd: pytest.CaptureFixture[str]) -> None:
-    path = project / ".agents" / "skills" / "review" / "SKILL.md"
+@pytest.mark.parametrize("name", ["review", "start-task"])
+def test_skill_malformed(name: str, edit: object, expected: str, project: Path,
+                         capfd: pytest.CaptureFixture[str]) -> None:
+    path = project / ".agents" / "skills" / name / "SKILL.md"
     path.write_text(edit(path.read_text(encoding="utf-8")), encoding="utf-8", newline="\n")  # type: ignore[operator]
     code, out, checks = run_doctor(project, capfd)
     assert code == 1
-    assert has(checks, "FAIL", "Malformed or incomplete skill: review")
-    assert expected in out
+    assert has(checks, "FAIL", f"Malformed or incomplete skill: {name}")
+    assert expected.format(name=name) in out
 
 
 @pytest.mark.parametrize("path, expected", [
     ("accept/agents/openai.yaml", "accept/agents/openai.yaml is missing"),
     ("handoff/neutral/TASK.md", "handoff/neutral/TASK.md is missing"),
     ("resume/scripts/state.py", "resume/scripts/state.py is missing"),
+    ("start-task/agents/openai.yaml", "start-task/agents/openai.yaml is missing"),
+    ("start-task/references/interview.md", "start-task/references/interview.md is missing"),
 ])
 def test_skill_file_missing(path: str, expected: str, project: Path, capfd: pytest.CaptureFixture[str]) -> None:
     (project / ".agents" / "skills" / path).unlink()
@@ -290,8 +295,9 @@ def test_skill_file_missing(path: str, expected: str, project: Path, capfd: pyte
     "policy:\n  other:\n    allow_implicit_invocation: false\n",
     "allow_implicit_invocation: false\n",
 ])
-def test_openai_yaml_policy(policy: str, project: Path, capfd: pytest.CaptureFixture[str]) -> None:
-    path = project / ".agents" / "skills" / "bootstrap" / "agents" / "openai.yaml"
+@pytest.mark.parametrize("name", ["bootstrap", "start-task"])
+def test_openai_yaml_policy(name: str, policy: str, project: Path, capfd: pytest.CaptureFixture[str]) -> None:
+    path = project / ".agents" / "skills" / name / "agents" / "openai.yaml"
     path.write_text(policy, encoding="utf-8", newline="\n")
     code, out, _ = run_doctor(project, capfd)
     assert code == 1
@@ -301,17 +307,19 @@ def test_openai_yaml_policy(policy: str, project: Path, capfd: pytest.CaptureFix
 @pytest.mark.parametrize("edit, expected", [
     (None, "is missing"),
     (lambda t: t.replace("description:", "description: changed"), "frontmatter differs"),
-    (lambda t: t.replace(".agents/skills/handoff/SKILL.md", "elsewhere.md"), "does not point to"),
+    (lambda t: re.sub(r"\.agents/skills/[^/]+/SKILL\.md", "elsewhere.md", t), "does not point to"),
 ])
-def test_broken_pointer(edit: object, expected: str, project: Path, capfd: pytest.CaptureFixture[str]) -> None:
-    path = project / ".claude" / "skills" / "handoff" / "SKILL.md"
+@pytest.mark.parametrize("name", ["handoff", "start-task"])
+def test_broken_pointer(name: str, edit: object, expected: str, project: Path,
+                        capfd: pytest.CaptureFixture[str]) -> None:
+    path = project / ".claude" / "skills" / name / "SKILL.md"
     if edit is None:
         path.unlink()
     else:
         path.write_text(edit(path.read_text(encoding="utf-8")), encoding="utf-8", newline="\n")  # type: ignore[operator]
     code, out, checks = run_doctor(project, capfd)
     assert code == 1
-    assert has(checks, "FAIL", "Broken Claude pointer: handoff")
+    assert has(checks, "FAIL", f"Broken Claude pointer: {name}")
     assert expected in out
 
 

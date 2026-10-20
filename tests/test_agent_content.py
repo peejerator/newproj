@@ -14,7 +14,7 @@ NEUTRAL = TEMPLATE / ".agents" / "skills" / "handoff" / "neutral"
 
 # Agents invoke these on their own; the user invokes the others (ERRATA E-010).
 MODEL_SKILLS = ["resume", "handoff"]
-USER_SKILLS = ["bootstrap", "review", "accept"]
+USER_SKILLS = ["bootstrap", "start-task", "review", "accept"]
 SKILLS = MODEL_SKILLS + USER_SKILLS
 OPENAI_YAML = "policy:\n  allow_implicit_invocation: false\n"
 
@@ -185,8 +185,25 @@ def test_resume_gives_state_py_and_git_fallback() -> None:
 def test_prompt_adapters() -> None:
     headings = [line for line in read(PROMPTS).splitlines() if line.startswith("## ")]
     assert headings == [
-        "## What to upload", "## Resume", "## Handoff", "## Bootstrap", "## Review", "## Accept",
+        "## What to upload", "## Resume", "## Handoff", "## Bootstrap", "## Start a task", "## Review", "## Accept",
     ]
+
+
+def test_confirmation_marker_matches_review() -> None:
+    marker = "Acceptance criteria confirmed by the user: <YYYY-MM-DD>"
+    for name in ["start-task", "review"]:
+        assert marker in read(canonical(name))
+
+
+def test_start_task_reuses_format_and_interview_reference() -> None:
+    text = read(canonical("start-task"))
+    assert "Writing a task" in text
+    assert "references/interview.md" in text
+    assert (canonical("start-task").parent / "references" / "interview.md").is_file()
+    # The contract schema has one home, even as start-task discusses its lifecycle.
+    for heading in ["# Task", "## Goal", "## Acceptance criteria", "## Do not change"]:
+        assert heading not in text.splitlines()
+    assert "Implement the active task in TASK.md and verify its acceptance criteria." in text
 
 
 def agent_files() -> list[Path]:

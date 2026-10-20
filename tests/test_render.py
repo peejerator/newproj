@@ -19,10 +19,10 @@ ERRATA = ROOT / "docs" / "ERRATA.md"
 SNIPPETS = TEMPLATE / "_includes" / "gitignore"
 NEUTRAL = ".agents/skills/handoff/neutral"
 
-SKILLS = ["resume", "handoff", "bootstrap", "review", "accept"]
-USER_SKILLS = ["bootstrap", "review", "accept"]
+SKILLS = ["resume", "handoff", "bootstrap", "start-task", "review", "accept"]
+USER_SKILLS = ["bootstrap", "start-task", "review", "accept"]
 
-# Spec section 7, adjusted by ERRATA E-011, E-012, and E-016, plus state.py (D-002).
+# Spec section 7, adjusted by ERRATA E-011, E-012, E-016, E-018, plus state.py (D-002).
 # LICENSE is added when chosen.
 LAYOUT = {
     "AGENTS.md",
@@ -43,6 +43,7 @@ LAYOUT = {
     f"{NEUTRAL}/HANDOFF.md",
     *(f".agents/skills/{name}/SKILL.md" for name in SKILLS),
     ".agents/skills/resume/scripts/state.py",
+    ".agents/skills/start-task/references/interview.md",
     *(f".agents/skills/{name}/agents/openai.yaml" for name in USER_SKILLS),
     *(f".claude/skills/{name}/SKILL.md" for name in SKILLS),
 }
@@ -154,6 +155,23 @@ def test_neutral_files_rendered(case: tuple[dict[str, object], Path]) -> None:
     for name in ["TASK.md", "HANDOFF.md"]:
         assert (project / name).read_bytes() == (project / NEUTRAL / name).read_bytes()
         assert (project / name).read_bytes() == (TEMPLATE / NEUTRAL / name).read_bytes()
+
+
+def test_rendered_start_task(case: tuple[dict[str, object], Path]) -> None:
+    _, project = case
+    base = Path(".agents/skills/start-task")
+    source = read(project / base / "SKILL.md")
+    canonical_frontmatter = source.split("---\n", 2)[1]
+    fields = yaml.safe_load(canonical_frontmatter)
+    assert fields["name"] == "start-task"
+    assert fields["description"]
+    assert fields["disable-model-invocation"] is True
+    pointer = read(project / ".claude/skills/start-task/SKILL.md")
+    assert pointer.split("---\n", 2)[1] == canonical_frontmatter
+    assert "Read and follow `.agents/skills/start-task/SKILL.md`." in pointer
+    policy = yaml.safe_load(read(project / base / "agents/openai.yaml"))
+    assert policy["policy"]["allow_implicit_invocation"] is False
+    assert read(project / base / "references/interview.md") == read(TEMPLATE / base / "references/interview.md")
 
 
 def test_neutral_text_has_one_home() -> None:

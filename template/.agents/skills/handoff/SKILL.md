@@ -92,7 +92,7 @@ Rules:
 
 ## Writing a task
 
-Use this when escalating lightweight work, or when the user asks for a standard task. Write `TASK.md` with these lines and headings, spelled exactly:
+When the user asks for a new task, use the user-invoked `start-task` skill. This section remains its format reference and the path for escalating unfinished lightweight work. Write `TASK.md` with these lines and headings, spelled exactly:
 
 ```markdown
 # Task
@@ -122,6 +122,7 @@ PR:
 ## Open questions
 ```
 
+- During a `start-task` interview, use this format with `Status: draft`; leave `Task ID:`, `Base commit:`, and `Target branch:` empty until activation. The remaining rules describe writing an active standard task, either after confirmation through `start-task` or on escalation.
 - `Base commit:` is the pre-implementation code state, copied from the output of `git rev-parse HEAD`, never typed. If implementation commits already exist, use the commit before the first of them and say so under `## Context`. The `review` skill diffs against it.
 - `Target branch:` is the default branch unless the user names another. Find it with `git symbolic-ref --short refs/remotes/origin/HEAD` and drop the `origin/` prefix; if that fails, ask the user.
 - Leave `Task ID:` empty; only formal activation sets it.

@@ -23,8 +23,8 @@ PROTOCOL_LINE = "At the start of every session, read and follow `docs/AGENT_PROT
 CLAUDE_IMPORTS = ["@AGENTS.md", "@docs/AGENT_PROTOCOL.md"]
 REQUIRED = ["AGENTS.md", "TASK.md", "HANDOFF.md", "docs/DECISIONS.md"]  # spec section 19.2
 OPTIONAL = ["CLAUDE.md", "README.md", "LICENSE", ".env.example"]
-SKILLS = ["resume", "handoff", "bootstrap", "review", "accept"]
-USER_SKILLS = ["bootstrap", "review", "accept"]  # ERRATA E-010
+SKILLS = ["resume", "handoff", "bootstrap", "start-task", "review", "accept"]
+USER_SKILLS = ["bootstrap", "start-task", "review", "accept"]  # ERRATA E-010, E-018
 AGENTS_BUDGET = 150
 PROTOCOL_BUDGET = 120
 HOOKS_PATH = ".githooks"
@@ -270,6 +270,8 @@ def skill_problems(root: Path, name: str) -> list[str]:
                      if not (root / base / "neutral" / doc).is_file()]
     if name == "resume" and not (root / base / "scripts" / "state.py").is_file():
         problems.append(f"{base}/scripts/state.py is missing")
+    if name == "start-task" and not (root / base / "references" / "interview.md").is_file():
+        problems.append(f"{base}/references/interview.md is missing")
     return problems
 
 

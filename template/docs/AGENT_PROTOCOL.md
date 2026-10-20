@@ -11,7 +11,7 @@ Precedence: the user's current instruction, then `AGENTS.md`, then this protocol
 3. If standard or formal work is in progress, reconcile intended, reported, and actual state before continuing (see Reconciliation). For a lightweight request with no task in progress, a glance is enough.
 4. Read only the additional documents the current work needs.
 
-The `resume` skill is for explicit resumption after an interruption or a switch of tool, agent, or machine. Ordinary sessions do not need it. The `bootstrap`, `review`, and `accept` skills run only when the user invokes them.
+The `resume` skill is for explicit resumption after an interruption or a switch of tool, agent, or machine. Ordinary sessions do not need it. The `start-task`, `bootstrap`, `review`, and `accept` skills run only when the user invokes them.
 
 ## Workflow tiers
 
