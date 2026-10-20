@@ -41,8 +41,11 @@ class Env:
 
 
 def write_gitconfig(path: Path, identity: bool = True) -> None:
+    # Detached maintenance can remove loose objects during Copier's local clone.
+    # Disable both maintenance and older Git's auto-GC in every test subprocess.
     lines = ["[commit]", "\tgpgsign = false", "[tag]", "\tgpgsign = false",
-             "[credential]", "\thelper = store", "[init]", "\tdefaultBranch = main"]
+             "[credential]", "\thelper = store", "[init]", "\tdefaultBranch = main",
+             "[maintenance]", "\tauto = false", "[gc]", "\tauto = 0"]
     if identity:
         lines += ["[user]", "\tname = Test User", "\temail = test@example.com"]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")

@@ -1,6 +1,6 @@
 # Handoff
 
-Last updated: 2026-10-19 by Codex
+Last updated: 2026-10-20 by Codex
 Branch: m5.1-start-task
 Task: standard
 Environment: other
@@ -11,46 +11,34 @@ validating
 
 ## Completed
 
-- AC-1: added canonical start-task metadata, invocation policy, three matching pointers, and root policy copy.
-- AC-2: documented sources, preconditions, rounds, confirmation, and handoff; user-approved E-019 now reuses an interrupted draft's task branch and checks the target's freshness. Expected draft-state warnings are explained.
-- AC-3: contract headers, baseline, target, and end-state criterion rules stay in handoff's Writing a task section.
-- AC-4: linked interview guidance covers facts, decisions, recommendations, comprehensive rounds, finish conditions, and five branch/draft scenarios.
-- AC-5: aligned protocol, review, resume, handoff, prompts, and both AGENTS files; protocol remains 114 lines.
-- AC-6: doctor checks six skills, start-task metadata/policy/reference, and its Claude pointer.
-- AC-7: E-018 and roadmap cover the milestone; appended E-019 records the user's approved draft-resumption exception without changing TASK.md or accepted errata.
-- AC-8: 363 tests pass after the fix; existing three-OS CI covers 4c3aaad only. CI and independent review of this fix are pending.
+- AC-1: canonical start-task metadata, invocation policy, three matching pointers, and root policy copy are implemented.
+- AC-2: sources, preconditions, rounds, confirmation, and handoff are implemented; E-019 allows interrupted draft resumption. Reused branches now must contain the fresh target before continuing.
+- AC-3: contract format remains in handoff's Writing a task section.
+- AC-4: interview guidance covers facts, decisions, rounds, finish conditions, and draft resumption, including stale and diverged task branches.
+- AC-5: protocol, review, resume, handoff, prompts, and both AGENTS files agree; protocol remains 114 lines.
+- AC-6: doctor checks six skills and the start-task metadata, policy, reference, and pointer.
+- AC-7: E-018, E-019, and roadmap record the milestone and approved draft-resumption exception; accepted records and TASK.md remain unchanged.
+- AC-8: 363 tests pass locally. Test Git configuration now disables maintenance.auto and gc.auto to prevent background repacking during Copier's local clone. Git 2.55 project-creation tests pass; CI on the new fix remains pending.
 
 ## Current working area
 
 - `HANDOFF.md`
+- `tests/conftest.py`
 - `template/.agents/skills/start-task/SKILL.md`
 - `template/.agents/skills/start-task/references/interview.md`
-- `docs/ERRATA.md`
 
 ## Validation
 
-- PASS | uv run pytest | 363 passed after draft-resumption fix; AC-1, AC-3 to AC-6, AC-8; one expected Copier dirty-template warning | Linux, Python 3.13.5, Copier 9.18.2 | implementer
-- PASS | AC-2, AC-3, AC-4, AC-5, AC-7 manual inspection | E-019 exception implemented; existing decisions and confirmation preserved; format still referenced; branch scenarios documented; other instruction surfaces unchanged | working-tree skill, reference, erratum | implementer
-- PASS | isolated Git recipe checks and state.py check | five documented Git/draft-state scenarios exercised with synthetic local remotes: new task, interrupted draft without upstream, imported draft, identifiable task branch after switching, stale target; draft check passes with expected report signals; interview routing inspected manually | Linux, temporary fixtures | implementer
-- PASS | git diff --check | no whitespace errors; full diff inspected; TASK.md, spec, state copies, bootstrap, accept, and Review section unchanged | working tree | implementer
+- PASS | uv run pytest | 363 passed; AC-1, AC-3 to AC-6, AC-8; one expected Copier dirty-template warning | Linux, Python 3.13.5, Git 2.47.3, Copier 9.18.2, working tree | implementer
+- PASS | PATH=<reviewer's Git 2.55 bin>:$PATH uv run pytest tests/test_new.py | 28 passed, including the previously failing tagged-template test; one expected Copier dirty-template warning; AC-8 | Linux, Git 2.55.0, working tree | implementer
+- PASS | Git 2.55 trace checks using write_gitconfig in a scratch repository | commit spawns no maintenance, gc, or repack child; positive control with maintenance.auto=true spawns maintenance; AC-8 | synthetic local repository, working-tree fixture | implementer
+- PASS | synthetic Git stale-target and divergence recipes | fresh target alone passes while ancestry fails; merge --ff-only repairs stale task branch; divergence refuses without changing HEAD or draft; AC-2, AC-4 | Git 2.55.0, local scratch remote, settled draft preserved | implementer
+- PASS | manual acceptance-criterion inspection | AC-1 to AC-7 remain implemented; ancestry guidance follows E-019's fresh-target intent; metadata, contract format, and accepted records unchanged | working tree and base-commit diff | implementer
+- PASS | newproj new demo --no-remote --template-path <repo>; newproj doctor <demo> | 20 PASS, 0 WARN, 0 FAIL; six skills and pointers pass; AC-6, AC-8 | scratch directory, synthetic Git identity, Linux, Git 2.47.3 | implementer
+- PASS | git diff --check and full diff inspection | no whitespace errors or unintended changes; TASK.md, frozen spec, state copies, bootstrap, accept, accepted errata, and Review section unchanged | working tree | implementer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | repository root | implementer
-- FAIL | .venv/bin/python <skill-creator>/scripts/quick_validate.py template/.agents/skills/start-task | unchanged generic-validator limitation: rejects disable-model-invocation required by AC-1 and E-010; repository metadata, policy, pointer, and render tests pass | supplementary check, Linux | implementer
-- NOT RUN | CI and independent review of the draft-resumption fix | user must commit and push these changes before new CI and committed-work review | working-tree changes only | implementer
-- PASS | uv run pytest | 363 passed, one expected Copier dirty-template warning; AC-1, AC-3 to AC-6, AC-8 | Linux, Python 3.13.5, commit 4c3aaad | reviewer
-- PASS | git diff --check 02c79ac...HEAD | no whitespace errors | commit 4c3aaad | reviewer
-- PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | repository root, commit 4c3aaad | reviewer
-- PASS | newproj new demo --no-remote --template-path <repo>; newproj doctor | 19 PASS, 1 WARN (default branch unresolved without a remote), 0 FAIL; "the 6 skills, and their pointers" PASS; AC-6, AC-8 | scratch directory, synthetic Git identity, Linux | reviewer
-- PASS | state.py check on a generated project with a draft TASK.md (empty Task ID, Base commit, Target branch) and neutral HANDOFF.md | no violations found; the report flags the pair as a metadata mismatch | scratch project, Linux | reviewer
-- PASS | CI push run 39352232732 and pull_request run 39352237929 | Tests on ubuntu-latest, macos-latest, windows-latest all success; AC-8 | commit 4c3aaad5e7a0cc050a58bd691f24cfb59294dbad | CI
-- PASS | uv run pytest | 363 passed, one expected Copier dirty-template warning; AC-1, AC-3 to AC-6, AC-8 | Linux, Python 3.13.5, commit d3825a8 | reviewer
-- PASS | git diff --check 02c79ac...HEAD | no whitespace errors; no em or en dashes in added lines; ERRATA diff since 4c3aaad is append only | commit d3825a8 | reviewer
-- PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | repository root, commit d3825a8 | reviewer
-- PASS | newproj new demo --no-remote --template-path <repo>; newproj doctor | 20 PASS, 0 WARN, 0 FAIL, 4 INFO; "the 6 skills, and their pointers" PASS; rendered interview.md has Draft resumption cases; AC-6, AC-8 | scratch directory, synthetic Git identity, Linux, commit d3825a8 | reviewer
-- PASS | synthetic Git recipe for the stale-target resumption path | target freshness check passes after the user pulls main and returns to the task branch, but the task branch does not contain main's new tip; see Review findings | scratch repositories, Linux, commit d3825a8 | reviewer
-- PASS | CI push run 39363083402 | Tests on ubuntu-latest, macos-latest, windows-latest all success; AC-8 | commit d3825a8c39665997bc7768836b26cf38f6e8b06b | CI
-- FAIL | CI pull_request run 39363087923, attempts 1 and 2 | macOS and Windows success; ubuntu-latest failed both attempts in tests/test_new.py::test_template_path_renders_working_tree_of_tagged_repository: git clone "failed to copy file to .../.git/objects/<xx>/<loose object>: No such file or directory" (1 failed, 362 passed); AC-8 | commit d3825a8c39665997bc7768836b26cf38f6e8b06b, git 2.55.0, ubuntu-24.04 image 20261012.334.1 | CI
-- FAIL | Git 2.55.0 built from source; commit in a copy of d3825a8's template, then local git clone after a 0 to 30 ms delay | 2/93 clones failed with the CI error under default config, 0/93 with maintenance.auto=false; GIT_TRACE2 shows the commit spawning detached git maintenance run --auto, then git repack -d, leaving 0 loose objects; AC-8 | Linux, scratch repositories | reviewer
-- PASS | object shard count for the test's template repository at each M5.1 commit | objects/17 holds 2 objects (trees 172097b..., 17904c7...) at d3825a8 and 0 at 02c79ac, 4549236, 4c3aaad, 9497bf6, b6a9a40 | git 2.47.3, scratch repositories | reviewer
+- NOT RUN | CI push and pull_request events on all three operating systems | requires the user to commit and push these fixes; prior d3825a8 pull_request CI failed on Ubuntu; AC-8 remains pending | working-tree fixes | implementer
+- NOT RUN | independent review of the new fixes | review requires committed work and a different agent; recorded Review below is preserved | working-tree fixes | implementer
 
 ## Review
 
@@ -88,16 +76,18 @@ Findings:
 
 ## Exact next steps
 
-1. User commits the staged fix and pushes: `git commit -m "Fix start-task draft resumption" && git push`. The PR already exists.
-2. Check three-OS CI on that implementation commit; prior CI covers 4c3aaad only.
-3. User invokes review in a different agent against the committed fix. Leave TASK.md active and Review unchanged until then.
+1. User commits the staged fixes and pushes: `git commit -m "Fix test clone race and draft branch freshness" && git push`. The PR already exists.
+2. Check both push and pull_request CI events on that commit; tests must pass on Linux, macOS, and Windows.
+3. User invokes review in a different agent against the committed fixes. Keep TASK.md active and the existing Review unchanged until that review.
 
 ## Blockers / open questions
 
-- No unanswered user question. On 2026-10-19 the user approved reusing the existing draft branch, checking target freshness, and retaining branch creation for new/imported drafts; E-019 records the exception to TASK.md Context decisions 3 and 4.
-- The recorded FAIL is historical after these skill changes. Its blocking and minor findings are addressed by the implementer; a new independent review and three-OS CI remain pending. The generic skill validator's required-metadata incompatibility remains supplementary and nonblocking.
+- No unanswered user question. E-019 records the user's approved draft-resumption exception to TASK.md Context decisions 3 and 4.
+- The recorded FAIL covers d3825a8. Its blocking fixture race and nonblocking branch-ancestry finding are addressed in the working tree; CI and independent review of these fixes remain pending.
+- Deferred outside M5.1 scope: real use of --template-path immediately after a commit can encounter the same Copier local-clone/background-repack race on Git 2.54+. This fix changes test isolation only; consider clone transport or retry behavior in a later task.
+- The generic skill-creator validator rejects disable-model-invocation required by AC-1 and E-010; this previously recorded supplementary limitation is nonblocking. Repository metadata, policy, pointer, and render tests pass.
 
 ## Relevant decisions
 
-- The user's decisions for this milestone are under `## Context` in `TASK.md`.
+- User-confirmed milestone decisions are under Context in TASK.md.
 - E-019 supersedes E-018's conflicting branch rules; E-007, E-008, E-010, and E-014 remain applicable.

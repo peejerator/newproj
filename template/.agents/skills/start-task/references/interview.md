@@ -29,10 +29,11 @@ Apply the branch preflight in `SKILL.md` before continuing an interview. These c
 | Starting state | Expected path |
 |---|---|
 | No task, on target `main`, with `main` up to date with its upstream | Propose a task branch in Round 1, create it after the answers and before writing, then record its name and the target under the draft's Context. |
-| Interrupted draft on its recorded task branch `m6-adopt`, with no upstream for `m6-adopt` and a neutral handoff | Check `main` against `main`'s upstream. Reuse `m6-adopt` without creating it again; preserve settled answers and continue unresolved questions or final confirmation. Expected draft-state report warnings do not require a handoff rewrite. |
+| Interrupted draft on its recorded task branch `m6-adopt`, with no upstream for `m6-adopt` and a neutral handoff | Check `main` against `main`'s upstream and require `git merge-base --is-ancestor main HEAD` to succeed. Reuse `m6-adopt` without creating it again; preserve settled answers and continue unresolved questions or final confirmation. Expected draft-state report warnings do not require a handoff rewrite. |
 | Draft imported from a session without repository access, on target `main`, with no existing task branch | Check `main`'s freshness, settle the branch name, then create that branch before updating the draft. |
 | Existing interview draft on `main` after the user switched away from its recorded `m6-adopt` branch | Stop and direct the user back to `m6-adopt`; do not try to create it again or treat it as an imported draft. |
-| Draft on `m6-adopt` while target `main` is behind its upstream | Stop and ask the user to update `main` and return to `m6-adopt`; the task branch's missing upstream is unrelated. |
+| Draft on `m6-adopt` while target `main` is behind its upstream | Stop and ask the user to update `main` and return to `m6-adopt`; then rerun preflight, including the ancestry check. The task branch's missing upstream is unrelated. |
+| Draft on `m6-adopt` after `main` was updated, with `main` up to date but not an ancestor of `HEAD` | Stop and tell the user to run `git merge --ff-only main` on `m6-adopt`, then rerun preflight. If it cannot fast-forward, the user resolves the divergence; never reset or rebase. Preserve the draft and settled answers. |
 
 If branch identity is ambiguous, resolve it with the user before writing. Do not reuse an unrelated current branch merely because a draft is present.
 
