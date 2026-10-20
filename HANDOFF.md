@@ -7,7 +7,7 @@ Environment: other
 
 ## Status
 
-validating
+in progress
 
 ## Completed
 
@@ -18,10 +18,11 @@ validating
 - AC-5: aligned protocol, review, resume, handoff, prompts, and both AGENTS files; protocol remains 114 lines.
 - AC-6: doctor checks six skills, start-task metadata/policy/reference, and its Claude pointer.
 - AC-7: appended E-018 covering decisions 1 to 11 and added the M5.1 roadmap row and M6 first-use reminder.
-- AC-8: render, pointer, confirmation-marker, policy, doctor failure, and healthy-project tests pass locally; three-OS CI pending.
+- AC-8: render, pointer, confirmation-marker, policy, doctor failure, and healthy-project tests pass locally; reviewer recorded passing three-OS CI for 4c3aaad.
 
 ## Current working area
 
+- `HANDOFF.md`
 - `template/.agents/skills/`
 - `template/.claude/skills/start-task/`
 - `.agents/skills/start-task/`
@@ -45,7 +46,6 @@ validating
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | repository root | implementer
 - PASS | uv run --project <repo> newproj new demo --no-remote --template-path <repo>; uv run --project <repo> newproj doctor | generated demo; doctor: 19 PASS, 1 WARN, 0 FAIL; six skills present (AC-6, AC-8); warning is unauthenticated isolated gh config | scratch directory, synthetic Git identity, Linux | implementer
 - FAIL | uv run python <skill-creator>/scripts/quick_validate.py template/.agents/skills/start-task | generic validator rejects disable-model-invocation, which AC-1 and E-010 require; repository metadata, policy, pointer, and render tests pass | supplementary validator compatibility limitation | implementer
-- NOT RUN | CI on Linux, macOS, Windows | changes are uncommitted; CI runs after the user's commit and push | environment: no CI run for these changes yet | implementer
 - PASS | uv run pytest | 363 passed, one expected Copier dirty-template warning; AC-1, AC-3 to AC-6, AC-8 | Linux, Python 3.13.5, commit 4c3aaad | reviewer
 - PASS | git diff --check 02c79ac...HEAD | no whitespace errors | commit 4c3aaad | reviewer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | repository root, commit 4c3aaad | reviewer
@@ -82,13 +82,14 @@ Findings:
 
 ## Exact next steps
 
-1. User commits the staged implementation and pushes: `git commit -m "Implement M5.1 start-task skill" && git push`. The PR already exists.
-2. Check CI on the resulting commit on Linux, macOS, and Windows; AC-8 remains pending until all three pass.
-3. User invokes review in a different agent against the committed implementation; instruction-file changes warrant independent review. Leave TASK.md active and Review unchanged until then.
+1. Obtain the user's decision on the draft-resumption exception below. Implementation and review are already committed (4c3aaad and 9497bf6); the PR already exists.
+2. After the decision, fix the draft-resumption path, clarify expected draft-state signals, add regression coverage, and append an erratum superseding the affected E-018 rules. Leave the active TASK.md and Review unchanged.
+3. Run relevant validation, stage the fixes, and print commit and push commands for the user. Then check three-OS CI for the new implementation and request independent review in a different agent.
 
 ## Blockers / open questions
 
-- No implementation blocker. Three-OS CI and independent review are pending; the generic skill validator's unsupported required metadata is recorded above.
+- User decision required: May draft resumption reuse the existing task branch without creating it again, check the target branch's freshness instead of HEAD, and retain target-branch preflight and branch creation for new or imported drafts? Recommended: yes. This amends Context decisions 3 and 4 in TASK.md; the implementer must not change that active contract. Append the accepted amendment to ERRATA.md instead of rewriting E-018.
+- Review FAIL remains current. Inspection confirms the branch-preflight and branch-creation conflict in start-task/SKILL.md. The old next steps and pending-CI claims were stale; the implementation, review, and recorded CI results are already present. No implementation changes made during resume.
 
 ## Relevant decisions
 
