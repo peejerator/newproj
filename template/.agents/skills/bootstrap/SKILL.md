@@ -47,7 +47,7 @@ Fit the template's agent files to an existing project without losing anything th
    - Otherwise copy `.agents/skills/handoff/neutral/TASK.md` byte for byte.
 9. `HANDOFF.md`, after the same collision check: a byte-for-byte copy of `.agents/skills/handoff/neutral/HANDOFF.md` if `TASK.md` is neutral; otherwise the `handoff` skill's format with `## Status` set to `not started` and `Outcome: none` under `## Review`.
 10. Hygiene files. Report, but do not create or edit:
-    - a missing LF rule: `git check-attr text eol -- probe.txt` should show `text: auto` (or `set`) and `eol: lf`, as `* text=auto eol=lf` in `.gitattributes` gives. If committed files would change (`git ls-files --eol` shows `i/crlf` or `i/mixed`), say that the fix needs its own commit with `git add --renormalize .`;
+    - a missing general LF rule: `git check-attr text eol -- probe probe.txt .probe dir/probe.zzz` should show `text: auto` (or `set`) and `eol: lf` for every path, as `* text=auto eol=lf` in `.gitattributes` gives. A rule that covers only some of the paths, such as `*.txt text=auto eol=lf`, is not a general LF rule. If committed files would change (`git ls-files --eol` shows `i/crlf` or `i/mixed`), say that the fix needs its own commit with `git add --renormalize .`;
     - missing required `.gitignore` entries: `.env`, `.env.*`, `!.env.example`, and `context.md` (`git check-ignore --no-index <path>` tests them).
 
     Recommend `newproj adopt` if it has not run, or the manual fix.

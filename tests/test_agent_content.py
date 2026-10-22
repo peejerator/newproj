@@ -1,6 +1,7 @@
 """Check the agent content shipped in the template against its fixed contracts."""
 
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -243,6 +244,24 @@ def test_bootstrap_collisions_and_required_files() -> None:
                    "git add --renormalize .", "`newproj adopt`"]:
         assert phrase in text, phrase
     assert "applied only with the user's approval" in text
+
+
+@pytest.mark.parametrize(("attributes", "general"), [("* text=auto eol=lf\n", True),
+                                                     ("*.txt text=auto eol=lf\n", False)])
+def test_bootstrap_lf_probe_detects_general_rule(attributes: str, general: bool, tmp_path: Path) -> None:
+    # Run the check the skill prescribes, so a recipe that a narrow rule satisfies fails here.
+    match = re.search(r"`git check-attr text eol -- ([^`]+)`", read(canonical("bootstrap")))
+    assert match
+    probes = match.group(1).split()
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / ".gitattributes").write_text(attributes, encoding="utf-8", newline="\n")
+    out = subprocess.run(["git", "check-attr", "text", "eol", "--", *probes], cwd=tmp_path, check=True,
+                         capture_output=True, text=True).stdout
+    values: dict[str, dict[str, str]] = {probe: {} for probe in probes}
+    for line in out.splitlines():
+        path, attribute, value = line.rsplit(": ", 2)
+        values[path][attribute] = value
+    assert all(v["text"] in ("auto", "set") and v["eol"] == "lf" for v in values.values()) is general
 
 
 def test_bootstrap_decisions_reference_matches_template() -> None:

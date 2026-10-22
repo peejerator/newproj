@@ -30,11 +30,13 @@ validating
   - F2: a destination that is a directory or other non-regular entry (for example a `.gitignore/` or `AGENTS.md/` directory) fails preflight with the paths listed.
   - F3: the LF rule check probes four paths (no extension, `.txt`, dotfile, subdirectory with an unknown extension); a narrower rule such as `*.txt text=auto eol=lf` is preserved and reported as "no general LF rule", exit 1.
   - Regression tests added to `tests/test_adopt.py` for each case; symlink tests skip where links cannot be created, and a Windows-only test checks that a junction counts as a link.
+- Follow-up review FAIL fix (AC-9):
+  - F4: bootstrap step 10 now probes four paths (`probe probe.txt .probe dir/probe.zzz`), mirroring the CLI, requires `text: auto` or `set` and `eol: lf` for every path, and names `*.txt text=auto eol=lf` as not a general LF rule; still report only. `tests/test_agent_content.py::test_bootstrap_lf_probe_detects_general_rule` extracts the skill's command and runs it against a general rule (passes) and a txt-only rule (detected); it fails against the previous single-probe recipe.
 
 ## Current working area
 
 - `src/newproj/adopt.py`, `src/newproj/source.py`, `src/newproj/new.py`, `src/newproj/cli.py`, `src/newproj/doctor.py`
-- `template/docs/AGENT_PROTOCOL.md`, `template/.agents/skills/handoff/SKILL.md`, `template/.agents/skills/bootstrap/`
+- `template/docs/AGENT_PROTOCOL.md`, `template/.agents/skills/handoff/SKILL.md`, `template/.agents/skills/bootstrap/` (F4: `SKILL.md` step 10)
 - `docs/ERRATA.md`, `docs/DECISIONS.md`, `AGENTS.md`, `README.md`
 - `tests/test_adopt.py`, `tests/test_agent_content.py`, `tests/test_cli.py`, `tests/test_new.py`, `tests/test_render.py`, `tests/conftest.py`
 
@@ -58,6 +60,9 @@ validating
 - PASS | gh pr view --json headRefOid,statusCheckRollup | exact reviewed HEAD matches PR 36; Linux and macOS jobs passed; Windows jobs still running | https://github.com/peejerator/newproj/actions/runs/39713993482 and https://github.com/peejerator/newproj/actions/runs/39713986690 | reviewer
 - NOT RUN | completed Windows CI verification for reviewed HEAD | environment: exact-commit Windows jobs still in progress; AC-12 remains unverified | PR 36, reviewed HEAD | reviewer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found, including the completed review record | repository root | reviewer
+- PASS | uv run pytest after the F4 fix | 411 passed, 1 skipped (Windows junction), one expected Copier warning; new LF probe regression passes for both rules and fails when run against the previous skill text; AC-9, AC-12 | Linux, Python 3.13.5, Copier 9.18.2, working tree | implementer
+- PASS | ruff --select F, git diff --check, state.py check after the F4 fix | no findings, no whitespace errors, no violations | working tree | implementer
+- NOT RUN | CI on Linux, macOS, and Windows for the F4 fix, and completed Windows CI for b818487 | requires the user to commit and push; AC-12 | working tree | implementer
 
 ## Review
 
@@ -93,8 +98,8 @@ Findings:
 
 ## Exact next steps
 
-1. The user commits and pushes the F1 to F3 fixes to the open pull request; confirm CI passes on all three operating systems, including the link tests (AC-12).
-2. Rerun the `review` skill in a different agent against the committed fixes.
+1. The user commits and pushes the F4 fix to PR 36; confirm CI passes on Linux, macOS, and Windows, including the link and junction tests (AC-12).
+2. Rerun the `review` skill in a different agent against the committed fix.
 
 ## Blockers / open questions
 
