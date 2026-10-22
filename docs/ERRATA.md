@@ -228,3 +228,21 @@ Observed failure: the M5.1 review at `4c3aaad` found that an interrupted intervi
 Resolution: for an interrupted draft, require the current branch to be the draft's agreed task branch and reuse it without `git switch -c` or an upstream requirement for that task branch. Check freshness of the target branch against its own upstream after fetching its configured remote, regardless of the current branch; both ahead and behind counts must be zero. If behind, the user updates the target and returns to the task branch. New tasks and drafts imported on the target without an existing task branch retain target-branch preflight and branch creation before writing. A draft associated with an existing task branch must be resumed there, rather than creating that branch again from the target. Record the agreed task branch and target under the draft's Context so another session can identify them while the activation-time headers remain empty; resolve ambiguous identity with the user before writing. Preserve settled answers and continue the remaining questions or final confirmation. The skill still never commits, pushes, or pulls.
 
 An uncommitted draft with a neutral handoff is expected during an interview. `state.py`'s neutral-state mismatch and local-task-change warning alone do not block continuation or require repairs; other discrepancies still need reconciliation. The interview reference documents the new-task, interrupted-draft, imported-draft, wrong-branch, and stale-target paths. This entry supersedes the conflicting parts of E-018 decisions 3 and 4 and clarifies decision 6; the active M5.1 contract remains unchanged.
+
+## E-020: Mapped durable-document locations, and bootstrap's collision and required-file steps
+
+Date: 2026-10-21
+Sections: 11.9, 15.3, 17.4
+
+Observed failure: in the ohm-manager adoption trial (2026-10-09), the protocol and the `handoff` skill sent durable findings only to `docs/research/` and `docs/specs/`, but the project keeps them in topic documents directly under `docs/`, so its `AGENTS.md` needed a hand-written mapping line (issues #3, #14). The project also used "handoff" for an unrelated document, which collided with `HANDOFF.md`, and nothing in `bootstrap` asked for that check (issues #4, #19). Manual adoption left `docs/DECISIONS.md` and `.gitattributes` missing, although doctor fails without `docs/DECISIONS.md` (issues #6, #18). The user confirmed the following on 2026-10-21 (M6 `TASK.md`).
+
+Resolution:
+
+1. Sections 11.9 and 15.3: durable findings go in the locations `AGENTS.md` names, or in `docs/research/` and `docs/specs/` if it names none. Mapped locations are inside the repository. One mapping line may cover both defaults or name a location for each; security assumptions (`docs/research/security.md`) follow the `docs/research/` mapping. `docs/DECISIONS.md` stays fixed and cannot be mapped. Doctor does not check the mapping. The protocol's Durable documents rule and the `handoff` skill's findings step use this wording.
+2. Section 17.4, `bootstrap` also:
+   - detects existing durable-document locations and proposes the mapping line under `AGENTS.md` "Where to find more", reporting external stores (wikis, Notion, trackers) as collisions, and reports an existing ADR directory, to which `docs/DECISIONS.md` may point;
+   - searches existing instruction files and `docs/` for the protocol terms task, handoff, review, validation, decision, accept/acceptance, and milestone, and reports each collision with a proposed rename or `AGENTS.md` mapping line; no glossary file;
+   - creates each missing required file (`AGENTS.md`, `TASK.md`, `HANDOFF.md`, `docs/DECISIONS.md`) and lists what it created. `docs/DECISIONS.md` is copied from `.agents/skills/bootstrap/references/DECISIONS.md`, which is byte-identical to the template's `docs/DECISIONS.md` (tested);
+   - reports, without creating, a missing `.gitattributes` LF rule or missing required `.gitignore` entries (section 18.3), recommending `newproj adopt` or a manual fix.
+
+   Every proposal other than creating a missing required file is applied only with the user's approval.

@@ -7,11 +7,14 @@ import sys
 from importlib.metadata import version
 from pathlib import Path
 
+import copier
+
 from newproj.tools import run
 
 # docs/DECISIONS.md, D-001.
 TEMPLATE_URL = "https://github.com/peejerator/newproj.git"
 FETCH_TIMEOUT = 300
+ANSWERS = ".copier-answers.yml"
 
 
 class SourceError(Exception):
@@ -65,3 +68,28 @@ def template_clone(name: str) -> Path:
         f"Install a released version (uv tool install git+{TEMPLATE_URL.removesuffix('.git')}@<tag>), "
         "or try again once the network is available."
     )
+
+
+def render(name: str, target: Path, template_path: Path | None, quiet: bool = False) -> None:
+    """Run `copier copy` at the CLI's tag, or from `template_path`. Runs no Copier tasks (spec 19.3).
+
+    `quiet` hides Copier's list of the files it writes.
+    """
+    interactive = sys.stdin.isatty()
+    if not interactive:
+        print("stdin is not a terminal: using the template's default answers.")
+    options = dict(data={"project_name": name}, defaults=not interactive, skip_tasks=True, quiet=quiet)
+    if template_path is not None:
+        # HEAD renders the working tree, uncommitted changes included, even when the
+        # directory is a Git repository with release tags (E-002).
+        copier.run_copy(str(template_path.resolve()), target, vcs_ref="HEAD", **options)
+        return
+    name_tag = tag()
+    clone = template_clone(name_tag)
+    copier.run_copy(str(clone), target, vcs_ref=name_tag, **options)
+    # Record the repository URL, not this machine's cache path, so the answers file
+    # works on every machine and leaks no local path.
+    answers = target / ANSWERS
+    lines = answers.read_bytes().decode("utf-8").splitlines(keepends=True)
+    lines = [f"_src_path: {TEMPLATE_URL}\n" if line.startswith("_src_path:") else line for line in lines]
+    answers.write_bytes("".join(lines).encode("utf-8"))

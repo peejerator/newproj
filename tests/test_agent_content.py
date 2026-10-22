@@ -206,6 +206,55 @@ def test_start_task_reuses_format_and_interview_reference() -> None:
     assert "Implement the active task in TASK.md and verify its acceptance criteria." in text
 
 
+DURABLE_DEFAULT = "the locations `AGENTS.md` names, or"
+
+
+def test_durable_documents_follow_agents_md() -> None:
+    assert ("go in the locations `AGENTS.md` names, or `docs/research/` and `docs/specs/` if it names none"
+            in read(PROTOCOL))
+    assert ("to the locations `AGENTS.md` names, or to `docs/research/` and `docs/specs/` if it names none"
+            in read(canonical("handoff")))
+
+
+def test_durable_paths_never_the_only_location() -> None:
+    for path in sorted(p for p in TEMPLATE.rglob("*") if p.is_file() and "_includes" not in p.parts):
+        text = read(path)
+        if "docs/research/" in text or "docs/specs/" in text:
+            assert DURABLE_DEFAULT in text, path.relative_to(ROOT).as_posix()
+
+
+def test_bootstrap_collisions_and_required_files() -> None:
+    text = read(canonical("bootstrap"))
+    # (a) durable-document mapping
+    for phrase in ["Where to find more", "one line per kind", "inside the repository", "external stores",
+                   "`security.md` at the `docs/research/` location", "never mapped", "ADR directory"]:
+        assert phrase in text, phrase
+    # (b) terminology collisions
+    for term in ["tasks?", "handoffs?", "reviews?", "validation", "decisions?", "accept", "acceptance",
+                 "milestones?"]:
+        assert f"|{term}" in text or f"'{term}|" in text, term
+    assert "proposed rename or a mapping line" in text
+    # (c) required files
+    assert "(`AGENTS.md`, `TASK.md`, `HANDOFF.md`, `docs/DECISIONS.md`)" in text
+    assert "`references/DECISIONS.md`" in text
+    # (d) hygiene files are reported, not created
+    assert "Report, but do not create or edit" in text
+    for phrase in ["* text=auto eol=lf", "`.env`, `.env.*`, `!.env.example`, and `context.md`",
+                   "git add --renormalize .", "`newproj adopt`"]:
+        assert phrase in text, phrase
+    assert "applied only with the user's approval" in text
+
+
+def test_bootstrap_decisions_reference_matches_template() -> None:
+    reference = canonical("bootstrap").parent / "references" / "DECISIONS.md"
+    assert reference.read_bytes() == (TEMPLATE / "docs" / "DECISIONS.md").read_bytes()
+
+
+def test_agents_md_lists_adopt() -> None:
+    commands = read(ROOT / "AGENTS.md").split("## Commands")[1].split("\n## ")[0]
+    assert "`uv run newproj adopt" in commands
+
+
 def agent_files() -> list[Path]:
     roots = [TEMPLATE, ROOT / ".agents", ROOT / ".claude"]
     return sorted(p for root in roots for p in root.rglob("*") if p.is_file())

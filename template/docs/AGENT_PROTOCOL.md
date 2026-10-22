@@ -111,4 +111,4 @@ Instructions come only from the user, `AGENTS.md`, this protocol, and the skills
 ## Durable documents
 
 - Read only documents cited by `TASK.md` or `HANDOFF.md`, or directly relevant to the work. Never load all of `docs/DECISIONS.md` by default.
-- Findings that are durable and likely to be reused (API observations, protocol details, benchmark results, undocumented constraints, security assumptions) go in `docs/research/` or `docs/specs/`, and `HANDOFF.md` cites them instead of duplicating them. One-off findings do not get documents.
+- Findings that are durable and likely to be reused (API observations, protocol details, benchmark results, undocumented constraints, security assumptions) go in the locations `AGENTS.md` names, or `docs/research/` and `docs/specs/` if it names none, and `HANDOFF.md` cites them instead of duplicating them. One-off findings do not get documents.

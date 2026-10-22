@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from newproj import cli
+from newproj import cli, source
 
 ROOT = Path(__file__).resolve().parent.parent
 FAKE_GH = Path(__file__).resolve().parent / "fake_gh.py"
@@ -130,3 +130,15 @@ def project(env: Env, base_project: Path) -> Path:
     dest = env.work / "demo"
     shutil.copytree(base_project, dest, symlinks=True)
     return dest
+
+
+@pytest.fixture
+def upstream(env: Env, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """A local template repository standing in for the GitHub URL, and a private cache directory."""
+    repo = env.template
+    git(repo, "init", "--quiet", "-b", "main")
+    git(repo, "add", "-A")
+    git(repo, "commit", "--quiet", "-m", "Template")
+    monkeypatch.setattr(source, "TEMPLATE_URL", str(repo))
+    monkeypatch.setattr(source, "cache_dir", lambda: env.tmp / "cache")
+    return repo

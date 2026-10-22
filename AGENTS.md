@@ -24,9 +24,10 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - Run the CLI from source: `uv run newproj --help`
 - Copy `src/newproj/state.py` into the template after changing it (a test asserts the copies are byte-identical, D-002): `uv run python scripts/sync_state.py`
 - Create a project from the working tree, for development: `uv run newproj new <name> --no-remote --template-path <path to this repository>` (E-002)
+- Adopt an existing repository from the working tree, for development: `uv run newproj adopt [path] --template-path <path to this repository>` (it never commits; run the `bootstrap` skill afterwards)
 - Check a project: `uv run newproj doctor [path]`
 
-(Added by milestone M1, extended in M4 and M5; update this section when commands change.)
+(Added by milestone M1, extended in M4, M5, and M6; update this section when commands change.)
 
 ## Environment
 

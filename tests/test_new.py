@@ -45,13 +45,13 @@ def test_new_no_remote(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
 
 def test_new_runs_no_copier_tasks(env: Env, monkeypatch: pytest.MonkeyPatch) -> None:
     calls = []
-    original = new.copier.run_copy
+    original = source.copier.run_copy
 
     def spy(*args: object, **kwargs: object) -> object:
         calls.append(kwargs)
         return original(*args, **kwargs)
 
-    monkeypatch.setattr(new.copier, "run_copy", spy)
+    monkeypatch.setattr(source.copier, "run_copy", spy)
     assert new_local(env, "--no-remote") == 0
     assert len(calls) == 1 and calls[0]["skip_tasks"] is True
     assert calls[0]["data"] == {"project_name": "demo"}
@@ -201,18 +201,6 @@ def test_preflight_reports_every_problem(env: Env, capfd: pytest.CaptureFixture[
 
 
 # AC-1: template source
-
-
-@pytest.fixture
-def upstream(env: Env, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """A local template repository standing in for the GitHub URL, and a private cache directory."""
-    repo = env.template
-    git(repo, "init", "--quiet", "-b", "main")
-    git(repo, "add", "-A")
-    git(repo, "commit", "--quiet", "-m", "Template")
-    monkeypatch.setattr(source, "TEMPLATE_URL", str(repo))
-    monkeypatch.setattr(source, "cache_dir", lambda: env.tmp / "cache")
-    return repo
 
 
 def test_template_path_renders_working_tree_of_tagged_repository(env: Env, upstream: Path) -> None:

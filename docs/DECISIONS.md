@@ -109,3 +109,24 @@ Setuptools: supports the package, but adds configuration without a benefit for t
 ### Supersedes
 
 None
+
+## D-006: How `newproj adopt` preflights and reports
+
+Date: 2026-10-21
+Status: Accepted
+
+### Decision
+
+`newproj adopt` renders the template into a temporary directory with Copier, compares every rendered file with the repository, and only then copies the files it creates and appends the `.gitignore` block. Beyond the M6 interview decisions (`TASK.md`, Context), preflight also refuses a path that is a subdirectory of a repository rather than its root, and a repository that already has `.copier-answers.yml` (already adopted or generated; `newproj update` will handle those). The required `.gitignore` entries are the four env and bundle rules of spec 18.3 (`.env`, `.env.*`, `!.env.example`, `context.md`), detected by `git check-ignore` behavior rather than by line text; the OS and editor snippets are not appended. An existing `.gitattributes` passes when `git check-attr` reports `text` as `auto` or `set` and `eol` as `lf`. Files adopt creates that the project's ignore rules would ignore are reported for review.
+
+### Rationale
+
+Rendering first is the only way to know every template-owned collision before writing, so a preflight failure writes nothing. Behavior-based checks accept equivalent rules a project already has and avoid duplicate entries.
+
+### Alternatives considered
+
+`copier copy` straight into the repository with `_skip_if_exists`: it cannot detect a differing template-owned file before overwriting it. Appending the OS and editor snippets: noisy, and the VS Code rules can start ignoring files a project commits.
+
+### Supersedes
+
+None

@@ -8,13 +8,10 @@ import sys
 from importlib.metadata import version
 from pathlib import Path
 
-import copier
-
 from newproj import source
 from newproj.tools import git_config, run, which
 
 NAME = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
-ANSWERS = ".copier-answers.yml"
 HOOKS_PATH = ".githooks"
 SET_HEAD = ["git", "remote", "set-head", "origin", "--auto"]
 
@@ -65,28 +62,6 @@ def preflight(args: argparse.Namespace, target: Path) -> tuple[list[str], str]:
                 problems.append(f"could not read the GitHub user from gh api user ({result.err or 'empty reply'}); "
                                 "pass --owner")
     return problems, owner
-
-
-def render(args: argparse.Namespace, target: Path) -> None:
-    """Run `copier copy` at the CLI's tag, or from --template-path. Runs no Copier tasks (spec 19.3)."""
-    interactive = sys.stdin.isatty()
-    if not interactive:
-        print("stdin is not a terminal: using the template's default answers.")
-    options = dict(data={"project_name": args.name}, defaults=not interactive, skip_tasks=True)
-    if args.template_path is not None:
-        # HEAD renders the working tree, uncommitted changes included, even when the
-        # directory is a Git repository with release tags (E-002).
-        copier.run_copy(str(args.template_path.resolve()), target, vcs_ref="HEAD", **options)
-        return
-    tag = source.tag()
-    clone = source.template_clone(tag)
-    copier.run_copy(str(clone), target, vcs_ref=tag, **options)
-    # Record the repository URL, not this machine's cache path, so the answers file
-    # works on every machine and leaks no local path.
-    answers = target / ANSWERS
-    lines = answers.read_bytes().decode("utf-8").splitlines(keepends=True)
-    lines = [f"_src_path: {source.TEMPLATE_URL}\n" if line.startswith("_src_path:") else line for line in lines]
-    answers.write_bytes("".join(lines).encode("utf-8"))
 
 
 def generated_files(target: Path) -> list[str]:
@@ -154,7 +129,7 @@ def main(args: argparse.Namespace) -> int:
             print(f"  - {problem}", file=sys.stderr)
         return 1
     try:
-        render(args, target)
+        source.render(args.name, target, args.template_path)
     except source.SourceError as error:
         print(f"newproj new: {error}", file=sys.stderr)
         return 1

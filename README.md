@@ -7,7 +7,7 @@ Status: in development (Phase 1). Not ready for use.
 ## What it does
 
 - `newproj new <name>` creates a project from a Copier template, initializes Git, and creates a private GitHub repository.
-- `newproj adopt` adds the same structure to an existing repository without overwriting its files.
+- `newproj adopt [path]` adds the same structure to an existing repository without overwriting its files, reports what needs review, and leaves the changes uncommitted for the `bootstrap` skill and the user.
 - `newproj doctor` checks the machine and the project for problems.
 
 Generated projects carry `AGENTS.md` (project instructions), `TASK.md` (intended work), and `HANDOFF.md` (reported progress), plus a shared agent protocol and skills that any repo-aware AI tool can follow.

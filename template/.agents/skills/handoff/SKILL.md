@@ -13,7 +13,7 @@ Bring `HANDOFF.md` up to date so that an agent with no access to this session ca
 2. Reconcile the repository against `TASK.md`: compare it and the current `HANDOFF.md` with `git status --short`, the diff, and recent commits (the `resume` skill lists the signals).
 3. Update `HANDOFF.md` in the format below. Record outcomes, not activities, and keep to the size guideline.
 4. Record validation in the entry format below, referencing acceptance criteria by ID.
-5. Move findings that are durable and likely to be reused to `docs/research/` or `docs/specs/`, and cite them in `HANDOFF.md` instead of copying them.
+5. Move findings that are durable and likely to be reused to the locations `AGENTS.md` names, or to `docs/research/` and `docs/specs/` if it names none, and cite them in `HANDOFF.md` instead of copying them.
 6. Record exact next steps and the relevant decision IDs from `docs/DECISIONS.md`.
 7. Record any concern about the task itself under `## Blockers / open questions`. Never edit an active `TASK.md`.
 8. Check the mechanical rules: run `uv run --no-project .agents/skills/resume/scripts/state.py check` from the repository root, or, where `uv` is unavailable, `python3 .agents/skills/resume/scripts/state.py check` on macOS and Linux or `py -3 .agents/skills/resume/scripts/state.py check` on Windows. It is read-only and prints each violation with its file and line. Fix violations in `HANDOFF.md`. Record a violation in an active `TASK.md` under `## Blockers / open questions` instead of fixing it. If no Python is available, check `HANDOFF.md` against the format and rules below by hand.

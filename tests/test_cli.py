@@ -36,11 +36,13 @@ def test_help(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_adopt_not_implemented(tmp_path: Path) -> None:
-    result = run_cli("adopt", cwd=tmp_path)
-    assert result.returncode == 2
-    assert result.stdout.strip() == "newproj adopt is not implemented yet."
-    assert result.stderr == ""
+def test_adopt_help(tmp_path: Path) -> None:
+    result = run_cli("adopt", "--help", cwd=tmp_path)
+    assert result.returncode == 0
+    for text in ["[path]", "--name", "default: the current directory"]:
+        assert text in result.stdout
+    assert "--template-path" not in result.stdout
+    assert "not implemented" not in result.stdout + result.stderr
 
 
 def test_new_requires_name(tmp_path: Path) -> None:

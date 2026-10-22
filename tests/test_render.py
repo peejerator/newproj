@@ -22,7 +22,7 @@ NEUTRAL = ".agents/skills/handoff/neutral"
 SKILLS = ["resume", "handoff", "bootstrap", "start-task", "review", "accept"]
 USER_SKILLS = ["bootstrap", "start-task", "review", "accept"]
 
-# Spec section 7, adjusted by ERRATA E-011, E-012, E-016, E-018, plus state.py (D-002).
+# Spec section 7, adjusted by ERRATA E-011, E-012, E-016, E-018, E-020, plus state.py (D-002).
 # LICENSE is added when chosen.
 LAYOUT = {
     "AGENTS.md",
@@ -44,6 +44,7 @@ LAYOUT = {
     *(f".agents/skills/{name}/SKILL.md" for name in SKILLS),
     ".agents/skills/resume/scripts/state.py",
     ".agents/skills/start-task/references/interview.md",
+    ".agents/skills/bootstrap/references/DECISIONS.md",
     *(f".agents/skills/{name}/agents/openai.yaml" for name in USER_SKILLS),
     *(f".claude/skills/{name}/SKILL.md" for name in SKILLS),
 }
