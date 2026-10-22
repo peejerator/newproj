@@ -64,37 +64,43 @@ validating
 - PASS | ruff --select F, git diff --check, state.py check after the F4 fix | no findings, no whitespace errors, no violations | working tree | implementer
 - NOT RUN | CI on Linux, macOS, and Windows for the F4 fix, and completed Windows CI for b818487 | requires the user to commit and push; AC-12 | working tree | implementer
 
+- PASS | uv run pytest | 411 passed, 1 skipped (Windows-only junction), one expected Copier warning; AC-1 to AC-10, AC-12, AC-13, including F4's executable LF-recipe regression | Linux, Python 3.13.5, Copier 9.18.2, reviewed HEAD 1e6ca5d | reviewer
+- PASS | uv run python /tmp/newproj_m6_review.py | scratch uv run newproj adopt exits 0, preserves existing bytes, stages and commits nothing; committed synthetic adoption gives doctor exit 0, 19 PASS, 1 WARN, 0 FAIL; AC-6, AC-7 | isolated fixtures and fake gh, Linux, reviewed HEAD 1e6ca5d | reviewer
+- PASS | GitHub connector: fetch_commit_workflow_runs, fetch_workflow_run_jobs, get_pr_info | PR 36 head equals reviewed HEAD; CI run 39714953910 and all Linux/macOS/Windows jobs succeeded; AC-12 | https://github.com/peejerator/newproj/actions/runs/39714953910, reviewed HEAD 1e6ca5d | reviewer
+- PASS | git diff --check 07a8bebfa71b4283689c150452a00421fd8ae035...HEAD and complete diff inspection | no whitespace errors, blocking regressions, or unintended changes; frozen spec and earlier decisions/errata unchanged; moved guidance checked against added lines | base-commit diff, reviewed HEAD 1e6ca5d | reviewer
+- PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found, including the completed PASS review record | repository root, reviewed HEAD 1e6ca5d | reviewer
+
 ## Review
 
-Outcome: FAIL
+Outcome: PASS
 Reviewer: Codex/GPT-6, 2026-10-21
-Reviewed at: b818487ca2efb3fdbd64d21b752367ba583f89be
+Reviewed at: 1e6ca5def98bc686442883d3acf5ad7f6e4f599f
 Contract: 41d16049f23f8e26ddcee34021daea37ceee6f39
 Working tree clean at review: yes
 Baseline: base-commit diff
 Artifact coverage: complete
 Validation provenance: reviewer-executed
 
-- AC-1: VERIFIED | Complete CLI wiring and help inspected; default current directory, name override, and hidden development option tests pass.
-- AC-2: VERIFIED | Terminal yes/no initialization and nonterminal refusal tests pass; no initialization without consent.
-- AC-3: VERIFIED | Dirty/staged/untracked, invalid-name, differing template-file, identical-file, link, and non-file preflight tests pass; additional file-parent probe writes nothing.
-- AC-4: VERIFIED | Project-file byte preservation, required-file creation, review flags, classification table, and bootstrap instructions inspected and tested; F1 and F2 destination gaps fixed.
-- AC-5: VERIFIED | Hygiene preservation, marked ignore append, editorconfig differences, renormalization report, and narrow/general LF-rule tests pass; F3 fixed in the CLI.
-- AC-6: VERIFIED | Remote HEAD resolution, default branch report, URL answers for tagged source, exit 0/1/2, and no staging/commits inspected and tested; local development source is the E-002 exception.
-- AC-7: VERIFIED | Reviewer ran scratch CLI adoption without AGENTS.md, committed the synthetic result, and ran doctor: exit 0 and 0 FAIL.
-- AC-8: VERIFIED | Added protocol/handoff lines preserve durable-findings guidance and allow AGENTS.md mappings; complete template content checks pass; protocol is 114 lines.
-- AC-9: UNSATISFIED | Mapping, terminology, required-file creation, approval rules, fixed decisions/ADRs, and pointer frontmatter inspected and tested; bootstrap's single txt LF probe misses a missing general LF rule (F4).
-- AC-10: VERIFIED | Decisions reference is byte-identical to template/docs/DECISIONS.md; identity test passes.
-- AC-11: VERIFIED | E-020 appends amendments to 11.9, 15.3, and 17.4; complete diff leaves existing ERRATA entries unchanged.
-- AC-12: NOT CHECKED | Adoption/content coverage and all 409 local tests pass; exact-commit Linux/macOS CI passed, but Windows jobs remain in progress, so the full CI requirement is not yet verified.
-- AC-13: VERIFIED | AGENTS.md Commands documents adopt; content test passes.
-- AC-14: VERIFIED | Committed Blockers section records first start-task use on 2026-10-20 to 2026-10-21, two rounds plus confirmation, and the wording friction.
+- AC-1: VERIFIED | Complete CLI wiring and help inspected; current-directory default, --name, and hidden --template-path checks pass.
+- AC-2: VERIFIED | Terminal yes/no initialization and nonterminal refusal checks pass, including unchanged plain-folder contents on refusal.
+- AC-3: VERIFIED | Dirty/staged/untracked, ignored files, invalid names, differing/identical template paths, links, and non-file destination checks pass; preflight rejects unsafe paths before adoption writes.
+- AC-4: VERIFIED | Project-owned bytes, missing-file creation, bootstrap-review flags, classification table, and bootstrap instructions inspected and tested.
+- AC-5: VERIFIED | Marked ignore append, hygiene preservation, editorconfig differences, LF coverage, and CRLF/mixed renormalization reporting inspected and tested.
+- AC-6: VERIFIED | Remote HEAD resolution, default branch report, tagged-source URL answers, exit statuses, and no staging/commits inspected and tested; scratch CLI adoption independently confirmed no index or HEAD changes. E-002 permits local-path answers for development renders.
+- AC-7: VERIFIED | Scratch repository without AGENTS.md adopted through the CLI; after committing the synthetic fixture, doctor exits 0 with 19 PASS, 1 WARN, and 0 FAIL.
+- AC-8: VERIFIED | Added protocol/handoff lines retain durable-findings guidance and prefer AGENTS.md mappings; complete template content checks pass; protocol is 114 lines.
+- AC-9: VERIFIED | Mapping, terminology, required-file creation, approval rules, fixed decisions/ADRs, hygiene reporting, and pointer frontmatter inspected and tested. Bootstrap's four-path LF recipe rejects the txt-only rule and accepts the general rule in executable regression tests.
+- AC-10: VERIFIED | Decisions reference matches template/docs/DECISIONS.md byte for byte; identity check passes.
+- AC-11: VERIFIED | E-020 appends the amendments to 11.9, 15.3, and 17.4; complete diff leaves earlier errata unchanged.
+- AC-12: VERIFIED | Adoption/content coverage inspected; 411 local tests pass, with one Windows-only junction test skipped on Linux. Exact-commit CI run 39714953910 passes Linux, macOS, and Windows.
+- AC-13: VERIFIED | AGENTS.md Commands lists adopt; content check passes.
+- AC-14: VERIFIED | Committed handoff records first start-task use on 2026-10-20 to 2026-10-21, two rounds plus confirmation, and the durable-documents wording friction.
 
 Findings:
-- F4 [P2]: Check general LF coverage in bootstrap, too (template/.agents/skills/bootstrap/SKILL.md:50). Step 10 prescribes only `git check-attr text eol -- probe.txt`. In a committed scratch repository with `.gitattributes` containing only `*.txt text=auto eol=lf`, that command gives the expected auto/lf output while `src/app.py` has both attributes unspecified. Manual bootstrap following this recipe misses the missing general LF rule required by AC-9(d); the CLI now detects the same case correctly. Expand the skill's check to representative paths covering more than .txt, preserve its report-only behavior, and guard the recipe with a regression check. Then rerun the content checks and independent review.
-- Prior findings F1 to F3 are resolved in the committed CLI fixes: directory links, dangling links, mutable .gitignore links, and non-file destinations fail preflight; a narrow LF rule requires review. Relevant regression tests pass locally.
-- Acceptance criteria were user-confirmed on 2026-10-21. This is a fresh Codex/GPT-6 review of work reported as implemented by Claude Code/claude-opus-5-5; the earlier review also used Codex/GPT-6.
-- Confirm Windows CI on the reviewed commit before marking AC-12 verified. The older CI entry and implementer NOT RUN entries above describe earlier snapshots; current evidence is in this review's validation entries. Other handoff sections, including Exact next steps, are unchanged under the review skill's write limits.
+- No blocking findings. F1 to F4 are resolved at the reviewed commit; link/non-file, CLI LF-rule, and bootstrap LF-recipe regression checks pass.
+- Acceptance criteria were user-confirmed on 2026-10-21. This is a fresh Codex/GPT-6 review of work reported as implemented by Claude Code/claude-opus-5-5; earlier independent reviews also used Codex/GPT-6.
+- Exact-commit CI confirmed through the GitHub connector: https://github.com/peejerator/newproj/actions/runs/39714953910; PR 36 head matches Reviewed at.
+- Earlier validation entries and Exact next steps describe prior snapshots. Other handoff sections are unchanged under the review skill's write limits; this review supersedes the prior FAIL record.
 
 ## Exact next steps
 
