@@ -130,3 +130,24 @@ Rendering first is the only way to know every template-owned collision before wr
 ### Supersedes
 
 None
+
+## D-007: `newproj adopt` refuses links and non-file destinations, and requires a general LF rule
+
+Date: 2026-10-21
+Status: Accepted
+
+### Decision
+
+Adopt's preflight inspects every rendered path without following links. It refuses, before writing anything, a path whose parent directory is a symbolic link or Windows junction, a destination that is a directory or another non-regular entry, a destination link that does not point to a file, and a `.gitignore` link when entries would be appended. A destination link to a file is accepted where adopt only reads it (for example `CLAUDE.md` linked to `AGENTS.md`). An existing `.gitattributes` passes only when `git check-attr` reports `text` as `auto` or `set` and `eol` as `lf` for several probe paths (no extension, `.txt`, a dotfile, and a file in a subdirectory with an unknown extension), so a rule limited to some file types is reported for review.
+
+### Rationale
+
+The M6 review (findings F1 to F3) showed that following links let adopt write outside the repository, that a directory in place of a required file caused partial writes or a missing required file, and that a single `.txt` probe accepted a `*.txt`-only rule.
+
+### Alternatives considered
+
+Resolving every link and accepting those that stay inside the repository: more cases to get right on three platforms for little benefit, since a repository rarely links these paths.
+
+### Supersedes
+
+D-006, only its sentence on when an existing `.gitattributes` passes.

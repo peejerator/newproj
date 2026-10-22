@@ -25,6 +25,11 @@ validating
 - AC-12: `tests/test_adopt.py` (31 tests) and content tests added; 400 tests pass locally.
 - AC-13: `AGENTS.md` Commands lists `uv run newproj adopt`.
 - AC-14: recorded below under Blockers / open questions (start-task first use).
+- Review FAIL fixes (AC-3, AC-4, AC-5), recorded as DECISIONS D-007:
+  - F1: preflight inspects paths without following links (`adopt.kind`, `adopt.blocked`); a symbolic link or junction above a rendered path, a dangling or non-file destination link, and a `.gitignore` link needing entries fail with exit 2 before any write. A link to a file that adopt only reads (for example `CLAUDE.md` to `AGENTS.md`) is preserved.
+  - F2: a destination that is a directory or other non-regular entry (for example a `.gitignore/` or `AGENTS.md/` directory) fails preflight with the paths listed.
+  - F3: the LF rule check probes four paths (no extension, `.txt`, dotfile, subdirectory with an unknown extension); a narrower rule such as `*.txt text=auto eol=lf` is preserved and reported as "no general LF rule", exit 1.
+  - Regression tests added to `tests/test_adopt.py` for each case; symlink tests skip where links cannot be created, and a Windows-only test checks that a junction counts as a link.
 
 ## Current working area
 
@@ -47,6 +52,9 @@ validating
 - PASS | CI tests on Linux, macOS, and Windows | all three jobs passed on the reviewed commit; AC-12 | https://github.com/peejerator/newproj/actions/runs/39708783971 | CI
 - PASS | git diff --check 07a8beb...HEAD and complete review diff inspection | no whitespace errors; frozen spec and existing decision/errata entries unchanged; doctor change only extracts an unchanged check into a helper | base-commit diff, reviewed HEAD | reviewer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found, including the completed review record | repository root | reviewer
+- PASS | uv run pytest after the F1 to F3 fixes | 409 passed, 1 skipped (Windows junction test), one expected Copier dirty-template warning; new regressions for directory links, dangling links, `.gitignore` link, file link preserved, directories in place of `.gitignore` and `AGENTS.md`, narrow and blanket LF rules; AC-3 to AC-5, AC-12 | Linux, Python 3.13.5, Copier 9.18.2, working tree | implementer
+- PASS | ruff --select F, git diff --check, state.py check after the fixes | no findings, no whitespace errors, no violations | working tree | implementer
+- NOT RUN | CI on Linux, macOS, and Windows for the fixes | requires the user to commit and push; symlink and junction tests are first exercised on macOS and Windows there | working tree | implementer
 
 ## Review
 
@@ -83,8 +91,8 @@ Findings:
 
 ## Exact next steps
 
-1. The user commits and pushes, and opens the pull request; confirm CI passes on all three operating systems (AC-12).
-2. Run the `review` skill in a different agent against the committed work.
+1. The user commits and pushes the F1 to F3 fixes to the open pull request; confirm CI passes on all three operating systems, including the link tests (AC-12).
+2. Rerun the `review` skill in a different agent against the committed fixes.
 
 ## Blockers / open questions
 
@@ -93,4 +101,4 @@ Findings:
 
 ## Relevant decisions
 
-- ERRATA E-002, E-007, E-008, E-018, E-019, E-020; DECISIONS D-002, D-006.
+- ERRATA E-002, E-007, E-008, E-018, E-019, E-020; DECISIONS D-002, D-006, D-007.

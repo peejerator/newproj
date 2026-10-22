@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import os
 import shutil
+import stat
 import sys
 import tempfile
 from dataclasses import dataclass
@@ -30,6 +32,7 @@ IGNORE_END = "# End of entries added by newproj adopt"
 INIT = ["git", "init", "-b", "main"]
 RENORMALIZE = "git add --renormalize ."
 MAX_LISTED = 40
+IO_REPARSE_TAG_MOUNT_POINT = 0xA0000003  # a Windows junction; stat defines the name only on Windows
 
 
 @dataclass
@@ -111,24 +114,54 @@ def same(path: Path, rendered: Path) -> bool:
     return path.is_file() and path.read_bytes() == rendered.read_bytes()
 
 
-def blocked_parent(target: Path, name: str) -> str | None:
-    """An existing non-directory where `name` needs a directory."""
-    parts = name.split("/")[:-1]
-    for i in range(1, len(parts) + 1):
+def kind(path: Path) -> str:
+    """The entry at `path`, without following links: missing, link, file, dir, or other."""
+    try:
+        info = os.lstat(path)
+    except FileNotFoundError:
+        return "missing"
+    # A Windows junction is a reparse point, not a symbolic link, but redirects writes the same way.
+    if stat.S_ISLNK(info.st_mode) or getattr(info, "st_reparse_tag", 0) == IO_REPARSE_TAG_MOUNT_POINT:
+        return "link"
+    return "dir" if stat.S_ISDIR(info.st_mode) else "file" if stat.S_ISREG(info.st_mode) else "other"
+
+
+def blocked(target: Path, name: str) -> str | None:
+    """Why `name` cannot be created or preserved safely, or None.
+
+    Writes must stay inside the repository, so no parent may be a link, and a destination may be a link
+    only to a file that adopt reads but never writes.
+    """
+    parts = name.split("/")
+    for i in range(1, len(parts)):
         parent = "/".join(parts[:i])
-        if (target / parent).exists() and not (target / parent).is_dir():
-            return parent
+        entry = kind(target / parent)
+        if entry == "link":
+            return f"{parent} is a symbolic link or junction"
+        if entry not in ("missing", "dir"):
+            return f"needs {parent}/ to be a directory"
+    path = target / name
+    entry = kind(path)
+    if entry in ("dir", "other"):
+        return "is not a regular file"
+    if entry == "link" and not path.is_file():
+        return "is a symbolic link or junction that does not point to a file"
     return None
 
 
+# Paths that `* text=auto eol=lf` covers and a narrower rule, such as one for *.txt, misses.
+LF_PROBES = ["newproj-adopt-probe", "newproj-adopt-probe.txt", ".newproj-adopt-probe",
+             "newproj-adopt-probe/probe.newproj-adopt-probe"]
+
+
 def lf_rule_applies(git: state.Git) -> bool:
-    """True when the repository's attributes normalize text files to LF (spec section 18.1)."""
-    out = git.out("check-attr", "text", "eol", "--", "newproj-adopt-probe.txt")
-    values = {}
+    """True when the repository's attributes normalize all text files to LF (spec section 18.1)."""
+    out = git.out("check-attr", "text", "eol", "--", *LF_PROBES)
+    values: dict[str, dict[str, str]] = {probe: {} for probe in LF_PROBES}
     for line in out.splitlines():
-        _, attribute, value = line.rsplit(": ", 2)
-        values[attribute] = value
-    return values.get("text") in ("auto", "set") and values.get("eol") == "lf"
+        path, attribute, value = line.rsplit(": ", 2)
+        values.setdefault(path, {})[attribute] = value
+    return all(v.get("text") in ("auto", "set") and v.get("eol") == "lf" for v in values.values())
 
 
 def renormalized(git: state.Git) -> list[str]:
@@ -163,15 +196,15 @@ def plan(target: Path, rendered: Path, git: state.Git) -> tuple[Plan | None, lis
     """Classify every rendered file. Returns problems instead of a plan on a collision."""
     names = sorted(p.relative_to(rendered).as_posix() for p in rendered.rglob("*") if p.is_file())
     neutral = rendered / state.NEUTRAL_DIR
-    create, rows, details, collisions, append = [], [], [], [], []
+    create, rows, details, collisions, unsafe, append = [], [], [], [], [], []
     template_created = 0
     for name in names:
         path, new = target / name, rendered / name
-        parent = blocked_parent(target, name)
-        if parent is not None:
-            collisions.append(f"{name} (needs {parent}/ to be a directory)")
+        reason = blocked(target, name)
+        if reason is not None:
+            unsafe.append(f"{name} ({reason})")
             continue
-        exists = path.exists()
+        exists = kind(path) != "missing"
         if name in PROJECT_OWNED:
             if not exists:
                 create.append(name)
@@ -195,7 +228,11 @@ def plan(target: Path, rendered: Path, git: state.Git) -> tuple[Plan | None, lis
                 rows.append(Row(name, "created"))
             else:
                 append = missing_ignore_rules(git)
-                if append:
+                if append and kind(path) == "link":
+                    unsafe.append(f"{name} (is a symbolic link or junction, so the required entries cannot be "
+                                  "appended)")
+                    append = []
+                elif append:
                     rows.append(Row(name, f"preserved; appended {', '.join(append)} in a marked block"))
                 else:
                     rows.append(Row(name, "preserved"))
@@ -214,7 +251,7 @@ def plan(target: Path, rendered: Path, git: state.Git) -> tuple[Plan | None, lis
                 if lf_rule_applies(git):
                     rows.append(Row(name, "preserved"))
                 else:
-                    rows.append(Row(name, "preserved; no LF rule (* text=auto eol=lf): review", True))
+                    rows.append(Row(name, "preserved; no general LF rule (* text=auto eol=lf): review", True))
                 continue
             affected = renormalized(git)
             if not affected:
@@ -237,10 +274,18 @@ def plan(target: Path, rendered: Path, git: state.Git) -> tuple[Plan | None, lis
             rows.append(Row(name, "preserved; identical to the template"))
         else:
             collisions.append(name)
+    problems = []
+    if unsafe:
+        problems.append("these paths cannot be written or preserved safely, because adoption would write through "
+                        f"a link or replace something that is not a regular file:{listed(unsafe)}\n"
+                        "    Replace them with regular files and directories (or remove them), commit, and adopt "
+                        "again.")
     if collisions:
-        return None, ["these template-owned paths exist and differ from the template, so adoption would replace "
-                      f"them:{listed(collisions)}\n"
-                      "    Move or remove them (or make them match the template), commit, and adopt again."]
+        problems.append("these template-owned paths exist and differ from the template, so adoption would replace "
+                        f"them:{listed(collisions)}\n"
+                        "    Move or remove them (or make them match the template), commit, and adopt again.")
+    if problems:
+        return None, problems
     ignored = set(git.out("check-ignore", "--no-index", "--", *create).splitlines()) if create else set()
     for name in sorted(ignored):
         rows.append(Row(name, "created, but ignored by .gitignore, so it would not be committed: review", True))

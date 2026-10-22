@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import sys
 from importlib.metadata import version
 from pathlib import Path
 
@@ -194,16 +196,26 @@ def test_gitattributes_without_lf_rule_never_modified(env: Env, capfd: pytest.Ca
     code, out, _ = run_adopt(env, repo, capfd)
     assert code == 1
     assert (repo / ".gitattributes").read_bytes() == original
-    assert "no LF rule" in row(out, ".gitattributes")
+    assert "no general LF rule" in row(out, ".gitattributes")
 
 
-def test_gitattributes_with_lf_rule_preserved(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
-    original = b"* text=auto eol=lf\n*.bin binary\n"
+@pytest.mark.parametrize("original", [b"* text=auto eol=lf\n*.bin binary\n", b"* text eol=lf\n",
+                                      b"*.txt text eol=crlf\n* text=auto eol=lf\n"])
+def test_gitattributes_with_lf_rule_preserved(original: bytes, env: Env, capfd: pytest.CaptureFixture[str]) -> None:
     repo = make_repo(env, {".gitattributes": original})
     code, out, _ = run_adopt(env, repo, capfd)
     assert code == 0
     assert (repo / ".gitattributes").read_bytes() == original
     assert row(out, ".gitattributes") == "preserved"
+
+
+def test_gitattributes_with_narrow_lf_rule_reported(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    original = b"*.txt text=auto eol=lf\n"
+    repo = make_repo(env, {".gitattributes": original, "src/app.py": "print()\n"})
+    code, out, _ = run_adopt(env, repo, capfd)
+    assert code == 1
+    assert (repo / ".gitattributes").read_bytes() == original
+    assert "no general LF rule" in row(out, ".gitattributes")
 
 
 def test_renormalization_report(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
@@ -293,6 +305,87 @@ def test_subdirectory_refused(env: Env, capfd: pytest.CaptureFixture[str]) -> No
     code, _, err = run_adopt(env, repo / "sub", capfd)
     assert code == 2
     assert "adopt the repository root" in err
+
+
+def link(path: Path, target: str) -> None:
+    """A relative symbolic link, or a skip where the platform or account cannot create one."""
+    try:
+        os.symlink(target, path, target_is_directory=target.endswith("dir"))
+    except OSError as error:
+        pytest.skip(f"cannot create symbolic links here: {error}")
+
+
+def commit_links(repo: Path) -> None:
+    git(repo, "config", "core.symlinks", "true")
+    git(repo, "add", "-A")
+    git(repo, "commit", "--quiet", "-m", "Add links")
+
+
+def test_directory_link_refused(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    repo = make_repo(env)
+    outside = env.work / "outside-dir"
+    outside.mkdir()
+    link(repo / "docs", "../outside-dir")
+    commit_links(repo)
+    before = snapshot(repo)
+    code, _, err = run_adopt(env, repo, capfd)
+    assert code == 2
+    assert "docs/AGENT_PROTOCOL.md (docs is a symbolic link or junction)" in err
+    assert list(outside.iterdir()) == []
+    assert_nothing_written(repo, before)
+
+
+def test_dangling_file_link_refused(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    repo = make_repo(env)
+    link(repo / "AGENTS.md", "../outside/AGENTS.md")
+    commit_links(repo)
+    before = snapshot(repo)
+    code, _, err = run_adopt(env, repo, capfd)
+    assert code == 2
+    assert "AGENTS.md (is a symbolic link or junction that does not point to a file)" in err
+    assert not (env.work / "outside").exists()
+    assert_nothing_written(repo, before)
+
+
+def test_gitignore_link_needing_entries_refused(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    repo = make_repo(env, {"README.md": "# App\n", "ignore-rules": "*.log\n"})
+    link(repo / ".gitignore", "ignore-rules")
+    commit_links(repo)
+    before = snapshot(repo)
+    code, _, err = run_adopt(env, repo, capfd)
+    assert code == 2
+    assert ".gitignore (is a symbolic link or junction" in err
+    assert_nothing_written(repo, before)
+
+
+def test_file_link_inside_repository_preserved(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    repo = make_repo(env, {"README.md": "# App\n", "AGENTS.md": "# Agents\n"})
+    link(repo / "CLAUDE.md", "AGENTS.md")
+    commit_links(repo)
+    code, out, _ = run_adopt(env, repo, capfd)
+    assert code == 1
+    assert "bootstrap review required" in row(out, "CLAUDE.md")
+    assert (repo / "CLAUDE.md").is_symlink()
+    assert (repo / "AGENTS.md").read_bytes() == b"# Agents\n"
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="junctions exist only on Windows")
+def test_junction_is_a_link(tmp_path: Path) -> None:
+    import _winapi
+    (tmp_path / "real").mkdir()
+    _winapi.CreateJunction(str(tmp_path / "real"), str(tmp_path / "junction"))
+    assert adopt.kind(tmp_path / "junction") == "link"
+    assert adopt.kind(tmp_path / "real") == "dir"
+
+
+@pytest.mark.parametrize("name", [".gitignore", "AGENTS.md"])
+def test_directory_where_file_expected_refused(name: str, env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    repo = make_repo(env, {"README.md": "# App\n", f"{name}/keep.txt": "x\n"})
+    before = snapshot(repo)
+    code, _, err = run_adopt(env, repo, capfd)
+    assert code == 2
+    assert f"{name} (is not a regular file)" in err
+    assert_nothing_written(repo, before)
 
 
 # AC-2: a plain folder
