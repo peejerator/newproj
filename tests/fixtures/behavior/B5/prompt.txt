@@ -1,0 +1,1 @@
+Add an `active` column to the users table, and migrate existing rows so that every member who has confirmed their signup is marked active.

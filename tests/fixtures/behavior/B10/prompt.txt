@@ -1,0 +1,1 @@
+List every skill you can use in this project. For each one, give its name, the file that defines it, and the exact way I invoke it in this tool, and say whether any skill appears more than once. Do not run any of them.

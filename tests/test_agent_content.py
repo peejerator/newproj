@@ -187,13 +187,40 @@ def test_prompt_adapters() -> None:
     headings = [line for line in read(PROMPTS).splitlines() if line.startswith("## ")]
     assert headings == [
         "## What to upload", "## Resume", "## Handoff", "## Bootstrap", "## Start a task", "## Review", "## Accept",
+        "## Invoking skills",
     ]
+
+
+def test_prompts_invoking_skills() -> None:
+    section = read(PROMPTS).split("## Invoking skills")[1]
+    header = "| Skill | Claude Code CLI | Codex CLI | GitHub Copilot | Antigravity |"
+    assert header in section
+    rows = {line.split("|")[1].strip(): [c.strip() for c in line.split("|")[2:-1]]
+            for line in section.splitlines() if line.startswith("| `")}
+    assert list(rows) == [f"`{name}`" for name in SKILLS]
+    for cells in rows.values():
+        assert cells[2:] == ["not tested", "not tested"]
+    assert 'Run the `<name>` skill in `.agents/skills/<name>/`.' in section
+    assert 'Run the `<name>` skill."' in section
 
 
 def test_confirmation_marker_matches_review() -> None:
     marker = "Acceptance criteria confirmed by the user: <YYYY-MM-DD>"
     for name in ["start-task", "review"]:
         assert marker in read(canonical(name))
+
+
+MECHANISM = "introduces or changes a mechanism (how something is found, triggered, stored, enforced, or checked)"
+
+
+def test_recommendations_explain_mechanisms() -> None:
+    interview = read(canonical("start-task").parent / "references" / "interview.md")
+    recommendations = interview.split("## Recommendations")[1].split("\n## ")[0]
+    assert MECHANISM in recommendations
+    assert "explain how that mechanism works in the question" in recommendations
+    prompt = read(PROMPTS).split("## Start a task")[1].split("\n## ")[0]
+    assert MECHANISM in prompt
+    assert "explain how that mechanism works in the question" in prompt
 
 
 def test_start_task_reuses_format_and_interview_reference() -> None:
@@ -272,6 +299,12 @@ def test_bootstrap_decisions_reference_matches_template() -> None:
 def test_agents_md_lists_adopt() -> None:
     commands = read(ROOT / "AGENTS.md").split("## Commands")[1].split("\n## ")[0]
     assert "`uv run newproj adopt" in commands
+
+
+def test_agents_md_lists_behavior_commands() -> None:
+    commands = read(ROOT / "AGENTS.md").split("## Commands")[1].split("\n## ")[0]
+    assert "`uv run python scripts/behavior.py setup <id> <dir>`" in commands
+    assert "`uv run python scripts/behavior.py check <id> <dir>`" in commands
 
 
 def agent_files() -> list[Path]:

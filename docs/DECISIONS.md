@@ -151,3 +151,30 @@ Resolving every link and accepting those that stay inside the repository: more c
 ### Supersedes
 
 D-006, only its sentence on when an existing `.gitattributes` passes.
+
+## D-008: Behavioral fixture harness
+
+Date: 2026-10-24
+Status: Accepted
+
+### Decision
+
+Each behavioral fixture (spec 23.2) is a directory `tests/fixtures/behavior/B<n>/` holding `prompt.txt` (the exact prompt), `notes.md` (what the user may answer during the session and the items judged from the transcript), `setup.py`, and `check.py`. Content several fixtures plant lives in `tests/fixtures/behavior/shared.py`.
+
+`scripts/behavior.py setup <id> <dir>` creates a project at `<dir>` with `newproj new --no-remote --template-path <this repository>`, runs the fixture's `plant`, makes a baseline commit, runs its optional `dirty` step for uncommitted state, and writes a manifest (file hashes of tracked and untracked, not ignored, files; `HEAD`; the current branch; all refs; `git status`) to `<dir>/../.behavior/<name>/manifest.json`, outside the project, so the agent never sees it. It refuses a `<dir>` inside another Git repository and turns off commit signing for the disposable fixture project only.
+
+`scripts/behavior.py check <id> <dir>` compares the project with its manifest. It prints FAIL with each failed scripted condition, otherwise JUDGE with the items a person judges from the transcript, or PASS when a fixture has none, followed by the changes since setup. It exits 1 on FAIL, 2 on a usage error, and 0 otherwise.
+
+The user runs every agent session interactively in a fresh session, following the fixture's `notes.md`, and reports the `check` output and the transcript judgment. Agents are never driven headless. pytest runs each fixture's setup and its check against a synthetic passing and a synthetic failing outcome on all CI platforms. The harness uses the standard library and `newproj` itself.
+
+### Rationale
+
+Spec 23.2 asks for scripted pass conditions wherever possible and repeatable fixtures. A manifest outside the project lets `check` compare exact bytes and history without planting anything the agent could read or change. Interactive runs match how the template is used and avoid driving tools through unsupported headless modes.
+
+### Alternatives considered
+
+Storing the manifest inside the project (for example in `.git/`): an agent inspecting the repository could read or alter it. Headless agent runs: they test a different surface from the one users use, and the user chose interactive sessions.
+
+### Supersedes
+
+None

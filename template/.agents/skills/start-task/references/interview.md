@@ -12,6 +12,8 @@ Decisions choose the intended result: scope, acceptable behavior, compatibility 
 
 Give each numbered question a concrete proposed answer and a short reason or tradeoff. Make it possible to accept the recommendation with "yes" without guessing what that means. For example: "Keep the existing CLI spelling and add the new option, so existing scripts continue to work. Recommended: preserve both forms. Agree?"
 
+When a recommendation introduces or changes a mechanism (how something is found, triggered, stored, enforced, or checked), explain how that mechanism works in the question, so the user can judge it without asking. For example: "Move the guides to `docs/guides/` and add a line for that folder under "Where to find more" in `AGENTS.md`. Agents read `AGENTS.md` at the start of every session, so that line is how they find the guides. Recommended: move them. Agree?"
+
 State that a single "yes" accepts all recommendations in the current round. Allow answers by question number, and carry settled answers forward. A partial answer settles only the choices it covers. Do not convert uncertainty, elapsed time, or an unanswered question into approval.
 
 ## Comprehensive rounds

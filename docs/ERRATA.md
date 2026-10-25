@@ -246,3 +246,12 @@ Resolution:
    - reports, without creating, a missing `.gitattributes` LF rule or missing required `.gitignore` entries (section 18.3), recommending `newproj adopt` or a manual fix.
 
    Every proposal other than creating a missing required file is applied only with the user's approval.
+
+## E-021: Codex CLI for the Phase 1 behavioral fixture runs
+
+Date: 2026-10-24
+Sections: 23.2
+
+Problem: section 23.2 lists the Codex surfaces to test as the VS Code extension and the ChatGPT desktop app. The user's development setup does not yet have VS Code Remote-SSH for the extension, and the Phase 1 fixture runs (M7) use the Codex CLI. The user approved the following on 2026-10-24 (M7 `TASK.md`).
+
+Resolution: for Phase 1, the Codex CLI is an accepted Codex surface for the behavioral fixture runs. The runs on the Codex VS Code extension and the ChatGPT desktop app are deferred until that setup exists, and are recorded as additional rows when they run. Runs may use any machine, including Linux; each recorded run states its OS, tool version, model, and date. The harness's cross-platform correctness is covered by CI on Linux, macOS, and Windows.
