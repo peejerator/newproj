@@ -18,6 +18,7 @@ in progress
 - AC-7, AC-8 (E-021), AC-9 (D-008), AC-10: done.
 - AC-6: section, Copilot and Antigravity rows, fallback, and plain-language form written; Claude Code and Codex cells read `pending B10`.
 - AC-5: `docs/research/behavioral-fixtures.md` written with 28 `pending` rows.
+- Review P1 (AC-4, AC-11): `scripts/behavior.py` `run()` now passes an empty stdin pipe instead of `DEVNULL`. On Windows `NUL` is a character device that `isatty()` reports as a terminal, so `newproj new` took the interactive path and Copier failed with "No Windows console found" (the CI log has no "stdin is not a terminal" line, confirming it). Awaiting a Windows CI run.
 
 ## Current working area
 
@@ -37,6 +38,7 @@ in progress
 - FAIL | Inspect CI run https://github.com/peejerator/newproj/actions/runs/40157888861 | Linux and macOS pass; Windows has 418 passed, 26 setup errors: copier reports No Windows console found (AC-4, AC-11) | PR #37 merge 37b2281486e483cd927631846ca4ec5d690a654b of reviewed HEAD into task base; not a direct HEAD run | reviewer
 - PASS | git diff --check 5eae621...HEAD; inspect added prose and protected paths | no whitespace errors or em/en dashes added; protected files and skill names unchanged; DECISIONS and ERRATA append only (AC-8 to AC-11) | committed diff | reviewer
 - NOT RUN | 28 interactive agent sessions (AC-5) | skipped: TASK.md reserves these runs for the user; all 28 committed result rows remain pending | reviewer
+- PASS | uv run pytest (after P1 fix) | 443 passed, 1 skipped; Windows not verifiable locally | Linux, Python 3.13 | implementer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | Linux | reviewer
 
 ## Review
@@ -71,11 +73,12 @@ Findings:
 
 ## Exact next steps
 
-1. User commits this work and pushes; confirm CI passes on all three operating systems (AC-4).
-2. User runs the 28 sessions per `docs/research/behavioral-fixtures.md` Method and reports each `check` output and judgment; record them in that document and the pass-rate table (AC-5).
+1. User commits the P1 fix and pushes; confirm CI passes on Linux, macOS, and Windows (AC-4, AC-11).
+2. User runs the 28 sessions per `docs/research/behavioral-fixtures.md` Method and reports each `check` output and judgment; record them in that document and the pass-rate table (AC-5, review P2).
 3. For each FAIL, draft issue text; the user files it or authorizes `gh issue create`; cite the number in the row.
-4. Fill the Claude Code and Codex cells of the `PROMPTS.md` invocation table from B10, and the plain-language note for any overridden skill (AC-6). A needed rename is a blocker: record it and ask.
+4. Fill the Claude Code and Codex cells of the `PROMPTS.md` invocation table from B10, and replace the categorical "a same-named built-in always wins" claim with the observed per-tool, per-version behavior (review P2; issue #33 reports Claude Code `/resume` invoking the skill once). A needed rename is a blocker: record it and ask.
 5. Mark complete; independent review (instruction content changed).
+6. Not in M7 scope, for a later issue: `newproj new` itself has the same latent bug when stdin is redirected from `NUL` on Windows (`source.render` uses `sys.stdin.isatty()`).
 
 ## Blockers / open questions
 

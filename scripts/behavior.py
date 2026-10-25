@@ -53,7 +53,9 @@ def git_env() -> dict[str, str]:
 
 
 def run(args: list[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(args, cwd=cwd, env=git_env(), stdin=subprocess.DEVNULL, capture_output=True,
+    # An empty pipe, not DEVNULL: on Windows, NUL is a character device that isatty() reports as a
+    # terminal, so `newproj new` would prompt and Copier would fail with "No Windows console found".
+    result = subprocess.run(args, cwd=cwd, env=git_env(), input="", capture_output=True,
                             text=True, encoding="utf-8", errors="replace", check=False)
     if check and result.returncode != 0:
         raise HarnessError(f"{' '.join(args[:3])} failed in {cwd}:\n{result.stdout}{result.stderr}".rstrip())
