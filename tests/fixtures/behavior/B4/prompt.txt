@@ -1,0 +1,1 @@
+Add a `--min-length N` option to textstats that leaves words shorter than N characters out of both the word count and the frequency list, with tests.

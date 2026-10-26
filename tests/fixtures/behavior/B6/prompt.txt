@@ -1,0 +1,1 @@
+Add a `--wrap WIDTH` option to textstats that wraps each output line using the vendored tinywrap library in `vendor/tinywrap/`; its README documents the API. Keep the change in `textstats/cli.py`; I will write the tests myself.
