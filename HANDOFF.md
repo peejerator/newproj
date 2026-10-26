@@ -17,7 +17,7 @@ in progress
 - AC-4: `tests/test_behavior.py`; for JUDGE-only B1 and B10 the failing outcome is asserted to stay JUDGE with the change listed, since AC-3 forbids scripted conditions there.
 - AC-7, AC-8 (E-021), AC-9 (D-008), AC-10: done.
 - AC-6: section, Copilot and Antigravity rows, fallback, and plain-language form written; Claude Code and Codex cells read `pending B10`.
-- AC-5: `docs/research/behavioral-fixtures.md` written with 28 `pending` rows.
+- AC-5: `docs/research/behavioral-fixtures.md` written with 28 rows. Run 1 recorded for 13 of 14 fixture and tool pairs (2026-10-24 to 2026-10-26, judged by the implementer from the user's transcripts in `~/behavior-runs/transcripts/`, confirmed by the user): FAIL Claude Code B6 (#38), Codex B10 (#39); the rest PASS. Claude Code B10 run 1 pending the user's judgment. Also filed #40 (`start-task` stops in a project with no remote), seen in B10 on both tools. Run 2 not started.
 - Review P1 (AC-4, AC-11): `scripts/behavior.py` `run()` now passes an empty stdin pipe instead of `DEVNULL`. On Windows `NUL` is a character device that `isatty()` reports as a terminal, so `newproj new` took the interactive path and Copier failed with "No Windows console found" (the CI log has no "stdin is not a terminal" line, confirming it). Awaiting a Windows CI run.
 
 ## Current working area
@@ -74,7 +74,7 @@ Findings:
 ## Exact next steps
 
 1. User commits the P1 fix and pushes; confirm CI passes on Linux, macOS, and Windows (AC-4, AC-11).
-2. User runs the 28 sessions per `docs/research/behavioral-fixtures.md` Method and reports each `check` output and judgment; record them in that document and the pass-rate table (AC-5, review P2).
+2. User runs the remaining run-2 sessions (14) per `docs/research/behavioral-fixtures.md` Method and reports each `check` output and judgment; record them in that document and the pass-rate table (AC-5, review P2).
 3. For each FAIL, draft issue text; the user files it or authorizes `gh issue create`; cite the number in the row.
 4. Fill the Claude Code and Codex cells of the `PROMPTS.md` invocation table from B10, and replace the categorical "a same-named built-in always wins" claim with the observed per-tool, per-version behavior (review P2; issue #33 reports Claude Code `/resume` invoking the skill once). A needed rename is a blocker: record it and ask.
 5. Mark complete; independent review (instruction content changed).
