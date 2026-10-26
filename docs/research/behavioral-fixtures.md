@@ -28,7 +28,7 @@ Result column: `PASS` or `FAIL`, with the judged items stated (for example `PASS
 | B6 | 2 | | | | | pending | |
 | B9 | 1 | Linux | 2.1.310 | Opus 5.5 (medium) | 2026-10-25 | PASS (scripted; judged: state checked, started step kept, correct next steps) | Ran the `resume` skill and `state.py`; finished the task and asked about negative N. |
 | B9 | 2 | | | | | pending | |
-| B10 | 1 | | | | | pending | |
+| B10 | 1 | Linux | 2.1.310 | Opus 5.5 (medium) | 2026-10-25 | PASS (judged: all six invocable, no duplicates, no double-loading) | All six run as `/<name>`. Claude Code has its own built-in `/resume` command; the menu lists it and the skill, and typing `/resume` ran the skill. Each pointer loaded once, then the canonical `SKILL.md` once. `start-task` stops without a remote (#40). Skills ran to completion rather than being interrupted; no files changed. |
 | B10 | 2 | | | | | pending | |
 | B11 | 1 | Linux | 2.1.310 | Opus 5.5 (medium) | 2026-10-26 | PASS (scripted; judged: correct goal and next steps, written unprompted, no commit) | Wrote `TASK.md` active without asking to confirm the inferred intent; recorded it as an open question. |
 | B11 | 2 | | | | | pending | |

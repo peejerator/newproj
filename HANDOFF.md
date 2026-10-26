@@ -17,7 +17,7 @@ in progress
 - AC-4: `tests/test_behavior.py`; for JUDGE-only B1 and B10 the failing outcome is asserted to stay JUDGE with the change listed, since AC-3 forbids scripted conditions there.
 - AC-7, AC-8 (E-021), AC-9 (D-008), AC-10: done.
 - AC-6: section, Copilot and Antigravity rows, fallback, and plain-language form written; Claude Code and Codex cells read `pending B10`.
-- AC-5: `docs/research/behavioral-fixtures.md` written with 28 rows. Run 1 recorded for 13 of 14 fixture and tool pairs (2026-10-24 to 2026-10-26, judged by the implementer from the user's transcripts in `~/behavior-runs/transcripts/`, confirmed by the user): FAIL Claude Code B6 (#38), Codex B10 (#39); the rest PASS. Claude Code B10 run 1 pending the user's judgment. Also filed #40 (`start-task` stops in a project with no remote), seen in B10 on both tools. Run 2 not started.
+- AC-5: `docs/research/behavioral-fixtures.md` written with 28 rows. Run 1 recorded for all 14 fixture and tool pairs (2026-10-24 to 2026-10-26, judged by the implementer from the user's transcripts in `~/behavior-runs/transcripts/`, confirmed by the user): FAIL Claude Code B6 (#38), Codex B10 (#39); the rest PASS. Also filed #40 (`start-task` stops in a project with no remote), seen in B10 on both tools. Run 2 not started.
 - Review P1 (AC-4, AC-11): `scripts/behavior.py` `run()` now passes an empty stdin pipe instead of `DEVNULL`. On Windows `NUL` is a character device that `isatty()` reports as a terminal, so `newproj new` took the interactive path and Copier failed with "No Windows console found" (the CI log has no "stdin is not a terminal" line, confirming it). Awaiting a Windows CI run.
 
 ## Current working area
