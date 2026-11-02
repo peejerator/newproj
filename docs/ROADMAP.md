@@ -20,12 +20,3 @@ Each milestone is one branch and one pull request. CI must pass on macOS and Win
 | M8 | Dogfooding and exit | 24.1 to 24.3, 28.1 | Two real projects in use; an interrupted session recovered by the other agent; tag `v0.1.0` |
 
 M2 precedes the template and CLI work on purpose: the protocol and skills determine agent behavior and can be used by hand on a real project before the CLI exists (D-004).
-
-## Before M8
-
-- Record the section 28.4 baseline: for two or three tasks done in the current workflow, note minutes spent and manual interventions.
-- Choose the M8 projects: one existing repository to adopt and one new project.
-
-## Before tagging v0.1.0
-
-- Choose this repository's own license. The repository is public, but without a license others may view it and nothing more. Generated projects still default to no license (ERRATA E-001).

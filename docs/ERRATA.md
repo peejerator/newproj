@@ -255,3 +255,17 @@ Sections: 23.2
 Problem: section 23.2 lists the Codex surfaces to test as the VS Code extension and the ChatGPT desktop app. The user's development setup does not yet have VS Code Remote-SSH for the extension, and the Phase 1 fixture runs (M7) use the Codex CLI. The user approved the following on 2026-10-24 (M7 `TASK.md`).
 
 Resolution: for Phase 1, the Codex CLI is an accepted Codex surface for the behavioral fixture runs. The runs on the Codex VS Code extension and the ChatGPT desktop app are deferred until that setup exists, and are recorded as additional rows when they run. Runs may use any machine, including Linux; each recorded run states its OS, tool version, model, and date. The harness's cross-platform correctness is covered by CI on Linux, macOS, and Windows.
+
+## E-022: A single transcript-derived retrospective for the operational measures
+
+Date: 2026-11-02
+Sections: 28.4
+
+Observed failure: section 28.4 asks for the time spent and the number of manual interventions to be noted for a few real tasks before and after adopting the template, and the roadmap scheduled that baseline before M8. No baseline was recorded: when M8 started (2026-11-02), no notes of minutes or interventions existed for any pre-adoption task, and the user did not want per-task logging, which adds the kind of attention overhead 28.4 itself warns against. The user approved the following on 2026-11-02 (M8 `TASK.md`).
+
+Resolution:
+
+1. No per-task notes of time or interventions. Instead, one short retrospective is written in `docs/research/dogfooding.md` at the end of M8: one line for each ongoing signal in 28.4, written by the agent from the user's brief answers.
+2. The before-and-after comparison uses aggregate figures derived from local Claude Code and Codex transcripts instead of manual notes, read in a single pass on each machine at the end of M8 under the user's explicit authorization: session count, active time, user message count, and a judged count of manual interventions (re-explaining context, copying prompts or summaries between tools, reconciling state by hand), for template-era sessions of the two M8 projects and, where transcripts survive, pre-adoption baseline sessions of the adopted project.
+3. Only aggregate numbers and one-line judgements are committed: no transcript excerpts, no private project content, and no transcript-reading script in the repository.
+4. The closing rule of 28.4 is unchanged: if the workflow takes more attention than the old one, simplify it.
