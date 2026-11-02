@@ -73,13 +73,13 @@ Repo-aware tools load the skills in `.agents/skills/` (Claude Code through the p
 
 | Skill | Claude Code CLI | Codex CLI | GitHub Copilot | Antigravity |
 |---|---|---|---|---|
-| `resume` | pending B10 | pending B10 | not tested | not tested |
-| `handoff` | pending B10 | pending B10 | not tested | not tested |
-| `bootstrap` | pending B10 | pending B10 | not tested | not tested |
-| `start-task` | pending B10 | pending B10 | not tested | not tested |
-| `review` | pending B10 | pending B10 | not tested | not tested |
-| `accept` | pending B10 | pending B10 | not tested | not tested |
+| `resume` | `/resume` | `$resume` | not tested | not tested |
+| `handoff` | `/handoff` | `$handoff` | not tested | not tested |
+| `bootstrap` | `/bootstrap` | `$bootstrap` | not tested | not tested |
+| `start-task` | `/start-task` | `$start-task` | not tested | not tested |
+| `review` | `/review` | `$review` | not tested | not tested |
+| `accept` | `/accept` | `$accept` | not tested | not tested |
 
-Where a tool's own command has the same name as a skill, the tool runs its command instead. For those skills, use the plain-language form: "Run the `<name>` skill."
+In Codex, `/` opens Codex's own commands, such as its built-in `/review`; skills start with `$`. Claude Code also has a built-in `/resume` command: its `/` menu lists both, and typing `/resume` ran the skill in versions 2.1.310 and 2.1.316. If a tool runs its own command instead of a skill, use the plain-language form: "Run the `<name>` skill."
 
 In any tool not listed, or when an invocation does not work, ask: "Run the `<name>` skill in `.agents/skills/<name>/`."

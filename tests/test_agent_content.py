@@ -198,8 +198,8 @@ def test_prompts_invoking_skills() -> None:
     rows = {line.split("|")[1].strip(): [c.strip() for c in line.split("|")[2:-1]]
             for line in section.splitlines() if line.startswith("| `")}
     assert list(rows) == [f"`{name}`" for name in SKILLS]
-    for cells in rows.values():
-        assert cells[2:] == ["not tested", "not tested"]
+    for name, cells in zip(SKILLS, rows.values()):
+        assert cells == [f"`/{name}`", f"`${name}`", "not tested", "not tested"]  # from fixture B10
     assert 'Run the `<name>` skill in `.agents/skills/<name>/`.' in section
     assert 'Run the `<name>` skill."' in section
 

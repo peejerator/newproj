@@ -1,13 +1,13 @@
 # Handoff
 
-Last updated: 2026-10-24 by Claude Code (claude-opus-5-5)
+Last updated: 2026-11-01 by Claude Code (claude-opus-5-5)
 Branch: m7-behavioral-fixtures
 Task: standard
 Environment: other (Linux)
 
 ## Status
 
-in progress
+complete
 
 ## Completed
 
@@ -16,9 +16,9 @@ in progress
 - AC-3: `scripts/behavior.py check`; scripted conditions as listed; B1 and B10 JUDGE only. Exit 1 on FAIL, 2 on usage error.
 - AC-4: `tests/test_behavior.py`; for JUDGE-only B1 and B10 the failing outcome is asserted to stay JUDGE with the change listed, since AC-3 forbids scripted conditions there.
 - AC-7, AC-8 (E-021), AC-9 (D-008), AC-10: done.
-- AC-6: section, Copilot and Antigravity rows, fallback, and plain-language form written; Claude Code and Codex cells read `pending B10`.
-- AC-5: `docs/research/behavioral-fixtures.md` written with 28 rows. Run 1 recorded for all 14 fixture and tool pairs (2026-10-24 to 2026-10-26, judged by the implementer from the user's transcripts in `~/behavior-runs/transcripts/`, confirmed by the user): FAIL Claude Code B6 (#38), Codex B10 (#39); the rest PASS. Also filed #40 (`start-task` stops in a project with no remote), seen in B10 on both tools. Run 2 not started.
-- Review P1 (AC-4, AC-11): `scripts/behavior.py` `run()` now passes an empty stdin pipe instead of `DEVNULL`. On Windows `NUL` is a character device that `isatty()` reports as a terminal, so `newproj new` took the interactive path and Copier failed with "No Windows console found" (the CI log has no "stdin is not a terminal" line, confirming it). Awaiting a Windows CI run.
+- AC-6: invocation table filled from B10 (`/<name>` in Claude Code, `$<name>` in Codex, both runs); the categorical override claim replaced with the observed behavior (Claude Code's built-in `/resume` is listed beside the skill, and `/resume` ran the skill in 2.1.310 and 2.1.316); no rename needed. `test_prompts_invoking_skills` asserts the cells.
+- AC-5: all 28 runs recorded with OS, tool version, model, date, result, and note, and pass rates filled; judged by the implementer from the session logs, both runs confirmed by the user. FAIL rows: Claude Code B6 runs 1 and 2 and Codex B6 run 2 (#38), Codex B10 runs 1 and 2 (#39). Also filed #40 (`start-task` stops in a project with no remote), seen in B10 on both tools.
+- Review P1 (AC-4, AC-11): `scripts/behavior.py` `run()` now passes an empty stdin pipe instead of `DEVNULL`. On Windows `NUL` is a character device that `isatty()` reports as a terminal, so `newproj new` took the interactive path and Copier failed with "No Windows console found" (the CI log has no "stdin is not a terminal" line, confirming it). CI run 40270175589 passed on Linux, macOS, and Windows.
 
 ## Current working area
 
@@ -40,6 +40,10 @@ in progress
 - NOT RUN | 28 interactive agent sessions (AC-5) | skipped: TASK.md reserves these runs for the user; all 28 committed result rows remain pending | reviewer
 - PASS | uv run pytest (after P1 fix) | 443 passed, 1 skipped; Windows not verifiable locally | Linux, Python 3.13 | implementer
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | Linux | reviewer
+- PASS | CI run https://github.com/peejerator/newproj/actions/runs/40270175589 (commit 399c065) | Linux, macOS, and Windows jobs pass; review P1 fixed (AC-4, AC-11) | GitHub Actions | CI
+- PASS | 28 user-run sessions, `behavior.py check` on each | every scripted condition passed; judged results as recorded (AC-5) | Linux; Claude Code 2.1.310 and 2.1.316, Codex CLI 0.164.0 and 0.166.0 | implementer
+- PASS | uv run pytest (after AC-6 table) | 443 passed, 1 skipped | Linux, Python 3.13.5 | implementer
+- NOT RUN | CI for the AC-5 and AC-6 commit | environment: not pushed yet | implementer
 
 ## Review
 
@@ -73,16 +77,13 @@ Findings:
 
 ## Exact next steps
 
-1. User commits the P1 fix and pushes; confirm CI passes on Linux, macOS, and Windows (AC-4, AC-11).
-2. User runs the remaining run-2 sessions (14) per `docs/research/behavioral-fixtures.md` Method and reports each `check` output and judgment; record them in that document and the pass-rate table (AC-5, review P2).
-3. For each FAIL, draft issue text; the user files it or authorizes `gh issue create`; cite the number in the row.
-4. Fill the Claude Code and Codex cells of the `PROMPTS.md` invocation table from B10, and replace the categorical "a same-named built-in always wins" claim with the observed per-tool, per-version behavior (review P2; issue #33 reports Claude Code `/resume` invoking the skill once). A needed rename is a blocker: record it and ask.
-5. Mark complete; independent review (instruction content changed).
-6. Not in M7 scope, for a later issue: `newproj new` itself has the same latent bug when stdin is redirected from `NUL` on Windows (`source.render` uses `sys.stdin.isatty()`).
+1. User commits and pushes; confirm CI passes on all three operating systems.
+2. Independent review with the `review` skill in a different agent or model (instruction content changed).
+3. Not in M7 scope, for a later issue: `newproj new` itself has the same latent bug when stdin is redirected from `NUL` on Windows (`source.render` uses `sys.stdin.isatty()`).
 
 ## Blockers / open questions
 
-- None.
+- The B10 results observed `$review` running the skill in Codex; the statement in `PROMPTS.md` that Codex's `/review` is its own command comes from issue #33, not from B10.
 
 ## Relevant decisions
 
