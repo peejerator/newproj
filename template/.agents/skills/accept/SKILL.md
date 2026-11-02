@@ -35,6 +35,8 @@ Record the user's acceptance of the current task. Acceptance belongs to the user
    git commit -m "Accept <task goal in a few words>" && git push && git switch <target branch> && git pull --ff-only && git merge --ff-only <task branch> && git push && git branch -d <task branch> && git push origin --delete <task branch>
    ```
 
+   If `AGENTS.md` requires a pull request command at acceptance, insert it right after the first `git push`, before `git switch <target branch>`.
+
    If the user accepted without a current PASS, the commit message is `"Accept <task goal in a few words> (override: no current PASS)"`, with the user's stated reason as a second `-m` paragraph if given. On Windows, `&&` needs PowerShell 7 or later, or Git Bash.
 7. If `git merge --ff-only` fails because the target branch has moved, the user merges the target branch into the task branch first (`git switch <task branch>`, then `git merge <target branch>`), reruns the checks, and fast-forwards again. Never rebase. A merge that changes files outside `TASK.md` and `HANDOFF.md` makes the review historical; tell the user, so they can decide whether to review again. Pushing the fast-forwarded default branch also marks an open pull request for the task branch as merged on GitHub.
 8. Report to the user what was staged and the block to run.

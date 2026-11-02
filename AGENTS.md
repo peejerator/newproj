@@ -53,7 +53,7 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - Do not rewrite accepted entries in `docs/DECISIONS.md` or `docs/ERRATA.md`; supersede them with new entries.
 - Ask before adding a dependency.
 - The user makes every commit. Stage the work and print the commit commands; never commit yourself (protocol, Session end and switching).
-- Print the commit commands, then `git push` and, when the branch has no pull request yet, `gh pr create --base main --title "<milestone title>"` (for example `"M5: newproj new and doctor"`), all as one block joined with `&&`.
+- Print the commit commands, then `git push`, as one block joined with `&&`. Open the pull request only at acceptance, after every commit is pushed, so pushes before it run CI once rather than once for the push and once for the pull request: the `accept` block inserts `gh pr create --base main --title "<milestone title>"` (for example `"M5: newproj new and doctor"`) right after its first `git push`, before `git switch main`.
 - Never add Co-Authored-By trailers, "Generated with" footers, or other AI attribution to commits or pull requests.
 
 ## Where to find more
