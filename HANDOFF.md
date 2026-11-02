@@ -33,47 +33,47 @@ complete
 - PASS | grep for em and en dashes in added prose | none | Linux | implementer
 - NOT RUN | CI on Linux, macOS, Windows | environment: not pushed yet | implementer
 - NOT RUN | 28 agent sessions (AC-5) | user-run by design (TASK.md Scope) | implementer
-- PASS | uv run pytest | 443 passed, 1 skipped; includes all fixture synthetic outcomes and AC-7 content checks | Linux, Python 3.13.5 | reviewer
-- PASS | uv run python scripts/behavior.py setup <id> <dir>; uv run python scripts/behavior.py check <id> <dir> | all seven fresh temporary projects; untouched B1, B4, B5, B6, B9, B10 JUDGE and B11 FAIL as expected; planted unittest suites pass; B9 state check clean (AC-1 to AC-3) | Linux, working-tree template | reviewer
-- FAIL | Inspect CI run https://github.com/peejerator/newproj/actions/runs/40157888861 | Linux and macOS pass; Windows has 418 passed, 26 setup errors: copier reports No Windows console found (AC-4, AC-11) | PR #37 merge 37b2281486e483cd927631846ca4ec5d690a654b of reviewed HEAD into task base; not a direct HEAD run | reviewer
-- PASS | git diff --check 5eae621...HEAD; inspect added prose and protected paths | no whitespace errors or em/en dashes added; protected files and skill names unchanged; DECISIONS and ERRATA append only (AC-8 to AC-11) | committed diff | reviewer
-- NOT RUN | 28 interactive agent sessions (AC-5) | skipped: TASK.md reserves these runs for the user; all 28 committed result rows remain pending | reviewer
 - PASS | uv run pytest (after P1 fix) | 443 passed, 1 skipped; Windows not verifiable locally | Linux, Python 3.13 | implementer
-- PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | Linux | reviewer
 - PASS | CI run https://github.com/peejerator/newproj/actions/runs/40270175589 (commit 399c065) | Linux, macOS, and Windows jobs pass; review P1 fixed (AC-4, AC-11) | GitHub Actions | CI
 - PASS | 28 user-run sessions, `behavior.py check` on each | every scripted condition passed; judged results as recorded (AC-5) | Linux; Claude Code 2.1.310 and 2.1.316, Codex CLI 0.164.0 and 0.166.0 | implementer
 - PASS | uv run pytest (after AC-6 table) | 443 passed, 1 skipped | Linux, Python 3.13.5 | implementer
 - NOT RUN | CI for the AC-5 and AC-6 commit | environment: not pushed yet | implementer
 
+- PASS | uv run pytest | 443 passed, 1 skipped; fixture synthetic outcomes and content checks pass (AC-4, AC-7, AC-10, AC-11) | Linux, Python 3.13.5; reviewed HEAD | reviewer
+- PASS | uv run python scripts/behavior.py setup <id> <dir>; uv run python scripts/behavior.py check <id> <dir> | all seven fresh temporary projects; external manifests present; untouched B1/B4/B5/B6/B9/B10 JUDGE, B11 FAIL as expected; planted unittest suites and B9 state check pass (AC-1 to AC-3) | Linux; working-tree template identical to HEAD | reviewer
+- PASS | inspect result tables, B10 notes, and GitHub issues 33, 38, 39, 40 | 28 unique rows have environment and judged results; five FAIL rows cite issues; pass rates and invocation table match; PR 37 body is Refs #33 (AC-5, AC-6) | committed artifacts and read-only GitHub queries; interactive sessions not rerun | reviewer
+- PASS | git diff --check 5eae621961c09a0cb553396a9b15979fcfde36ce...HEAD; inspect complete diff and protected paths | no whitespace errors or em/en dashes added; DECISIONS and ERRATA append only; protected paths, skill names, pointers and frontmatter unchanged (AC-8 to AC-11) | committed base-to-HEAD diff | reviewer
+- PASS | CI run https://github.com/peejerator/newproj/actions/runs/41367376699 | Linux, macOS, Windows tests and Python 3.9 state checks pass (AC-4, AC-11) | exact commit 8af9eeffe56c883d29965a2fad93e9b60503f82b | CI
+- PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | no violations found | Linux; current review record | reviewer
+
 ## Review
 
-Outcome: FAIL
-Reviewer: Codex/GPT-6, 2026-10-24
-Reviewed at: 05672f3ad780ae2047dabe9fcc618cb242e68227
+Outcome: PASS
+Reviewer: Codex/GPT-6, 2026-11-01
+Reviewed at: 8af9eeffe56c883d29965a2fad93e9b60503f82b
 Contract: df70f976e25977a07beda8f7de495fddd9303074
 Working tree clean at review: yes
 Baseline: base-commit diff
 Artifact coverage: complete
 Validation provenance: reviewer-executed
 
-- AC-1: VERIFIED | All seven fixture directories contain the four required files; complete setup and notes inspected; reviewer setup dry runs confirm the planted states.
-- AC-2: VERIFIED | All seven Linux CLI setup dry runs create projects through newproj new, baseline commits and external manifests; pytest verifies manifest hashes, HEAD, status and B9/B11 dirty state. Windows failure is recorded under AC-4.
-- AC-3: VERIFIED | Complete runner and fixture checks inspected; reviewer pytest exercises passing/failing scripted conditions, JUDGE-only B1/B10, change reporting and exit codes; fresh CLI checks produce expected verdicts on Linux.
-- AC-4: UNSATISFIED | Standard-library harness and synthetic tests exist, but Windows CI fixture setup fails with No Windows console found; 26 errors. Linux/macOS CI pass.
-- AC-5: UNSATISFIED | docs/research/behavioral-fixtures.md:21-53 contains 28 pending rows with no recorded environments, judgments, results or failure issues; pass rates remain pending. E-021 is cited.
-- AC-6: UNSATISFIED | template/docs/PROMPTS.md:76-81 contains pending B10 for all twelve tested-tool cells. Untested tools, fallback and generic plain-language form exist; observed invocations and override-specific forms are missing.
-- AC-7: VERIFIED | Matching mechanism-explanation rule added to Recommendations and the start-task prompt; test_recommendations_explain_mechanisms passes in reviewer pytest.
-- AC-8: VERIFIED | E-021 is appended at EOF and permits Codex CLI Phase 1 runs while deferring extension/desktop runs; prior entries unchanged.
-- AC-9: VERIFIED | D-008 is appended at EOF and records layout, commands, external manifest, verdicts and user-run interactive sessions; prior entries unchanged.
-- AC-10: VERIFIED | AGENTS.md Commands lists both runner commands; content test passes.
-- AC-11: UNSATISFIED | Reviewer Linux pytest passes (443 passed, 1 skipped), prose hygiene and protected skill checks pass, but the Windows test suite fails in the added harness tests.
+- AC-1: VERIFIED | All seven directories contain the exact prompt, setup, check and session notes; complete fixture content inspected and planted states confirmed by reviewer dry runs.
+- AC-2: VERIFIED | Reviewer CLI setup runs create all seven projects through newproj new with --no-remote and the repository template, make baseline commits and external hash/HEAD/status manifests, and retain B9/B11 dirty changes; pytest checks the manifest fields.
+- AC-3: VERIFIED | Complete runner and checks inspected; reviewer pytest exercises every scripted condition, JUDGE-only B1/B10, change reporting and exit codes. Fresh CLI checks produce the expected initial verdicts.
+- AC-4: VERIFIED | Harness and fixtures use standard-library code plus newproj; reviewer synthetic-outcome tests pass locally, and CI run 41367376699 passes on Linux, macOS and Windows at the reviewed commit. Empty stdin pipe fixes the earlier Windows setup failure.
+- AC-5: VERIFIED | Committed results contain all 28 unique fixture/run/tool combinations, each with OS, version, model, date, judged PASS/FAIL and note. All five FAIL rows cite #38 or #39; pass rates match and E-021 is cited. This verifies the required records; interactive sessions were user-run and were not rerun by the reviewer.
+- AC-6: VERIFIED | All six Claude Code and Codex invocation cells match the recorded B10 observations; Copilot and Antigravity are marked not tested. Fallback and plain-language forms are present, with observed Claude Code /resume behavior and Codex /review distinguished; issue #33 supports the latter claim.
+- AC-7: VERIFIED | Recommendations and the start-task prompt both require mechanism explanations in the question; the corresponding content test passes in reviewer pytest.
+- AC-8: VERIFIED | E-021 is appended at EOF, permits Codex CLI Phase 1 runs and defers extension/desktop runs; earlier errata bytes are unchanged.
+- AC-9: VERIFIED | D-008 is appended at EOF and records layout, runner commands, external manifest, verdicts and user-run interactive sessions; earlier decision bytes are unchanged.
+- AC-10: VERIFIED | AGENTS.md Commands lists setup and check; its content test passes.
+- AC-11: VERIFIED | Reviewer pytest passes with 443 passed and 1 skipped; exact-commit CI passes on all three platforms. Added prose has no em/en dashes; skill names, root pointers and pointer frontmatter are unchanged.
 
 Findings:
-- [P1] Make fixture setup work with redirected streams on Windows (scripts/behavior.py:55-57,186-187). The new subprocess wrapper captures stdout/stderr and supplies DEVNULL stdin; the child newproj/Copier call fails with No Windows console found. CI run 40157888861, Windows job 121063073191, reports 26 setup errors before fixtures can run. Make child rendering work without console handles and obtain passing CI on all three operating systems. CI checked PR merge 37b2281486e483cd927631846ca4ec5d690a654b of reviewed HEAD into the recorded base, rather than HEAD directly.
-- [P2] Record the 28 user-run sessions before claiming M7 complete (docs/research/behavioral-fixtures.md:21-53). Fill each environment, judged result and note, cite a GitHub issue for each FAIL, and calculate pass rates. These are intentionally user-run sessions, not evidence the reviewer can replace with synthetic checks. The handoff correctly reports in progress.
-- [P2] Finish invocation documentation from B10 (template/docs/PROMPTS.md:76-83). Replace pending cells with observed invocations and document each overridden skill's working plain-language form. The categorical claim that a same-named built-in always wins is unsupported: issue #33 reports Claude Code /resume invoking the skill in a prior trial and asks whether precedence is reliable. Describe the observed tool/version behavior instead of assuming precedence from matching names; raise any needed rename as a blocker.
+- No blocking findings. The earlier Windows setup, pending-results and pending-invocation findings are resolved at the reviewed HEAD.
+- M7 requires recorded results rather than universal behavioral success. Recorded B6 and B10 failures remain tracked by #38 and #39 for later work; the local-only start-task limitation is tracked by #40. None requires a skill rename.
 - Acceptance criteria were user-confirmed on 2026-10-24. This review is a separate session and model from the reported implementer, Claude Code (claude-opus-5-5).
-- The implementer's NOT RUN CI entry predates the push; the reviewer CI inspection above records the current observed result. No source code or task requirements were changed during review.
+- Earlier implementer NOT RUN entries predate the completed records and CI; current reviewer and exact-commit CI entries above establish the reviewed state. No source code, task requirements or other handoff sections were changed.
 
 ## Exact next steps
 
