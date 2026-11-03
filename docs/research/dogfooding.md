@@ -13,7 +13,13 @@ Pending: the adopt report (collisions and renormalization), the hygiene-file com
 
 ## Project B creation
 
-Pending: the `newproj new` run including its private GitHub repository, `newproj doctor` on macOS and on Windows, and the first real task done with the template's workflow.
+Created 2026-11-03 on the Linux development machine (E-023) as `pokemon-content`, with `newproj new --template-path` from this branch at 9e09658 (a development render, E-002). Answers: a one-line description, Python, no license.
+
+- `newproj new` committed the render on `main`, created the private GitHub repository through `gh`, pushed, and set `origin/HEAD`; the default branch is `main` and the repository's visibility is PRIVATE.
+- `newproj doctor`: 20 PASS, 0 WARN, 0 FAIL, 3 INFO, run after the push.
+- A first attempt, run by an agent without a terminal, rendered the files but failed at the initial commit because the user's commit signing key needs a passphrase; with no terminal, it also took the default answers. `newproj` stopped there and reported where the rendered files were, and created no remote. The user removed the directory and reran the command in a terminal. Run `newproj new` from a terminal when commits are signed.
+
+Pending: the first real task done with the template's workflow. macOS and Windows: CI (E-023).
 
 ## Recovery tests
 
