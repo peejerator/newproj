@@ -1,6 +1,6 @@
 # Handoff
 
-Last updated: 2026-11-02
+Last updated: 2026-11-03
 Branch: m8-dogfooding-exit
 Task: standard
 
@@ -14,8 +14,9 @@ in progress
 - AC-9: `CHANGELOG.md` with a `v0.1.0` section (undated; the tag date is in Git). `pyproject.toml` already declared `0.1.0`.
 - AC-7: ERRATA E-022 appended (28.4 transcript-derived retrospective).
 - AC-10, partly: `docs/ROADMAP.md` "Before M8" and "Before tagging v0.1.0" sections removed. Marking Phase 1 complete waits until the 28.1 checklist is all met.
-- AC-1, AC-5 started: `docs/research/dogfooding.md` names both projects and has the 28.1 checklist; bullets 4 to 7 and 10 cite existing evidence; the rest are pending or not met (bullet 8).
-- No change to `src/newproj/` or `template/` yet (AC-11).
+- AC-1, AC-5 started: `docs/research/dogfooding.md` names both projects and has the 28.1 checklist; bullets 4 to 8 and 10 cite existing evidence; the rest are pending.
+- `main` merged into this branch after M7.1 (PR #41), so the dogfooded template carries the M7.1 protocol wording. The merge's changes to `template/` are M7.1's, tested and reviewed there, not M8 changes under AC-11.
+- No M8 change to `src/newproj/` or `template/` yet (AC-11).
 
 ## Current working area
 
@@ -23,10 +24,11 @@ in progress
 
 ## Validation
 
-- PASS | uv run pytest | 443 passed, 1 skipped | Linux, working tree | implementer
+- PASS | uv run pytest | 445 passed, 1 skipped, after merging `main` | Linux, working tree | implementer
+- PASS | state.py check | no violations, after merging `main` | Linux, working tree | implementer
 - PASS | uv build | wheel has `dist-info/licenses/LICENSE` and `License-Expression: MIT`; sdist has `LICENSE` (AC-8) | Linux, working tree | implementer
 - PASS | cmp of ERRATA.md's original bytes against the new file's prefix | earlier entries unchanged (AC-7) | working tree | implementer
-- NOT RUN | CI at HEAD | run 41401224150 on 7c62bff in progress at handoff time (AC-11) | implementer
+- PASS | CI at 6f64e8e | run 41402042355, before merging `main`; CI at the merge commit runs on the next push (AC-11) | CI
 
 ## Review
 
@@ -43,9 +45,8 @@ Outcome: none
 
 ## Blockers / open questions
 
-- 28.1 bullet 8 is not met, so AC-5 cannot pass as written: fixtures must pass on at least two tools, but B6 is 0/2 on Claude Code CLI and 1/2 on Codex CLI (issue #38) and B10 is 0/2 on Codex CLI (issue #39) (`docs/research/behavioral-fixtures.md`, Pass rates). That document says failures are fixed in a later milestone before M8; no milestone did. Fixing #38 and #39 and rerunning the fixtures is larger than a dogfooding fix, so it is outside this task's scope. Needs the user's decision. Agent's recommendation (2026-11-02): fix #38 and #39 in a separate milestone (M7.1) from `main` before continuing M8, so the dogfooded template is the one that ships; M8 pauses with its branch pushed and `TASK.md` unchanged.
-
 ## Relevant decisions
 
 - User decision (2026-11-02): ohm-manager is adopted after its current active task is accepted.
+- User decision (2026-11-02, done 2026-11-03): 28.1 bullet 8 was resolved by fixing #38 and #39 in milestone M7.1 from `main`, merged before M8 resumed.
 - User decisions and facts: `TASK.md` `## Context`.
