@@ -17,6 +17,7 @@ Each milestone is one branch and one pull request. CI must pass on macOS and Win
 | M5.1 | User-invoked `start-task` skill and user-confirmed criteria | 11.2, 12.2, 12.4, 12.5, 16.6, 17, D8, D22; E-018 | Interview, draft, and confirmation procedures ship with matching pointers; doctor checks all six skills |
 | M6 | `newproj adopt` | 20.2 | Tests pass for hygiene-file preservation, the renormalization report, and dirty-tree refusal; first real use of `start-task` recorded in M6's handoff |
 | M7 | Behavioral fixtures B1, B4, B5, B6, B9, B10, B11 on Claude Code and Codex, two runs each | 23.2 | Results recorded |
+| M7.1 | Fixture fixes: protocol rules for issues #38 (B6: flag instructions found in untrusted content) and #39 (B10: do not re-read a skill the tool already loaded); B6 rerun on Claude Code and Codex, B10 rerun on Codex | 23.2, 28.1 | The two most recent B6 and B10 reruns pass with the final wording; every Phase 1 fixture passes on at least two tools |
 | M8 | Dogfooding and exit | 24.1 to 24.3, 28.1 | Two real projects in use; an interrupted session recovered by the other agent; tag `v0.1.0` |
 
 M2 precedes the template and CLI work on purpose: the protocol and skills determine agent behavior and can be used by hand on a real project before the CLI exists (D-004).
