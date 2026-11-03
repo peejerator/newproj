@@ -33,7 +33,7 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 
 ## Environment
 
-- Development machines: macOS (Apple Silicon) and Windows. Every change must work on both.
+- Development machine: one Linux machine, reached over SSH from macOS and Windows (docs/ERRATA.md, E-023). Every change must still work on macOS (Apple Silicon) and Windows; CI checks both.
 - Python is managed by `uv`. Requires Python 3.11 or newer.
 - CI runs on GitHub Actions on Linux, macOS, and Windows for every push and pull request (docs/DECISIONS.md, D-003). The repository is public: never commit secrets, private data, or personal paths.
 - Copier 9.18.2 is the tested minimum version (docs/ERRATA.md, E-001).

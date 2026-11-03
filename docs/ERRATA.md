@@ -269,3 +269,17 @@ Resolution:
 2. The before-and-after comparison uses aggregate figures derived from local Claude Code and Codex transcripts instead of manual notes, read in a single pass on each machine at the end of M8 under the user's explicit authorization: session count, active time, user message count, and a judged count of manual interventions (re-explaining context, copying prompts or summaries between tools, reconciling state by hand), for template-era sessions of the two M8 projects and, where transcripts survive, pre-adoption baseline sessions of the adopted project.
 3. Only aggregate numbers and one-line judgements are committed: no transcript excerpts, no private project content, and no transcript-reading script in the repository.
 4. The closing rule of 28.4 is unchanged: if the workflow takes more attention than the old one, simplify it.
+
+## E-023: One development machine for the Phase 1 exit
+
+Date: 2026-11-03
+Sections: 24.2, 28.1
+
+Observed failure: M8's confirmed criteria (2026-11-02) required `newproj doctor` to report Project B healthy on macOS and on Windows, and recovery test 24.2 to run from macOS to Windows, as spec 24.2 and the first and third bullets of 28.1 describe. On 2026-11-03 the user moved development to a single Linux machine, reached over SSH from macOS and Windows, for the foreseeable future. Agents and `newproj` run only on that machine, so neither requirement can be met by ordinary use. The user approved the following on 2026-11-03 (M8 `TASK.md`).
+
+Resolution:
+
+1. For the Phase 1 exit, real use of `newproj new` and `newproj doctor` happens on the development machine, whatever its operating system. That they work on macOS and Windows is shown by CI, which runs the full test suite, including `new`, `adopt`, `doctor`, and `state.py` against real Git repositories, on Linux, macOS, and Windows. CI does not run a real `gh` account or a coding agent on macOS or Windows; those remain unverified there until real use.
+2. Recovery test 24.2 runs once between the development machine and one other machine with a different operating system, in either direction, working directly on the other machine rather than over SSH. Its procedure and pass criteria are otherwise unchanged.
+3. Per-machine steps of E-022 (the transcript pass and the `cleanupPeriodDays` setting) apply only to machines where agents ran.
+4. Real use on both macOS and Windows, including a macOS to Windows run of 24.2, is still expected before `v1.0.0` (section 24, core tests repeated at v1.0.0).

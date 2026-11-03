@@ -36,12 +36,11 @@ Outcome: none
 
 ## Exact next steps
 
-1. Set `"cleanupPeriodDays": 365` in Claude Code user settings on macOS and Windows (user; already set on the Linux machine).
-2. Answer the open questions below.
-3. After ohm-manager's current task is accepted, adopt ohm-manager with `newproj adopt --template-path <this repository>` on this branch, run its `bootstrap` skill, and record the result in `docs/research/dogfooding.md` (AC-2).
-4. Create Project B with `newproj new` and check it with `newproj doctor` on macOS and Windows (AC-3).
-5. Run recovery tests 24.1, 24.3, and 24.2 on real tasks and record each (AC-4).
-6. At the end: the 28.4 transcript pass on each machine (AC-6), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
+1. Apply the `TASK.md` amendment for E-023 (user).
+2. After ohm-manager's current task is accepted, adopt ohm-manager with `newproj adopt --template-path <this repository>` on this branch, run its `bootstrap` skill, and record the result in `docs/research/dogfooding.md` (AC-2).
+3. Create Project B with `newproj new` on this machine and check it with `newproj doctor` (AC-3, E-023).
+4. Run recovery tests 24.1 and 24.3 on real tasks here, and 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record each (AC-4).
+5. At the end: the 28.4 transcript pass on this machine (AC-6), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
 
 ## Blockers / open questions
 
@@ -49,4 +48,5 @@ Outcome: none
 
 - User decision (2026-11-02): ohm-manager is adopted after its current active task is accepted.
 - User decision (2026-11-02, done 2026-11-03): 28.1 bullet 8 was resolved by fixing #38 and #39 in milestone M7.1 from `main`, merged before M8 resumed.
+- User decision (2026-11-03): one Linux development machine; option 2 of the agent's proposal, recorded as ERRATA E-023 and in `AGENTS.md` Environment.
 - User decisions and facts: `TASK.md` `## Context`.
