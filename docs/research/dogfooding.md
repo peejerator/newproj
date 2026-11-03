@@ -9,7 +9,18 @@ Evidence for roadmap milestone M8: the template in use on two real projects, rec
 
 ## ohm-manager adoption
 
-Pending: the adopt report (collisions and renormalization), the hygiene-file comparison, the `bootstrap` run, and the `newproj doctor` result.
+First attempt (2026-11-03, `newproj adopt --template-path` from this branch): the preflight refused and wrote nothing, because five template-owned paths existed and differed from the template: `docs/AGENT_PROTOCOL.md`, the `bootstrap`, `handoff`, and `resume` skills under `.agents/skills/`, and the `bootstrap` pointer under `.claude/skills/`. All five were byte-identical to this repository's M2 template at 41114dc, copied by hand into ohm-manager on 2026-10-09 (the M2 trial, D-004) and never edited there, so removing them loses nothing. Finding: a project carrying an unmodified earlier template version must remove those files by hand before adopting.
+
+After the user removed them (542ea82 in ohm-manager), the second run succeeded (2026-11-03; answers: Python, no license, empty description).
+
+- Adopt report: 23 template-owned files created. Collisions: the existing `AGENTS.md` preserved and marked for `bootstrap` review; `CLAUDE.md`, `README.md`, `TASK.md`, `HANDOFF.md`, and `docs/DECISIONS.md` preserved; the `handoff` and `resume` pointers under `.claude/skills/` preserved as identical to the template. Default branch resolved from `origin/HEAD`. Nothing staged or committed.
+- Renormalization: none needed. The adopt report listed no renormalization item, and `git ls-files --eol` shows all 298 tracked files stored with LF, so the new `* text=auto eol=lf` rule changes no file.
+- Hygiene files: `.gitignore` was the only one that existed; it was preserved and gained a marked block appending the required `context.md` entry, with no existing line changed (checked with `git diff`). `.editorconfig`, `.gitattributes`, and `.env.example` did not exist and were created.
+- The template working tree had an uncommitted documentation change at the time, so Copier rendered a temporary commit and the answers file records its hash (44dd926) rather than a commit on this branch. Only this document differed.
+
+- `bootstrap` (Claude Code, 2026-11-03) found all required files present and created nothing. It reported three collisions and the user approved its proposals for all three: the empty, older-format `docs/DECISIONS.md` replaced by the template's reference copy; `docs/development_state.md` no longer calls itself a handoff; dated operational notes go to `docs/operations-log.md` instead of `HANDOFF.md`, which is not an activity log. At the user's request it also added the rule that the user makes every commit. It proposed no trimming of `AGENTS.md`'s safety rules without the user's direction.
+- Committed by the user as one adoption commit (c5d05ac in ohm-manager), with `core.hooksPath` set to `.githooks`.
+- `newproj doctor` after the commit: 19 PASS, 1 WARN, 0 FAIL, 3 INFO. The WARN is `AGENTS.md` at 315 lines against a budget of about 150; most of it is ohm-manager's safety rules, left for a later ohm-manager task rather than trimmed during adoption. No FAIL, so the project counts as healthy.
 
 ## Project B creation
 
@@ -42,7 +53,7 @@ Pending.
 | # | Criterion (spec 28.1) | Status | Evidence |
 |---|---|---|---|
 | 1 | `newproj new` works on macOS and Windows, with Git and GitHub side effects orchestrated by `newproj`, not Copier tasks, and automatic private repository creation | pending | `tests/test_new.py` (`test_new_runs_no_copier_tasks`, `test_new_with_remote`); CI on Linux, macOS, and Windows; real use: Project B creation (pending) |
-| 2 | `newproj adopt` preserves project-owned files and reports collisions; bootstrap reconciles an existing repository safely | pending | `tests/test_adopt.py` (`test_existing_project_files_preserved_and_reviewed`, `test_renormalization_report`, `test_dirty_tree_refused`); `tests/test_agent_content.py` (`test_bootstrap_collisions_and_required_files`); real use: ohm-manager adoption (pending) |
+| 2 | `newproj adopt` preserves project-owned files and reports collisions; bootstrap reconciles an existing repository safely | met | `tests/test_adopt.py` (`test_existing_project_files_preserved_and_reviewed`, `test_renormalization_report`, `test_dirty_tree_refused`); `tests/test_agent_content.py` (`test_bootstrap_collisions_and_required_files`); real use: ohm-manager adoption, above |
 | 3 | `newproj doctor` performs its Phase 1 checks on both machines, and a freshly generated project, before and after ordinary lightweight work, is reported healthy | pending | `tests/test_doctor.py` (`test_lightweight_change_keeps_no_fail`); CI on Linux, macOS, and Windows; real use: Project B on macOS and Windows (pending) |
 | 4 | The protocol stays within budget and defines workflow tiers (including escalation on interruption), the Definition of Done, information lifetimes, and trust boundaries | met | `template/docs/AGENT_PROTOCOL.md` (114 lines; sections Workflow tiers, Definition of done, During work, Trust boundaries and authority); `tests/test_agent_content.py` (`test_protocol_line_limit`, `test_protocol_headings`) |
 | 5 | Lightweight work, including moderately sized features, proceeds without touching `TASK.md` or `HANDOFF.md` | met | Fixture B4, 2/2 on Claude Code CLI and 2/2 on Codex CLI (`docs/research/behavioral-fixtures.md`) |
@@ -51,7 +62,7 @@ Pending.
 | 8 | Phase 1 CI tests pass; fixtures B1, B4, B5, B6, B9, B10, and B11 pass on at least two tools | met | CI passes on Linux, macOS, and Windows. Every fixture passes on Claude Code CLI and Codex CLI; B6 and B10 pass 2/2 on each tool after the M7.1 protocol fixes (issues #38 and #39) (`docs/research/behavioral-fixtures.md`, Pass rates) |
 | 9 | Recovery tests 24.1, 24.2 (ordinary Git), and 24.3 (standard task) pass | pending | Recovery tests, above |
 | 10 | Formal-risk work is recognized and gated on the user's go-ahead (fixture B5) | met | Fixture B5, 2/2 on each tool (`docs/research/behavioral-fixtures.md`) |
-| 11 | Adoption of an existing repository with its own hygiene files changes none of them destructively | pending | `tests/test_adopt.py` (`test_editorconfig_preserved_and_differences_reported`, `test_gitattributes_with_lf_rule_preserved`); real use: ohm-manager adoption (pending) |
+| 11 | Adoption of an existing repository with its own hygiene files changes none of them destructively | met | `tests/test_adopt.py` (`test_editorconfig_preserved_and_differences_reported`, `test_gitattributes_with_lf_rule_preserved`); real use: ohm-manager adoption, above |
 | 12 | The template has been used on two real projects, and an interrupted session on one of them was recovered by a different agent | pending | Projects, ohm-manager adoption, Project B creation, and recovery test 24.3 (pending) |
 
 ## 28.4 retrospective

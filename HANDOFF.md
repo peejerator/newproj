@@ -17,7 +17,7 @@ in progress
 - AC-1, AC-5 started: `docs/research/dogfooding.md` names both projects and has the 28.1 checklist; bullets 4 to 8 and 10 cite existing evidence; the rest are pending.
 - `main` merged into this branch after M7.1 (PR #41), so the dogfooded template carries the M7.1 protocol wording. The merge's changes to `template/` are M7.1's, tested and reviewed there, not M8 changes under AC-11.
 - AC-3 started: Project B created as `pokemon-content`, private repository, `newproj doctor` healthy (`docs/research/dogfooding.md`, Project B creation). Its first real task is pending.
-- ohm-manager's 2026-10-29 task: checks rerun at its `HEAD` pass; the user reset its task files to neutral (3bd2b51). It is ready for adoption.
+- AC-2: ohm-manager adopted and bootstrapped; `newproj doctor` 0 FAIL, one WARN for `AGENTS.md` size (`docs/research/dogfooding.md`, ohm-manager adoption). 28.1 bullets 2 and 11 marked met.
 - No M8 change to `src/newproj/` or `template/` yet (AC-11).
 
 ## Current working area
@@ -38,11 +38,9 @@ Outcome: none
 
 ## Exact next steps
 
-1. Apply the `TASK.md` amendment for E-023 (user).
-2. Adopt ohm-manager with `newproj adopt --template-path <this repository>` on this branch, run its `bootstrap` skill, and record the result in `docs/research/dogfooding.md` (AC-2).
-3. Do a first real standard task in `pokemon-content` with the template's workflow (AC-3); it can host recovery test 24.1 or 24.3.
-4. Run recovery tests 24.1 and 24.3 on real tasks here, and 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record each (AC-4).
-5. At the end: the 28.4 transcript pass on this machine (AC-6), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
+1. Do a first real standard task in `pokemon-content` with the template's workflow (AC-3); it can host recovery test 24.1 or 24.3.
+2. Run recovery tests 24.1 and 24.3 on real tasks here, and 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record each (AC-4).
+3. At the end: the 28.4 transcript pass on this machine (AC-6), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
 
 ## Blockers / open questions
 
