@@ -30,7 +30,17 @@ Created 2026-11-03 on the Linux development machine (E-023) as `pokemon-content`
 - `newproj doctor`: 20 PASS, 0 WARN, 0 FAIL, 3 INFO, run after the push.
 - A first attempt, run by an agent without a terminal, rendered the files but failed at the initial commit because the user's commit signing key needs a passphrase; with no terminal, it also took the default answers. `newproj` stopped there and reported where the rendered files were, and created no remote. The user removed the directory and reran the command in a terminal. Run `newproj new` from a terminal when commits are signed.
 
-Pending: the first real task done with the template's workflow. macOS and Windows: CI (E-023).
+First real task (2026-11-09, accepted ee780a9 in pokemon-content): the game-harness skeleton, a standard task through the full workflow. `start-task` interview (two rounds, criteria AC-1 to AC-11 confirmed) on branch `harness-skeleton`; implementation in Claude Code across three sessions (recovery test 24.1, below); independent review in Codex, first INCONCLUSIVE (AC-2 needed a real ROM run), then PASS after the implementer recorded real-ROM runs and Codex reran them itself; `accept` reset both task files and fast-forwarded `main`. After acceptance, `state.py check` reports no violations and `newproj doctor` reports 20 PASS, 0 WARN, 0 FAIL.
+
+Findings from the task (template changes proposed to the user):
+
+- Agent A created nine files without first setting `## Status` to `in progress`, so the next agent found `not started` beside a half-built package. The protocol only asks for handoff updates at meaningful milestones.
+- At the end of implementation the agent wrote "commit the work" without printing the command. The project's `AGENTS.md` does not say that the user makes every commit, and the template neither asks nor says.
+- The implementer updated `HANDOFF.md` from the `resume` flow without running `state.py check`; its validation entries broke the required format, and the reviewer reported it. The check is required only inside the `handoff` skill.
+- An acceptance criterion (AC-2, writes no save files) needed a real ROM to verify; the interview did not ask how the reviewer would check it, which produced the INCONCLUSIVE first review.
+- The implementer's first `ruff format` run also reformatted the template-managed `state.py`; the agent reverted it and excluded `.agents/` and `.claude/` from ruff.
+
+macOS and Windows: CI (E-023).
 
 ## Recovery tests
 
@@ -38,7 +48,18 @@ Each entry is one passing run on a real standard task, recorded from the project
 
 ### 24.1 Same-machine interrupted-session recovery
 
-Pending.
+Pass, 2026-11-09, pokemon-content, the game-harness skeleton task (Claude Code throughout; sessions started fresh, project memory empty throughout). Recorded from the Claude Code transcripts on this machine (user-authorized) and the task's Git history.
+
+Procedure: the confirmed task was committed (f659938). Agent A implemented part of it and was stopped without recording progress (see the earlier attempt below), so the run used the next session as its Agent A: it reconciled the tree, recorded progress in `HANDOFF.md` (`in progress`, the package as completed, tests, ignore rules, the hook, and docs as remaining), then changed `.gitignore` and created `.githooks/pre-commit`, and was interrupted by the user mid-work with the tree dirty and nothing committed. Agent B, a new session with no prior chat, was asked to resume.
+
+- Identified the active task and its acceptance criteria: yes; it validated and reported against AC-1 to AC-11 by ID.
+- Detected that the working tree differed from `HANDOFF.md`: yes; it reported that the handoff listed the `.gitignore` entries and the hook as remaining although both were already in the tree, and corrected the handoff.
+- Inspected the working tree: yes (`git diff`, the hook, every source file).
+- Distinguished completed from incomplete work: yes; it kept the package, ignore rules, and hook, and wrote the missing tests and documentation.
+- Identified what had and had not been validated: yes; nothing had been validated, so it ran every check and recorded the real-ROM tests as NOT RUN.
+- Determined the correct next step and continued without the old chat: yes; it finished the task to `validating`, which the review and acceptance above confirm.
+
+Earlier attempt (not counted): the first Agent A was stopped before it recorded any progress, with the handoff still `not started`. The next session, asked to resume, noticed the mismatch, reconstructed progress from the working tree, and recorded it. Recovery worked even without a progress record, but the procedure's step 2 was not met.
 
 ### 24.2 Cross-machine recovery (ordinary Git)
 
@@ -52,12 +73,12 @@ Pending.
 
 | # | Criterion (spec 28.1) | Status | Evidence |
 |---|---|---|---|
-| 1 | `newproj new` works on macOS and Windows, with Git and GitHub side effects orchestrated by `newproj`, not Copier tasks, and automatic private repository creation | pending | `tests/test_new.py` (`test_new_runs_no_copier_tasks`, `test_new_with_remote`); CI on Linux, macOS, and Windows; real use: Project B creation (pending) |
+| 1 | `newproj new` works on macOS and Windows, with Git and GitHub side effects orchestrated by `newproj`, not Copier tasks, and automatic private repository creation | met | `tests/test_new.py` (`test_new_runs_no_copier_tasks`, `test_new_with_remote`); CI on Linux, macOS, and Windows; real use on Linux: Project B creation, above (E-023) |
 | 2 | `newproj adopt` preserves project-owned files and reports collisions; bootstrap reconciles an existing repository safely | met | `tests/test_adopt.py` (`test_existing_project_files_preserved_and_reviewed`, `test_renormalization_report`, `test_dirty_tree_refused`); `tests/test_agent_content.py` (`test_bootstrap_collisions_and_required_files`); real use: ohm-manager adoption, above |
-| 3 | `newproj doctor` performs its Phase 1 checks on both machines, and a freshly generated project, before and after ordinary lightweight work, is reported healthy | pending | `tests/test_doctor.py` (`test_lightweight_change_keeps_no_fail`); CI on Linux, macOS, and Windows; real use: Project B on macOS and Windows (pending) |
+| 3 | `newproj doctor` performs its Phase 1 checks on both machines, and a freshly generated project, before and after ordinary lightweight work, is reported healthy | met | `tests/test_doctor.py` (`test_lightweight_change_keeps_no_fail`); CI on Linux, macOS, and Windows; real use on Linux: Project B healthy when created and after its first task, above (E-023) |
 | 4 | The protocol stays within budget and defines workflow tiers (including escalation on interruption), the Definition of Done, information lifetimes, and trust boundaries | met | `template/docs/AGENT_PROTOCOL.md` (114 lines; sections Workflow tiers, Definition of done, During work, Trust boundaries and authority); `tests/test_agent_content.py` (`test_protocol_line_limit`, `test_protocol_headings`) |
 | 5 | Lightweight work, including moderately sized features, proceeds without touching `TASK.md` or `HANDOFF.md` | met | Fixture B4, 2/2 on Claude Code CLI and 2/2 on Codex CLI (`docs/research/behavioral-fixtures.md`) |
-| 6 | Resume continues automatically when state is coherent and reconciles discrepancies using Git before asking | met | Fixture B9, 2/2 on each tool (`docs/research/behavioral-fixtures.md`); recovery tests 24.1 and 24.3 (pending) |
+| 6 | Resume continues automatically when state is coherent and reconciles discrepancies using Git before asking | met | Fixture B9, 2/2 on each tool (`docs/research/behavioral-fixtures.md`); recovery test 24.1 (above); 24.3 (pending) |
 | 7 | `state.py` reports the three signal groups, with no false history-freshness warning after a normal commit | met | `tests/test_state.py` (`test_active_report_lists_spec_items`: the three groups in order and "No commits since the last handoff" after a normal commit; `test_stale_and_dirty_handoff`) |
 | 8 | Phase 1 CI tests pass; fixtures B1, B4, B5, B6, B9, B10, and B11 pass on at least two tools | met | CI passes on Linux, macOS, and Windows. Every fixture passes on Claude Code CLI and Codex CLI; B6 and B10 pass 2/2 on each tool after the M7.1 protocol fixes (issues #38 and #39) (`docs/research/behavioral-fixtures.md`, Pass rates) |
 | 9 | Recovery tests 24.1, 24.2 (ordinary Git), and 24.3 (standard task) pass | pending | Recovery tests, above |

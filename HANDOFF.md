@@ -14,9 +14,10 @@ in progress
 - AC-9: `CHANGELOG.md` with a `v0.1.0` section (undated; the tag date is in Git). `pyproject.toml` already declared `0.1.0`.
 - AC-7: ERRATA E-022 appended (28.4 transcript-derived retrospective).
 - AC-10, partly: `docs/ROADMAP.md` "Before M8" and "Before tagging v0.1.0" sections removed. Marking Phase 1 complete waits until the 28.1 checklist is all met.
-- AC-1, AC-5 started: `docs/research/dogfooding.md` names both projects and has the 28.1 checklist; bullets 4 to 8 and 10 cite existing evidence; the rest are pending.
+- AC-1, AC-5 started: `docs/research/dogfooding.md` names both projects and has the 28.1 checklist; bullets 1 to 8, 10, and 11 are met; 9 and 12 are pending.
 - `main` merged into this branch after M7.1 (PR #41), so the dogfooded template carries the M7.1 protocol wording. The merge's changes to `template/` are M7.1's, tested and reviewed there, not M8 changes under AC-11.
-- AC-3 started: Project B created as `pokemon-content`, private repository, `newproj doctor` healthy (`docs/research/dogfooding.md`, Project B creation). Its first real task is pending.
+- AC-3: Project B created as `pokemon-content`, private repository, `newproj doctor` healthy; first real task (game-harness skeleton) accepted 2026-11-09 after a Codex PASS review (`docs/research/dogfooding.md`, Project B creation). 28.1 bullets 1 and 3 marked met (E-023).
+- AC-4, partly: 24.1 passed in pokemon-content (`docs/research/dogfooding.md`, 24.1). 24.2 and 24.3 pending.
 - AC-2: ohm-manager adopted and bootstrapped; `newproj doctor` 0 FAIL, one WARN for `AGENTS.md` size (`docs/research/dogfooding.md`, ohm-manager adoption). 28.1 bullets 2 and 11 marked met.
 - No M8 change to `src/newproj/` or `template/` yet (AC-11).
 
@@ -38,11 +39,13 @@ Outcome: none
 
 ## Exact next steps
 
-1. Do a first real standard task in `pokemon-content` with the template's workflow (AC-3); it can host recovery test 24.1 or 24.3.
-2. Run recovery tests 24.1 and 24.3 on real tasks here, and 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record each (AC-4).
+1. If the user approves, make template fixes (a) to (c) below with tests and an ERRATA entry (AC-11).
+2. Run recovery test 24.3 in ohm-manager (Claude Code, then Codex), and 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record each (AC-4).
 3. At the end: the 28.4 transcript pass on this machine (AC-6), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
 
 ## Blockers / open questions
+
+- Template fixes found in pokemon-content's first task (`docs/research/dogfooding.md`, Project B creation, Findings), proposed to the user 2026-11-09 and awaiting the go-ahead: (a) set `## Status` to `in progress` before the first change; (b) print the commit command when implementation finishes; (c) run the `state.py` check after every `HANDOFF.md` update. (a) and (c) change the protocol sentence quoted in spec section 11.5, so they need an ERRATA entry.
 
 ## Relevant decisions
 
