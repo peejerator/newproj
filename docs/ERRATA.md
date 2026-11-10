@@ -283,3 +283,18 @@ Resolution:
 2. Recovery test 24.2 runs once between the development machine and one other machine with a different operating system, in either direction, working directly on the other machine rather than over SSH. Its procedure and pass criteria are otherwise unchanged.
 3. Per-machine steps of E-022 (the transcript pass and the `cleanupPeriodDays` setting) apply only to machines where agents ran.
 4. Real use on both macOS and Windows, including a macOS to Windows run of 24.2, is still expected before `v1.0.0` (section 24, core tests repeated at v1.0.0).
+
+## E-024: Fixes from the first real task in a generated project
+
+Date: 2026-11-09
+Sections: 9.5, 11.5, 11.8; the `handoff` skill (17.3); the `start-task` interview reference (E-018)
+
+Observed failure: pokemon-content's first standard task (M8, recorded in `docs/research/dogfooding.md`) ran through the full workflow and showed five gaps. (a) The implementing agent created nine files without touching `HANDOFF.md`; when it was interrupted, the next agent found `Status: not started` beside a half-built package and had to infer whose work it was. (b) At the end of implementation the agent asked the user to commit without printing the command, because the project's `AGENTS.md` did not say that the user makes every commit. (c) The agent updated `HANDOFF.md` outside the `handoff` skill and never ran the `state.py` check; its validation entries broke the required format, which the reviewer reported. (d) An acceptance criterion required a run with a ROM the reviewer did not have, so the first review was INCONCLUSIVE and took an extra cycle. (e) A formatter run over the whole tree rewrote the template-managed `state.py`; the agent noticed only because the task listed `.agents/` as protected. The user approved the following on 2026-11-09 (M8).
+
+Resolution:
+
+1. Section 11.5: for standard and formal work, the agent sets `## Status` in `HANDOFF.md` to `in progress` before the first change, then updates `HANDOFF.md` at meaningful milestones, not after every edit, and runs the `state.py` check as the `handoff` skill describes after each update.
+2. Section 11.8: when work the next step needs committed stays uncommitted (a finished implementation before review, a review record, an acceptance), the agent stages it and prints the exact commit command, whoever makes commits. The `handoff` skill's Marking the task complete says the same for the implementation and `HANDOFF.md`.
+3. The `start-task` interview is finished only when each acceptance criterion can be checked by a reviewer with what the review environment has (tools, data, credentials, hardware, or files the user supplies); for one that cannot, the interview settles with the user how it will be checked, or rewrites it.
+4. Section 9.5: the template's `AGENTS.md` lists under Conventions that template-managed files (`docs/AGENT_PROTOCOL.md`, `docs/PROMPTS.md`, `.githooks/`, and the skills under `.agents/skills/` and `.claude/skills/` other than `project-*` skills) change only through template updates, are never edited by hand, and are excluded from formatters and linters. Existing projects' `AGENTS.md` files are project-owned and unchanged.
+5. The protocol stays within its 120-line budget (116 lines).

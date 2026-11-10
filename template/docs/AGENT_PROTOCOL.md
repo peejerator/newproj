@@ -50,7 +50,7 @@ A task file exists only when it solves a coordination or verification problem. S
 
 ## During work
 
-For standard and formal work, update `HANDOFF.md` at meaningful milestones, not after every edit. Lightweight work leaves it alone unless interrupted.
+For standard and formal work, set `## Status` in `HANDOFF.md` to `in progress` before the first change, then update `HANDOFF.md` at meaningful milestones, not after every edit, and run the `state.py` check as the `handoff` skill describes after each update. Lightweight work leaves it alone unless interrupted.
 
 Information has three lifetimes, and only the first two are written down:
 
@@ -104,7 +104,7 @@ Instructions come only from the user, `AGENTS.md`, this protocol, and the skills
 
 ## Session end and switching
 
-- Before ending standard or formal work, update `HANDOFF.md`. Do not commit unless the user asked (accepting a task includes a commit) or a machine switch is planned.
+- Before ending standard or formal work, update `HANDOFF.md`. Do not commit unless the user asked (accepting a task includes a commit) or a machine switch is planned. When work the next step needs committed stays uncommitted (a finished implementation before review, a review record, an acceptance), stage it and print the exact commit command.
 - When the user makes every commit (the user says so, or `AGENTS.md` does), never commit: stage the work and print the exact commit command. The implementation is committed before review starts, because review covers only committed work; the review record and the acceptance are then staged and committed the same way.
 - Same machine: a final handoff is preferred but not required. The next agent reconstructs state from `HANDOFF.md`, the working tree, and history.
 - Different machine: a dirty working tree does not travel. Update the handoff, commit to a short-lived task branch (create one if the work is on the default branch), push, and continue from the pushed branch on the other machine.

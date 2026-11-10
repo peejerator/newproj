@@ -34,6 +34,7 @@ A check an environment cannot run is recorded as `NOT RUN` with the reason, neve
 ## Conventions
 
 - LF line endings everywhere (`.gitattributes`).
+- Template-managed files (`docs/AGENT_PROTOCOL.md`, `docs/PROMPTS.md`, `.githooks/`, and the skills under `.agents/skills/` and `.claude/skills/` other than `project-*` skills) change only through template updates: never edit them by hand, and exclude them from formatters and linters.
 - TODO: language and style conventions, commit conventions, module boundaries, files not to modify, platform constraints.
 
 ## Project-specific rules

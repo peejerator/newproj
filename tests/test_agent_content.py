@@ -341,3 +341,35 @@ def test_text_hygiene(path: Path) -> None:
     assert "–" not in text, "en dash"
     for command in PHASE_2_COMMANDS:
         assert command not in text
+
+
+# E-024: fixes from pokemon-content's first task (M8 dogfooding).
+
+
+def test_protocol_marks_work_started_and_checks_each_handoff_update() -> None:
+    # (a) a `not started` handoff beside changed files left the next agent guessing;
+    # (c) handoff updates outside the `handoff` skill skipped the mechanical check.
+    section = protocol_section("## During work")
+    assert ("set `## Status` in `HANDOFF.md` to `in progress` before the first change, then update "
+            "`HANDOFF.md` at meaningful milestones") in section
+    assert "run the `state.py` check as the `handoff` skill describes after each update" in section
+    assert "Check the mechanical rules: run `uv run --no-project .agents/skills/resume/scripts/state.py check`" in read(
+        canonical("handoff"))
+
+
+def test_uncommitted_work_gets_a_printed_commit_command() -> None:
+    # (b) the implementer asked the user to commit without printing the command.
+    section = protocol_section("## Session end and switching")
+    assert ("When work the next step needs committed stays uncommitted (a finished implementation before "
+            "review, a review record, an acceptance), stage it and print the exact commit command.") in section
+    complete = read(canonical("handoff")).split("\n## Marking the task complete\n")[1]
+    assert ("unless the user asked you to commit, stage the implementation and `HANDOFF.md` and print the "
+            "exact commit command") in complete
+
+
+def test_interview_requires_criteria_the_reviewer_can_check() -> None:
+    # (d) a criterion needing a ROM the reviewer did not have produced an INCONCLUSIVE review.
+    text = read(TEMPLATE / ".agents" / "skills" / "start-task" / "references" / "interview.md")
+    finish = text.split("The interview is finished when")[1].split("\n\n")[0]
+    assert "can be checked by a reviewer with what the review environment has" in finish
+    assert "settle with the user how it will be checked, or rewrite it" in finish

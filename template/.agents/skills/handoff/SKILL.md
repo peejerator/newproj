@@ -137,6 +137,6 @@ PR:
 1. Check the Definition of Done in `docs/AGENT_PROTOCOL.md`, condition by condition. Record each acceptance criterion's evidence under `## Validation` and any exception under `## Blockers / open questions`.
 2. List any claim about system behavior you could not verify under `## Blockers / open questions`, so the reviewer checks it against the code.
 3. Set `## Status` to `complete`, or to `validating` while checks such as CI are still running.
-4. Recommend an independent review with the `review` skill, run by the user in a different agent or model. It is expected when the work moves, rewrites, or removes safety rules or instruction-file content, and required for formal-risk work. The implementation must be committed before the review starts.
+4. Recommend an independent review with the `review` skill, run by the user in a different agent or model. It is expected when the work moves, rewrites, or removes safety rules or instruction-file content, and required for formal-risk work. The implementation must be committed before the review starts: unless the user asked you to commit, stage the implementation and `HANDOFF.md` and print the exact commit command.
 5. If the branch contains WIP or `checkpoint(` commits, remind the user to squash them before merging.
 6. Acceptance belongs to the user and follows the `accept` skill, which resets `TASK.md` and `HANDOFF.md` to the neutral state on the task's branch before it is merged.

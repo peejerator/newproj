@@ -87,6 +87,11 @@ AGENTS_HEADINGS = [
     "## Where to find more",
 ]
 STABLE_INSTRUCTION = "At the start of every session, read and follow `docs/AGENT_PROTOCOL.md`."
+TEMPLATE_MANAGED_RULE = (
+    "- Template-managed files (`docs/AGENT_PROTOCOL.md`, `docs/PROMPTS.md`, `.githooks/`, and the skills under"
+    " `.agents/skills/` and `.claude/skills/` other than `project-*` skills) change only through template"
+    " updates: never edit them by hand, and exclude them from formatters and linters."
+)
 RULES = [
     "- Never commit secrets or credentials.",
     '- Never add Co-Authored-By trailers, "Generated with" footers, or other AI attribution'
@@ -208,6 +213,8 @@ def test_agents_md(case: tuple[dict[str, object], Path]) -> None:
         assert any(line.startswith(f"- {command}: TODO") for line in lines), command
     for rule in RULES:
         assert rule in lines
+    # E-024 (e): a formatter run in a generated project rewrote the template's state.py.
+    assert TEMPLATE_MANAGED_RULE in lines
 
 
 # AC-4

@@ -19,7 +19,12 @@ in progress
 - AC-3: Project B created as `pokemon-content`, private repository, `newproj doctor` healthy; first real task (game-harness skeleton) accepted 2026-11-09 after a Codex PASS review (`docs/research/dogfooding.md`, Project B creation). 28.1 bullets 1 and 3 marked met (E-023).
 - AC-4, partly: 24.1 passed in pokemon-content (`docs/research/dogfooding.md`, 24.1). 24.2 and 24.3 pending.
 - AC-2: ohm-manager adopted and bootstrapped; `newproj doctor` 0 FAIL, one WARN for `AGENTS.md` size (`docs/research/dogfooding.md`, ohm-manager adoption). 28.1 bullets 2 and 11 marked met.
-- No M8 change to `src/newproj/` or `template/` yet (AC-11).
+- M8 template changes (AC-11), from pokemon-content's first task, ERRATA E-024, each covered by a test:
+  - `template/docs/AGENT_PROTOCOL.md`, During work: set `in progress` before the first change; run the `state.py` check after each handoff update (`test_protocol_marks_work_started_and_checks_each_handoff_update`).
+  - `template/docs/AGENT_PROTOCOL.md`, Session end and switching, and `template/.agents/skills/handoff/SKILL.md`, Marking the task complete: print the commit command for uncommitted work the next step needs (`test_uncommitted_work_gets_a_printed_commit_command`).
+  - `template/.agents/skills/start-task/references/interview.md`: criteria must be checkable in the review environment (`test_interview_requires_criteria_the_reviewer_can_check`).
+  - `template/AGENTS.md.jinja`, Conventions: template-managed files are never edited by hand and are excluded from formatters and linters (`tests/test_render.py`, `test_agents_md`).
+  - The protocol is 116 lines.
 
 ## Current working area
 
@@ -27,7 +32,7 @@ in progress
 
 ## Validation
 
-- PASS | uv run pytest | 445 passed, 1 skipped, after merging `main` | Linux, working tree | implementer
+- PASS | uv run pytest | 448 passed, 1 skipped, with the E-024 changes | Linux, working tree | implementer
 - PASS | state.py check | no violations, after merging `main` | Linux, working tree | implementer
 - PASS | uv build | wheel has `dist-info/licenses/LICENSE` and `License-Expression: MIT`; sdist has `LICENSE` (AC-8) | Linux, working tree | implementer
 - PASS | cmp of ERRATA.md's original bytes against the new file's prefix | earlier entries unchanged (AC-7) | working tree | implementer
@@ -39,13 +44,10 @@ Outcome: none
 
 ## Exact next steps
 
-1. If the user approves, make template fixes (a) to (c) below with tests and an ERRATA entry (AC-11).
-2. Run recovery test 24.3 in ohm-manager (Claude Code, then Codex), and 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record each (AC-4).
-3. At the end: the 28.4 transcript pass on this machine (AC-6), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
+1. Run recovery test 24.3 in ohm-manager (Claude Code, then Codex), and 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record each (AC-4).
+2. At the end: the 28.4 transcript pass on this machine (AC-6), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
 
 ## Blockers / open questions
-
-- Template fixes found in pokemon-content's first task (`docs/research/dogfooding.md`, Project B creation, Findings), proposed to the user 2026-11-09 and awaiting the go-ahead: (a) set `## Status` to `in progress` before the first change; (b) print the commit command when implementation finishes; (c) run the `state.py` check after every `HANDOFF.md` update. (a) and (c) change the protocol sentence quoted in spec section 11.5, so they need an ERRATA entry.
 
 ## Relevant decisions
 
@@ -53,4 +55,5 @@ Outcome: none
 - User decision (2026-11-03): Project B's repository is `pokemon-content`, private.
 - User decision (2026-11-02, done 2026-11-03): 28.1 bullet 8 was resolved by fixing #38 and #39 in milestone M7.1 from `main`, merged before M8 resumed.
 - User decision (2026-11-03): one Linux development machine; option 2 of the agent's proposal, recorded as ERRATA E-023 and in `AGENTS.md` Environment.
+- User decision (2026-11-09): template fixes (a) to (e) from pokemon-content's first task, recorded as ERRATA E-024.
 - User decisions and facts: `TASK.md` `## Context`.

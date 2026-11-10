@@ -32,7 +32,7 @@ Created 2026-11-03 on the Linux development machine (E-023) as `pokemon-content`
 
 First real task (2026-11-09, accepted ee780a9 in pokemon-content): the game-harness skeleton, a standard task through the full workflow. `start-task` interview (two rounds, criteria AC-1 to AC-11 confirmed) on branch `harness-skeleton`; implementation in Claude Code across three sessions (recovery test 24.1, below); independent review in Codex, first INCONCLUSIVE (AC-2 needed a real ROM run), then PASS after the implementer recorded real-ROM runs and Codex reran them itself; `accept` reset both task files and fast-forwarded `main`. After acceptance, `state.py check` reports no violations and `newproj doctor` reports 20 PASS, 0 WARN, 0 FAIL.
 
-Findings from the task (template changes proposed to the user):
+Findings from the task, each fixed in the template (ERRATA E-024):
 
 - Agent A created nine files without first setting `## Status` to `in progress`, so the next agent found `not started` beside a half-built package. The protocol only asks for handoff updates at meaningful milestones.
 - At the end of implementation the agent wrote "commit the work" without printing the command. The project's `AGENTS.md` does not say that the user makes every commit, and the template neither asks nor says.
