@@ -1,6 +1,6 @@
 # Handoff
 
-Last updated: 2026-11-03
+Last updated: 2026-11-10
 Branch: m8-dogfooding-exit
 Task: standard
 
@@ -14,10 +14,10 @@ in progress
 - AC-9: `CHANGELOG.md` with a `v0.1.0` section (undated; the tag date is in Git). `pyproject.toml` already declared `0.1.0`.
 - AC-7: ERRATA E-022 appended (28.4 transcript-derived retrospective).
 - AC-10, partly: `docs/ROADMAP.md` "Before M8" and "Before tagging v0.1.0" sections removed. Marking Phase 1 complete waits until the 28.1 checklist is all met.
-- AC-1, AC-5 started: `docs/research/dogfooding.md` names both projects and has the 28.1 checklist; bullets 1 to 8, 10, and 11 are met; 9 and 12 are pending.
+- AC-1, AC-5 started: `docs/research/dogfooding.md` names both projects and has the 28.1 checklist; bullets 1 to 8 and 10 to 12 are met; 9 is pending (24.2).
 - `main` merged into this branch after M7.1 (PR #41), so the dogfooded template carries the M7.1 protocol wording. The merge's changes to `template/` are M7.1's, tested and reviewed there, not M8 changes under AC-11.
 - AC-3: Project B created as `pokemon-content`, private repository, `newproj doctor` healthy; first real task (game-harness skeleton) accepted 2026-11-09 after a Codex PASS review (`docs/research/dogfooding.md`, Project B creation). 28.1 bullets 1 and 3 marked met (E-023).
-- AC-4, partly: 24.1 passed in pokemon-content (`docs/research/dogfooding.md`, 24.1). 24.2 and 24.3 pending.
+- AC-4, partly: 24.1 and 24.3 passed in pokemon-content (`docs/research/dogfooding.md`, 24.1 and 24.3; 24.3 resumed Claude Code's interrupted session in Codex CLI). 24.2 pending.
 - AC-2: ohm-manager adopted and bootstrapped; `newproj doctor` 0 FAIL, one WARN for `AGENTS.md` size (`docs/research/dogfooding.md`, ohm-manager adoption). 28.1 bullets 2 and 11 marked met.
 - M8 template changes (AC-11), from pokemon-content's first task, ERRATA E-024, each covered by a test:
   - `template/docs/AGENT_PROTOCOL.md`, During work: set `in progress` before the first change; run the `state.py` check after each handoff update (`test_protocol_marks_work_started_and_checks_each_handoff_update`).
@@ -44,7 +44,7 @@ Outcome: none
 
 ## Exact next steps
 
-1. Run recovery test 24.3 in ohm-manager (Claude Code, then Codex), and 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record each (AC-4).
+1. Run recovery test 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record it (AC-4).
 2. At the end: the 28.4 transcript pass on this machine (AC-6), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
 
 ## Blockers / open questions

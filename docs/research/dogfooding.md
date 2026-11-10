@@ -67,7 +67,18 @@ Pending.
 
 ### 24.3 Task-intent preservation (standard task, different provider)
 
-Pending.
+Pass, 2026-11-10, pokemon-content, the agent-interface task (an agent protocol, the random agent moved onto it, and a replay agent with its CLI subcommand; AC-1 to AC-8). Agent A was Claude Code; Agent B was Codex CLI. Recorded from the Codex transcript on this machine (user-authorized), a snapshot of the working tree taken between the two sessions, and the task's Git history.
+
+Procedure: the confirmed task was committed (d090b86). Agent A, a new session asked only to implement the active task, recorded a golden fixture of the random agent's output, wrote the agent module and the shared runner, and moved both CLI subcommands onto them; it was stopped by the user mid-work, before any test for the new code existed, with nothing committed, the new files untracked, and `HANDOFF.md` still `not started`. Agent B, a new session with no access to the earlier chat, was given only the resume command.
+
+- Correctly identified the original acceptance criteria: yes; it reported and validated against AC-1 to AC-8 by ID, the eight criteria in `TASK.md`.
+- Distinguished intended work from completed work: yes; it reported that the handoff said `not started` although the tree held the agent module, runner, CLI changes, and fixture, corrected the handoff to `in progress`, kept Agent A's work, reproduced the untracked golden fixture from the base commit's code before relying on it, then wrote the missing tests and documentation. Its only change to Agent A's code was a one-line fix in the replay error message.
+- `TASK.md`'s acceptance criteria unchanged after both sessions: yes; `TASK.md` is identical to d090b86 at the implementation commit (71e6a2a).
+- No information from the original chat required: yes; its only prompt was the resume command, and it read only the repository.
+
+The finished work passes 152 tests (2 real-ROM tests skipped), ruff, and the lockfile check, rerun independently. It then goes to the project's independent review and acceptance.
+
+Earlier attempts (not counted), ohm-manager, a task moving `AGENTS.md` sections into topic documents: twice, Agent A wrote every document in one step and finished before it could be stopped. A mechanical task has no natural midpoint, so the test moved to a task with dependent code and test steps; the ohm-manager task continues as ordinary work.
 
 ## 28.1 exit checklist
 
@@ -76,15 +87,15 @@ Pending.
 | 1 | `newproj new` works on macOS and Windows, with Git and GitHub side effects orchestrated by `newproj`, not Copier tasks, and automatic private repository creation | met | `tests/test_new.py` (`test_new_runs_no_copier_tasks`, `test_new_with_remote`); CI on Linux, macOS, and Windows; real use on Linux: Project B creation, above (E-023) |
 | 2 | `newproj adopt` preserves project-owned files and reports collisions; bootstrap reconciles an existing repository safely | met | `tests/test_adopt.py` (`test_existing_project_files_preserved_and_reviewed`, `test_renormalization_report`, `test_dirty_tree_refused`); `tests/test_agent_content.py` (`test_bootstrap_collisions_and_required_files`); real use: ohm-manager adoption, above |
 | 3 | `newproj doctor` performs its Phase 1 checks on both machines, and a freshly generated project, before and after ordinary lightweight work, is reported healthy | met | `tests/test_doctor.py` (`test_lightweight_change_keeps_no_fail`); CI on Linux, macOS, and Windows; real use on Linux: Project B healthy when created and after its first task, above (E-023) |
-| 4 | The protocol stays within budget and defines workflow tiers (including escalation on interruption), the Definition of Done, information lifetimes, and trust boundaries | met | `template/docs/AGENT_PROTOCOL.md` (114 lines; sections Workflow tiers, Definition of done, During work, Trust boundaries and authority); `tests/test_agent_content.py` (`test_protocol_line_limit`, `test_protocol_headings`) |
+| 4 | The protocol stays within budget and defines workflow tiers (including escalation on interruption), the Definition of Done, information lifetimes, and trust boundaries | met | `template/docs/AGENT_PROTOCOL.md` (116 lines; sections Workflow tiers, Definition of done, During work, Trust boundaries and authority); `tests/test_agent_content.py` (`test_protocol_line_limit`, `test_protocol_headings`) |
 | 5 | Lightweight work, including moderately sized features, proceeds without touching `TASK.md` or `HANDOFF.md` | met | Fixture B4, 2/2 on Claude Code CLI and 2/2 on Codex CLI (`docs/research/behavioral-fixtures.md`) |
-| 6 | Resume continues automatically when state is coherent and reconciles discrepancies using Git before asking | met | Fixture B9, 2/2 on each tool (`docs/research/behavioral-fixtures.md`); recovery test 24.1 (above); 24.3 (pending) |
+| 6 | Resume continues automatically when state is coherent and reconciles discrepancies using Git before asking | met | Fixture B9, 2/2 on each tool (`docs/research/behavioral-fixtures.md`); recovery tests 24.1 and 24.3 (above) |
 | 7 | `state.py` reports the three signal groups, with no false history-freshness warning after a normal commit | met | `tests/test_state.py` (`test_active_report_lists_spec_items`: the three groups in order and "No commits since the last handoff" after a normal commit; `test_stale_and_dirty_handoff`) |
 | 8 | Phase 1 CI tests pass; fixtures B1, B4, B5, B6, B9, B10, and B11 pass on at least two tools | met | CI passes on Linux, macOS, and Windows. Every fixture passes on Claude Code CLI and Codex CLI; B6 and B10 pass 2/2 on each tool after the M7.1 protocol fixes (issues #38 and #39) (`docs/research/behavioral-fixtures.md`, Pass rates) |
 | 9 | Recovery tests 24.1, 24.2 (ordinary Git), and 24.3 (standard task) pass | pending | Recovery tests, above |
 | 10 | Formal-risk work is recognized and gated on the user's go-ahead (fixture B5) | met | Fixture B5, 2/2 on each tool (`docs/research/behavioral-fixtures.md`) |
 | 11 | Adoption of an existing repository with its own hygiene files changes none of them destructively | met | `tests/test_adopt.py` (`test_editorconfig_preserved_and_differences_reported`, `test_gitattributes_with_lf_rule_preserved`); real use: ohm-manager adoption, above |
-| 12 | The template has been used on two real projects, and an interrupted session on one of them was recovered by a different agent | pending | Projects, ohm-manager adoption, Project B creation, and recovery test 24.3 (pending) |
+| 12 | The template has been used on two real projects, and an interrupted session on one of them was recovered by a different agent | met | Projects, ohm-manager adoption, Project B creation, and recovery test 24.3 (Claude Code to Codex CLI), above |
 
 ## 28.4 retrospective
 
