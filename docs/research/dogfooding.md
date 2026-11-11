@@ -22,6 +22,11 @@ After the user removed them (542ea82 in ohm-manager), the second run succeeded (
 - Committed by the user as one adoption commit (c5d05ac in ohm-manager), with `core.hooksPath` set to `.githooks`.
 - `newproj doctor` after the commit: 19 PASS, 1 WARN, 0 FAIL, 3 INFO. The WARN is `AGENTS.md` at 315 lines against a budget of about 150; most of it is ohm-manager's safety rules, left for a later ohm-manager task rather than trimmed during adoption. No FAIL, so the project counts as healthy.
 
+First task after adoption (2026-11-09, standard): move `AGENTS.md` detail into four topic documents without changing any moved rule, implemented in Claude Code and reviewed in Codex CLI.
+
+- The first review was FAIL: the implementer's `HANDOFF.md` validation entries were prose rather than the required format, and both `state.py check` and `newproj doctor` rejected them. The implementer had not run the check after updating the handoff, the gap ERRATA E-024 closes in the template. After the fix, the second review was PASS with every criterion verified by the reviewer, and the user accepted the task (b815ec0 in ohm-manager).
+- `newproj doctor` after acceptance: 20 PASS, 0 WARN, 0 FAIL, 3 INFO; `AGENTS.md` is 150 lines.
+
 ## Project B creation
 
 Created 2026-11-03 on the Linux development machine (E-023) as `pokemon-content`, with `newproj new --template-path` from this branch at 9e09658 (a development render, E-002). Answers: a one-line description, Python, no license.
@@ -78,7 +83,7 @@ Procedure: the confirmed task was committed (d090b86). Agent A, a new session as
 
 The finished work passes 152 tests (2 real-ROM tests skipped), ruff, and the lockfile check, rerun independently. It then goes to the project's independent review and acceptance.
 
-Earlier attempts (not counted), ohm-manager, a task moving `AGENTS.md` sections into topic documents: twice, Agent A wrote every document in one step and finished before it could be stopped. A mechanical task has no natural midpoint, so the test moved to a task with dependent code and test steps; the ohm-manager task continues as ordinary work.
+Earlier attempts (not counted), ohm-manager, a task moving `AGENTS.md` sections into topic documents: twice, Agent A wrote every document in one step and finished before it could be stopped. A mechanical task has no natural midpoint, so the test moved to a task with dependent code and test steps; the ohm-manager task was then finished, reviewed, and accepted as ordinary work (ohm-manager adoption, above).
 
 ## 28.1 exit checklist
 
