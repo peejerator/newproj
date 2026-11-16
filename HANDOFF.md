@@ -1,6 +1,6 @@
 # Handoff
 
-Last updated: 2026-11-10
+Last updated: 2026-11-16
 Branch: m8-dogfooding-exit
 Task: standard
 
@@ -44,7 +44,7 @@ Outcome: none
 
 ## Exact next steps
 
-1. Run recovery test 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record it (AC-4).
+1. Run recovery test 24.2 between this machine and macOS or Windows, working directly on that machine (E-023); record it (AC-4). Task chosen by the user (2026-11-16): in pokemon-content, challenge goals and run results combined with save-state start points, written there with `start-task` (agent-interface accepted at 78f852e). Agent A runs on this machine; Agent B on the other machine, where real-ROM checks are `NOT RUN` unless a ROM is supplied there. An agent on that machine also adds it to the 28.4 transcript pass (AC-6, E-022).
 2. At the end: the 28.4 transcript pass on this machine (AC-6), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
 
 ## Blockers / open questions
