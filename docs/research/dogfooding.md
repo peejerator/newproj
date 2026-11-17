@@ -68,7 +68,16 @@ Earlier attempt (not counted): the first Agent A was stopped before it recorded 
 
 ### 24.2 Cross-machine recovery (ordinary Git)
 
-Pending.
+Pass, 2026-11-17, pokemon-content, the challenges and save-states task (challenge goals and run results with save-state start points; AC-1 to AC-12, six milestones in a fixed order). Agent A was Claude Code on the Linux development machine; Agent B was Claude Code on Windows 11, run directly on that machine (E-023), which has no ROM. Recorded from the Windows transcript (user-authorized), the task's Git history, and the task files.
+
+Procedure: the confirmed task was committed (13dcd31) on the task branch `challenge-savestates`. Agent A finished milestone M1 (the challenge module and its tests) and part of M2 (the run loop's stop rules and `result.json`) and was stopped mid-M2, with nothing committed. Its runner code already used an M3 helper that did not exist, so the package failed to import. Asked to prepare the switch to Windows, it updated `HANDOFF.md`, removed the use of the missing helper, recorded the remaining M3 gap and the one expected test failure, and staged the work; the user committed and pushed it (2b3bf1b). On Windows the user fetched the branch, switched to it, and started a new session with only the resume command.
+
+- Understood the active task: yes; it continued milestone M2 in the task's order and tied its one change outside M2 to AC-7.
+- Understood that the latest commit is work in progress: yes; it confirmed the branch, a clean tree, and no commits since the handoff, checked the code against the handoff's description of the partial M2, and continued from there.
+- Reconstructed next steps: yes; it carried out the handoff's first next step (the M2 runner tests) and named M3 as next.
+- Continued correctly: yes; it kept Agent A's work, finished M2, recorded validation in the required format with Windows-specific `NOT RUN` reasons, and staged the work with a printed commit command; the user committed and pushed it (58ca9ef). `state.py check` on a snapshot of that commit reports no task or handoff format violations (its only finding, an unresolvable `Base commit:`, comes from the snapshot having no history).
+
+Found on Windows only: a golden-output test that passed on Linux failed, because text-mode writes produced CRLF line endings in the run log. The defect predated the task; Agent B fixed it (LF writes for `states.jsonl` and `result.json`) and recorded it. Five pre-commit hook tests were `NOT RUN` because `sh` is not on the PATH in Windows PowerShell. Both are pokemon-content findings, not template ones; pokemon-content has no CI, so they surfaced only through real use on Windows. No template change was needed.
 
 ### 24.3 Task-intent preservation (standard task, different provider)
 
@@ -97,7 +106,7 @@ Earlier attempts (not counted), ohm-manager, a task moving `AGENTS.md` sections 
 | 6 | Resume continues automatically when state is coherent and reconciles discrepancies using Git before asking | met | Fixture B9, 2/2 on each tool (`docs/research/behavioral-fixtures.md`); recovery tests 24.1 and 24.3 (above) |
 | 7 | `state.py` reports the three signal groups, with no false history-freshness warning after a normal commit | met | `tests/test_state.py` (`test_active_report_lists_spec_items`: the three groups in order and "No commits since the last handoff" after a normal commit; `test_stale_and_dirty_handoff`) |
 | 8 | Phase 1 CI tests pass; fixtures B1, B4, B5, B6, B9, B10, and B11 pass on at least two tools | met | CI passes on Linux, macOS, and Windows. Every fixture passes on Claude Code CLI and Codex CLI; B6 and B10 pass 2/2 on each tool after the M7.1 protocol fixes (issues #38 and #39) (`docs/research/behavioral-fixtures.md`, Pass rates) |
-| 9 | Recovery tests 24.1, 24.2 (ordinary Git), and 24.3 (standard task) pass | pending | Recovery tests, above |
+| 9 | Recovery tests 24.1, 24.2 (ordinary Git), and 24.3 (standard task) pass | met | Recovery tests, above (24.2: Linux to Windows, E-023) |
 | 10 | Formal-risk work is recognized and gated on the user's go-ahead (fixture B5) | met | Fixture B5, 2/2 on each tool (`docs/research/behavioral-fixtures.md`) |
 | 11 | Adoption of an existing repository with its own hygiene files changes none of them destructively | met | `tests/test_adopt.py` (`test_editorconfig_preserved_and_differences_reported`, `test_gitattributes_with_lf_rule_preserved`); real use: ohm-manager adoption, above |
 | 12 | The template has been used on two real projects, and an interrupted session on one of them was recovered by a different agent | met | Projects, ohm-manager adoption, Project B creation, and recovery test 24.3 (Claude Code to Codex CLI), above |
