@@ -113,21 +113,38 @@ Earlier attempts (not counted), ohm-manager, a task moving `AGENTS.md` sections 
 
 ## 28.4 retrospective
 
-Pending: written at the end of M8 from aggregate transcript figures per machine (E-022) and the user's brief answers.
+Written 2026-11-17 from the aggregate transcript figures below and the user's brief answers (E-022).
+
+Closing rule (spec 28.4): the user judges that creating, tracking, reviewing, and accepting tasks took about the same attention as the old workflow, or more, and that tasks were better organized and, in the user's judgement, better executed. The user weighs the better organization and execution as worth that attention for now: the work after M8 adds the features already chosen rather than simplifying, and the rule is checked again once they are in use. No pre-protocol transcripts survive, so the figures cannot settle the comparison.
 
 ### Ongoing signals
 
 | Signal (spec 28.4) | Judgement |
 |---|---|
-| Same-machine and cross-machine switches need no reconstructed prompt | pending |
-| Lightweight work carries no file overhead | pending |
-| Confirmed acceptance criteria never change silently | pending |
-| No PASS rests only on implementer claims | pending |
-| A new project is usable after one command | pending |
-| Template updates do not create recurring manual reconciliation | pending |
+| Same-machine and cross-machine switches need no reconstructed prompt | Met. 24.1 (same machine), 24.3 (Claude Code to Codex), and 24.2 (Linux to Windows) each resumed from the `resume` command alone. The ROM location, which the repository deliberately does not hold, had to be supplied again three times; see Follow-ups. |
+| Lightweight work carries no file overhead | Not observed. The transcripts show no lightweight development work in either project, and the user recalls none. |
+| Confirmed acceptance criteria never change silently | Met. In 24.3, `TASK.md` was unchanged at the implementation commit despite the provider switch, and `accept` checks the confirmed contract's hash before accepting. No criterion change was observed in any task. |
+| No PASS rests only on implementer claims | Met. All three PASS reviews rest on reviewer-executed checks; one review was INCONCLUSIVE until the reviewer ran the real-ROM checks itself, and one was FAIL before its PASS. |
+| A new project is usable after one command | Met. `newproj new` produced pokemon-content with its private repository, and `doctor` reported it healthy. The one failed attempt came from a signing key that needs a passphrase, run without a terminal. |
+| Template updates do not create recurring manual reconciliation | Not yet measurable. No template update was applied to either project during M8, and the user copied no template change by hand. Adopting ohm-manager needed a one-time removal of hand-copied M2 files. |
 
 ### Aggregate figures
 
 | Machine | Era | Sessions | Active time | User messages | Manual interventions (judged) |
 |---|---|---|---|---|---|
-| pending | | | | | |
+| Linux (development) | Template: pokemon-content from creation, ohm-manager from adoption (2026-11-03 to 2026-11-17) | 23 (19 Claude Code, 4 Codex) | 3 h 42 min | 39 | 5 |
+| Windows 11 | Template: pokemon-content (Agent B of 24.2, 2026-11-17) | 1 (Claude Code) | 3 min | 1 | 0 |
+| Linux (development) | Before adoption: ohm-manager with the M2 protocol copied by hand (2026-10-19 to 2026-11-02) | 5 (4 Claude Code, 1 Codex) | 1 h 7 min | 11 | 1 |
+| Any | Before the protocol (ohm-manager before 2026-10-09) | no transcripts survive | | | |
+
+Method (read 2026-11-17 under the user's authorization; no script or excerpt is committed):
+
+- Sessions are Claude Code and Codex transcripts whose working directory is one of the two projects. Excluded: Codex subagent sessions spawned by another session, whose turns come from the parent agent, and sessions that used ohm-manager's application rather than developing it.
+- Active time sums the gaps between consecutive transcript events, each capped at 5 minutes.
+- User messages count what the user typed or pasted, including skill commands; tool output and skill text injected by the tool are not counted.
+- Manual interventions follow E-022: re-explaining context, copying prompts or summaries between tools, reconciling state by hand. Template era, all in pokemon-content: three messages supplying the ROM location, which the repository deliberately does not hold (one of them also relayed a review's `NOT RUN` result to the implementer), and two task requests drafted in another session and pasted into `start-task`. Before adoption: one task request drafted elsewhere and pasted. No session needed a reconstructed prompt to resume.
+- The template era includes the recovery-test sessions, whose prompts were scripted on purpose; none of them needed an intervention.
+
+### Follow-ups
+
+- pokemon-content: the ROM location was the only recurring intervention. Setting `POKEMON_ROM` in the shell profile on each machine would remove it without putting the path in the repository. A task in that project, not in M8.

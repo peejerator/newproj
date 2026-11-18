@@ -6,14 +6,15 @@ Task: standard
 
 ## Status
 
-in progress
+validating
 
 ## Completed
 
 - AC-8: MIT `LICENSE` at the root (holder "2026 Patrick Canady", text from the template's MIT include); `pyproject.toml` has `license = "MIT"` and `license-files = ["LICENSE"]`, so the wheel and sdist carry it. Template default unchanged.
 - AC-9: `CHANGELOG.md` with a `v0.1.0` section (undated; the tag date is in Git). `pyproject.toml` already declared `0.1.0`.
 - AC-7: ERRATA E-022 appended (28.4 transcript-derived retrospective).
-- AC-10, partly: `docs/ROADMAP.md` "Before M8" and "Before tagging v0.1.0" sections removed. Marking Phase 1 complete waits until the 28.1 checklist is all met.
+- AC-10: `docs/ROADMAP.md` "Before M8" and "Before tagging v0.1.0" sections removed; Phase 1 marked complete, no Phase 2 milestones.
+- AC-6: 28.4 retrospective in `docs/research/dogfooding.md`: aggregate transcript figures for Linux (both eras) and Windows (Agent B of 24.2), one line per ongoing signal from the user's answers, and the closing rule. No transcript content or script committed.
 - AC-1, AC-5 started: `docs/research/dogfooding.md` names both projects and has the 28.1 checklist; every bullet (1 to 12) is met.
 - `main` merged into this branch after M7.1 (PR #41), so the dogfooded template carries the M7.1 protocol wording. The merge's changes to `template/` are M7.1's, tested and reviewed there, not M8 changes under AC-11.
 - AC-3: Project B created as `pokemon-content`, private repository, `newproj doctor` healthy; first real task (game-harness skeleton) accepted 2026-11-09 after a Codex PASS review (`docs/research/dogfooding.md`, Project B creation). 28.1 bullets 1 and 3 marked met (E-023).
@@ -44,7 +45,8 @@ Outcome: none
 
 ## Exact next steps
 
-1. At the end: the 28.4 transcript pass on this machine and on the Windows machine, where Agent B of 24.2 ran in Claude Code (AC-6, E-022), then mark Phase 1 complete in `docs/ROADMAP.md` (AC-10).
+1. The user commits and pushes; CI must pass on Linux, macOS, and Windows at `HEAD` (AC-11).
+2. Independent review by a different agent (`review` skill), then `accept`; the accept block ends with the `v0.1.0` tag commands.
 
 ## Blockers / open questions
 

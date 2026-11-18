@@ -1,6 +1,6 @@
 # Roadmap
 
-Current phase: Phase 1, minimal working system (spec section 2.3). Phase 1 ends with tag `v0.1.0` once every exit criterion in spec section 28.1 is met.
+Phase 1, minimal working system (spec section 2.3), is complete: every exit criterion in spec section 28.1 is met (`docs/research/dogfooding.md`, 28.1 exit checklist). It is tagged `v0.1.0` after M8 merges. Phase 2 is not yet planned.
 
 Each milestone is one branch and one pull request. CI must pass on macOS and Windows before merging. A milestone merges only once its acceptance commit (the neutral reset of `TASK.md` and `HANDOFF.md`, ERRATA E-012) is on its branch. The next milestone's `TASK.md` is written after the previous one merges.
 
