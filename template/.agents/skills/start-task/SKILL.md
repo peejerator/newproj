@@ -12,12 +12,14 @@ Turn the user's intent into a confirmed contract, then hand it to a fresh implem
 
 1. Read `AGENTS.md`, `TASK.md`, and `HANDOFF.md`. Run the `resume` skill's `state.py` report and check from the repository root, with its Python or raw Git fallbacks when needed. Reconcile the files with Git, without repairing or writing either file during preflight. `Status: none` (or a missing task) starts a new task; `Status: draft` refines the existing one; `Status: active` stops and points the user to `accept`. Never replace an active task. An uncommitted draft with a neutral handoff is expected: the report's neutral-state mismatch and local-task-change warning alone do not block the interview or call for repairs. Investigate other discrepancies normally.
 2. Read the `handoff` skill's **Writing a task** section. It is the format reference for header lines, `Base commit:`, `Target branch:`, and end-state acceptance criteria (E-007, E-008). Use its rules rather than inventing another contract format.
-3. Check `git status --short`, including staged and untracked paths: the working tree must be clean apart from `TASK.md` and `HANDOFF.md`, with no merge, rebase, or cherry-pick in progress. Resolve the intended target using Writing a task and any settled decisions in the draft. Check the current branch with `git branch --show-current`. For a draft with a recorded task branch, check whether it exists locally with `git show-ref --verify "refs/heads/<name>"`:
+3. Check `git status --short`, including staged and untracked paths: the working tree must be clean apart from `TASK.md` and `HANDOFF.md`, with no merge, rebase, or cherry-pick in progress. Run `git remote`: local-only means no configured remotes (the command succeeds with no names). If the command fails, stop; do not infer local-only from a failed check. Any configured remote, including one other than `origin` or an unreachable remote, requires the remote-backed checks below. Resolve the intended target using Writing a task and any settled decisions in the draft. For local-only projects, honor a user-specified target; otherwise use the state report's local default resolution: the existing local branch named by `init.defaultBranch`, then existing `main`, then existing `master`. Ask the user if none resolves; do not guess. Check the current branch with `git branch --show-current`. For a draft with a recorded task branch, check whether it exists locally with `git show-ref --verify "refs/heads/<name>"`:
    - For a new task or an imported draft with no existing task branch, require the user to be on the target branch. Branch creation is required before any writing.
    - For an interrupted interview's draft, require the current branch to be the agreed task branch recorded under `## Context`. Reuse it; it does not need an upstream. If its identity is missing or conflicting, ask the user to identify the draft's task branch before proceeding. A draft already associated with an existing task branch must be resumed on that branch, even if the user has switched back to the target.
    - On any other branch, or with detached HEAD, report the condition and stop for the user to resolve it. Never switch branches during preflight.
 
-   In both paths, the **target branch** must have an upstream configured. Fetch the target's configured remote with `git fetch <remote>`, then check `git rev-list --left-right --count "<target>...<target>@{upstream}"`, substituting the resolved target name. Both counts must be zero. If the target is behind, tell the user to update it with a pull on the target branch and return to the draft's task branch when resuming. If ahead, diverged, or missing its upstream, report the condition and stop for the user to resolve it. If fetching fails, stop because freshness could not be verified. Never pull for the user. See the draft-resumption cases in [references/interview.md](references/interview.md).
+   For both new tasks and resumed drafts in local-only projects, skip only fetch and upstream freshness checks, including the target-upstream requirement. Explain in one line: "No remotes configured; skipping fetch and upstream freshness checks." All other preflight, branch creation or reuse, confirmation, and staging rules still apply.
+
+   In both paths, whenever any remote exists, the **target branch** must have an upstream configured. Fetch the target's configured remote with `git fetch <remote>`, then check `git rev-list --left-right --count "<target>...<target>@{upstream}"`, substituting the resolved target name. Both counts must be zero. If the target is behind, tell the user to update it with a pull on the target branch and return to the draft's task branch when resuming; stop until it is updated. If ahead, diverged, or missing its upstream, report the condition and stop for the user to resolve it. If fetching fails, stop because freshness could not be verified; an unreachable remote is not local-only. Never pull for the user. See the draft-resumption cases in [references/interview.md](references/interview.md).
 
    For a reused task branch, also require `git merge-base --is-ancestor <target> HEAD` to succeed. A fresh target alone does not establish that the task branch contains it. If the target is not an ancestor, stop and tell the user to run `git merge --ff-only <target>` on the task branch, then rerun preflight. If that cannot fast-forward, report the divergence for the user to resolve; never reset or rebase the branch.
 4. Gather facts from the relevant code, tests, configuration, and documents before asking questions. Read only the context the request needs. Accept these sources:
@@ -45,13 +47,19 @@ Turn the user's intent into a confirmed contract, then hand it to a fresh implem
 
    From this point the implementing agent must not edit the contract.
 3. Write `HANDOFF.md` using the `handoff` skill's format, with status `not started` and a fresh review record. Run `state.py check` with the same fallbacks and fix mechanical problems in `HANDOFF.md` before staging. Report any problem in the now-active contract under blockers without editing it. Stage only `TASK.md` and `HANDOFF.md` with `git add TASK.md HANDOFF.md`.
-4. Print one command block joined with `&&`, using the actual goal and branch and shell-safe quoting:
+4. Print one command block using the actual goal and branch and shell-safe quoting. For local-only projects (no configured remotes), print only the commit command:
+
+   ```text
+   git commit -m "Start <goal>"
+   ```
+
+   Omit push and pull request commands for local-only projects. For remote-backed projects, join commands with `&&`:
 
    ```text
    git commit -m "Start <goal>" && git push -u origin <branch>
    ```
 
-   Append any further push or pull request commands `AGENTS.md` requires in that same block. These are commands for the user to run, never commands for the skill to execute.
+   For remote-backed projects, append any further push or pull request commands `AGENTS.md` requires in that same block. These are commands for the user to run, never commands for the skill to execute.
 5. Stop and print this one-line prompt for a fresh session:
 
    ```text

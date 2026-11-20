@@ -234,6 +234,121 @@ def test_start_task_reuses_format_and_interview_reference() -> None:
     assert "Implement the active task in TASK.md and verify its acceptance criteria." in text
 
 
+def test_start_task_local_only_preflight() -> None:
+    text = read(canonical("start-task"))
+    preflight = text.split("## Before the interview\n", 1)[1].split("\n## ", 1)[0]
+    assert "Run `git remote`" in preflight
+    assert "local-only means no configured remotes (the command succeeds with no names)" in preflight
+    assert "If the command fails, stop" in preflight
+    assert "including one other than `origin` or an unreachable remote" in preflight
+    local = preflight.split("For both new tasks and resumed drafts in local-only projects,", 1)[1].split("\n\n", 1)[0]
+    assert "skip only fetch and upstream freshness checks, including the target-upstream requirement" in local
+    assert 'Explain in one line: "No remotes configured; skipping fetch and upstream freshness checks."' in local
+    assert "All other preflight, branch creation or reuse, confirmation, and staging rules still apply" in local
+
+
+def test_start_task_remote_preflight_still_blocks_unsafe_states() -> None:
+    text = read(canonical("start-task"))
+    remote = text.split("In both paths, whenever any remote exists,", 1)[1].split("\n\n", 1)[0]
+    for phrase in [
+        "**target branch** must have an upstream configured",
+        "git fetch <remote>",
+        'git rev-list --left-right --count "<target>...<target>@{upstream}"',
+        "Both counts must be zero",
+        "If the target is behind", "stop until it is updated",
+        "If ahead, diverged, or missing its upstream, report the condition and stop",
+        "If fetching fails, stop because freshness could not be verified",
+        "an unreachable remote is not local-only", "Never pull for the user",
+    ]:
+        assert phrase in remote, phrase
+
+
+def test_start_task_preserves_branch_and_contract_safeguards() -> None:
+    text = read(canonical("start-task"))
+    for phrase in [
+        "clean apart from `TASK.md` and `HANDOFF.md`",
+        "no merge, rebase, or cherry-pick in progress",
+        "git branch --show-current", 'git show-ref --verify "refs/heads/<name>"',
+        "require the user to be on the target branch",
+        "require the current branch to be the agreed task branch",
+        "Reuse it; it does not need an upstream",
+        "On any other branch, or with detached HEAD",
+        "Never switch branches during preflight",
+        "For a reused task branch, also require `git merge-base --is-ancestor <target> HEAD` to succeed",
+        "git merge --ff-only <target>", "never reset or rebase the branch",
+        "create the agreed local branch with `git switch -c <name>` **before writing anything**",
+        "If creation fails, stop without writing files",
+        "remain on it without running `git switch -c`",
+        "ask for the user's explicit confirmation of those criteria. Wait.",
+        "Only after that confirmation, set `Status: active`",
+        "Stage only `TASK.md` and `HANDOFF.md` with `git add TASK.md HANDOFF.md`",
+        "Verify that the contract is committed before continuing; staging alone is insufficient",
+    ]:
+        assert phrase in text, phrase
+
+
+@pytest.mark.parametrize("relative", [
+    "start-task/SKILL.md", "start-task/references/interview.md", "handoff/SKILL.md",
+])
+def test_local_only_target_resolution_agrees(relative: str) -> None:
+    text = read(TEMPLATE / ".agents" / "skills" / relative)
+    if relative == "handoff/SKILL.md":
+        text = text.split("## Writing a task\n", 1)[1].split("\n## Marking the task complete", 1)[0]
+    assert "honor a user-specified target" in text
+    local = text.split("For local-only projects,", 1)[1].split("\n", 1)[0]
+    # Branch existence and precedence matter: never use a missing configured name.
+    assert "state report's local default resolution" in local
+    assert local.index("init.defaultBranch") < local.index("existing `main`") < local.index("existing `master`")
+    assert "exists locally" in local or "existing local branch" in local
+    assert "Ask the user if none resolves" in local
+
+
+def test_start_task_final_commands_depend_on_remotes() -> None:
+    text = read(canonical("start-task")).split("## Confirm and hand off\n", 1)[1]
+    local, remote = text.split("For remote-backed projects, join commands with `&&`:", 1)
+    local_blocks = re.findall(r"```text\n(.*?)```", local, re.S)
+    assert local_blocks[-1].strip() == 'git commit -m "Start <goal>"'
+    assert "Omit push and pull request commands for local-only projects" in local
+    assert 'git commit -m "Start <goal>" && git push -u origin <branch>' in remote
+    assert "For remote-backed projects, append any further push or pull request commands `AGENTS.md` requires" in remote
+    assert "commands for the user to run, never commands for the skill to execute" in remote
+
+
+def test_interview_covers_local_only_and_remote_draft_paths() -> None:
+    text = read(canonical("start-task").parent / "references" / "interview.md")
+    cases = text.split("## Draft resumption cases\n", 1)[1].split("\n## ", 1)[0]
+    for phrase in [
+        "local-only projects (no configured remotes)",
+        "A failed check or an unreachable remote does not qualify as local-only",
+        "For both new tasks and resumed drafts in local-only projects, skip only fetch",
+        "Explain in one line:",
+        "Whenever any remote exists, all target-upstream and freshness checks remain required",
+        "stop for a missing upstream, ahead, behind, diverged, or failed-fetch state",
+        "Local-only final output prints a commit command and omits push and pull request commands",
+        "Local-only new task", "Local-only interrupted draft", "Local-only imported draft",
+        "Local-only draft on its recorded task branch after the target moved",
+        "git merge-base --is-ancestor <target> HEAD", "git merge --ff-only <target>",
+        "Existing interview draft on `main`", "Stop and direct the user back to `m6-adopt`",
+        "Draft on `m6-adopt` while target `main` is behind its upstream",
+        "Stop and ask the user to update `main` and return to `m6-adopt`",
+    ]:
+        assert phrase in cases, phrase
+
+
+def test_local_only_erratum_supersedes_only_approved_rules() -> None:
+    text = read(ROOT / "docs" / "ERRATA.md").split("## E-025:", 1)[1]
+    for phrase in [
+        "E-018 decisions 3 and 8", "E-019", "no configured remotes",
+        "new tasks and resumed drafts", "skip only fetch and upstream freshness checks",
+        "commit command", "omit push and pull request commands",
+        "`init.defaultBranch`", "existing `main`", "existing `master`",
+        "user-specified target", "ask the user if unresolved",
+        "Any configured remote", "unreachable", "missing upstream", "ahead", "behind",
+        "diverged", "failed fetch", "ancestry", "confirmation", "staging",
+    ]:
+        assert phrase in text, phrase
+
+
 DURABLE_DEFAULT = "the locations `AGENTS.md` names, or"
 
 

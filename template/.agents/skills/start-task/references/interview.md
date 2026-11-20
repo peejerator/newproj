@@ -28,8 +28,16 @@ After each answered round, update the draft with settled decisions in `## Contex
 
 Apply the branch preflight in `SKILL.md` before continuing an interview. These cases distinguish creating a branch from reusing one:
 
+Run `git remote` successfully to distinguish local-only projects (no configured remotes) from remote-backed projects (any remote exists). A failed check or an unreachable remote does not qualify as local-only. For local-only projects, honor a user-specified target; otherwise use the state report's local default resolution: the existing local branch named by `init.defaultBranch`, then existing `main`, then existing `master`. Ask the user if none resolves. This agrees with the handoff skill's Writing a task guidance.
+
+For both new tasks and resumed drafts in local-only projects, skip only fetch and upstream freshness checks, including the target-upstream requirement. Explain in one line: "No remotes configured; skipping fetch and upstream freshness checks." Keep clean-tree checks, branch identity and creation or reuse, resumed-branch ancestry, explicit criteria confirmation, and staging. Whenever any remote exists, all target-upstream and freshness checks remain required: stop for a missing upstream, ahead, behind, diverged, or failed-fetch state. A task branch's missing upstream never excuses those target checks. Local-only final output prints a commit command and omits push and pull request commands.
+
 | Starting state | Expected path |
 |---|---|
+| Local-only new task on its resolved target, with no upstream | Explain the skip, propose a task branch, then create it after the answers and before writing. Stage the confirmed contract and handoff and print only the commit command. |
+| Local-only interrupted draft on its recorded task branch | Explain the skip; require `git merge-base --is-ancestor <target> HEAD` and reuse the branch without creating it again. Preserve settled answers and continue unresolved questions or final confirmation. |
+| Local-only imported draft on its resolved target with no existing task branch | Explain the skip, settle the branch name, then create it before writing; preserve settled answers. |
+| Local-only draft on its recorded task branch after the target moved beyond `HEAD` | Stop on the ancestry check and direct the user to `git merge --ff-only <target>` on the task branch, then rerun preflight; if it cannot fast-forward, the user resolves the divergence. |
 | No task, on target `main`, with `main` up to date with its upstream | Propose a task branch in Round 1, create it after the answers and before writing, then record its name and the target under the draft's Context. |
 | Interrupted draft on its recorded task branch `m6-adopt`, with no upstream for `m6-adopt` and a neutral handoff | Check `main` against `main`'s upstream and require `git merge-base --is-ancestor main HEAD` to succeed. Reuse `m6-adopt` without creating it again; preserve settled answers and continue unresolved questions or final confirmation. Expected draft-state report warnings do not require a handoff rewrite. |
 | Draft imported from a session without repository access, on target `main`, with no existing task branch | Check `main`'s freshness, settle the branch name, then create that branch before updating the draft. |

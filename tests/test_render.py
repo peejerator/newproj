@@ -172,12 +172,15 @@ def test_rendered_start_task(case: tuple[dict[str, object], Path]) -> None:
     assert fields["name"] == "start-task"
     assert fields["description"]
     assert fields["disable-model-invocation"] is True
+    assert source == read(TEMPLATE / base / "SKILL.md")
     pointer = read(project / ".claude/skills/start-task/SKILL.md")
     assert pointer.split("---\n", 2)[1] == canonical_frontmatter
     assert "Read and follow `.agents/skills/start-task/SKILL.md`." in pointer
     policy = yaml.safe_load(read(project / base / "agents/openai.yaml"))
     assert policy["policy"]["allow_implicit_invocation"] is False
     assert read(project / base / "references/interview.md") == read(TEMPLATE / base / "references/interview.md")
+    handoff = Path(".agents/skills/handoff/SKILL.md")
+    assert read(project / handoff) == read(TEMPLATE / handoff)
 
 
 def test_neutral_text_has_one_home() -> None:

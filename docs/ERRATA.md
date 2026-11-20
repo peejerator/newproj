@@ -298,3 +298,19 @@ Resolution:
 3. The `start-task` interview is finished only when each acceptance criterion can be checked by a reviewer with what the review environment has (tools, data, credentials, hardware, or files the user supplies); for one that cannot, the interview settles with the user how it will be checked, or rewrites it.
 4. Section 9.5: the template's `AGENTS.md` lists under Conventions that template-managed files (`docs/AGENT_PROTOCOL.md`, `docs/PROMPTS.md`, `.githooks/`, and the skills under `.agents/skills/` and `.claude/skills/` other than `project-*` skills) change only through template updates, are never edited by hand, and are excluded from formatters and linters. Existing projects' `AGENTS.md` files are project-owned and unchanged.
 5. The protocol stays within its 120-line budget (116 lines).
+
+## E-025: Local-only task interviews and target resolution
+
+Date: 2026-11-20
+Sections: 17.3; E-018 decisions 3 and 8; E-019
+
+Observed failure: `newproj new --no-remote` creates a local-only project, but `start-task` requires the target to have an upstream and unconditionally prints a push command. This blocks both new tasks and resumed drafts in projects with no configured remotes. The user approved the following on 2026-11-20 (issue #40, active `TASK.md`).
+
+Resolution:
+
+1. Local-only means no configured remotes, established by a successful `git remote` with no names. For new tasks and resumed drafts in that case, skip only fetch and upstream freshness checks, including the target-upstream requirement. Explain the skip in one line. Any configured remote requires the existing target-upstream and freshness checks, even if it is not named `origin` or is unreachable. A failed remote check does not establish local-only status. Stop for a missing upstream, ahead, behind, diverged, or failed fetch state whenever a remote exists.
+2. Honor a user-specified target. Otherwise, for local-only projects use the state report's local default resolution: the existing local branch named by `init.defaultBranch`, then existing `main`, then existing `master`; ask the user if unresolved. Align the canonical start-task skill, its interview reference, and the handoff skill's Writing a task guidance. Remote-backed target resolution remains unchanged.
+3. For local-only projects, print the commit command and omit push and pull request commands. Keep all other clean-tree, branch identity and creation or reuse, resumed-branch ancestry, confirmation, and staging rules.
+4. Verify the guidance with automated content and rendering tests and the full test suite. No additional behavioral fixture scenarios or manual tool runs are required for this change.
+
+This entry supersedes only the conflicting parts of E-018 decisions 3 and 8 and E-019, and extends the handoff skill's target resolution guidance. All other interview and draft resumption rules remain in force. No CLI behavior or default branch resolution code changes.
