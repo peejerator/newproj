@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 from importlib.metadata import version
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import copier
 
@@ -15,6 +16,7 @@ from newproj.tools import run
 TEMPLATE_URL = "https://github.com/peejerator/newproj.git"
 FETCH_TIMEOUT = 300
 ANSWERS = ".copier-answers.yml"
+MAINTENANCE_WAIT = 120
 
 
 class SourceError(Exception):
@@ -70,6 +72,48 @@ def template_clone(name: str) -> Path:
     )
 
 
+def wait_for_maintenance(repo: Path, timeout: float = MAINTENANCE_WAIT) -> None:
+    """Wait while Git maintenance or gc runs in `repo`, for at most `timeout` seconds.
+
+    A commit or fetch can start background maintenance that repacks and deletes loose
+    objects. Copier clones a local template by copying `objects/` file by file, so a
+    concurrent repack makes the clone fail (issue #35). A crashed run can leave its lock
+    behind, so the wait is bounded and a non-repository is not waited for.
+    """
+    locks = []
+    for name in ("objects/maintenance.lock", "gc.pid"):
+        result = run("git", "rev-parse", "--git-path", name, cwd=repo)
+        if result.ok and result.out:
+            locks.append(repo / result.out)
+    deadline = time.monotonic() + timeout
+    while any(lock.exists() for lock in locks) and time.monotonic() < deadline:
+        time.sleep(0.5)
+
+
+def git_failed(error: Exception) -> bool:
+    """Whether a Git command Copier ran failed (a plumbum ProcessExecutionError)."""
+    argv = getattr(error, "argv", None)
+    return bool(argv) and PureWindowsPath(str(argv[0])).stem.lower() == "git"  # Splits on / and \ on any OS.
+
+
+def copy(src: Path, target: Path, ref: str, options: dict) -> None:
+    """`copier copy` from a local repository, retried once if a Git command fails (#35).
+
+    Copier removes a destination it created when rendering fails, and its Git commands
+    run before it writes any file, so the retry starts from the same state.
+    """
+    for attempt in (1, 2):
+        wait_for_maintenance(src)
+        try:
+            copier.run_copy(str(src), target, vcs_ref=ref, **options)
+            return
+        except Exception as error:
+            if attempt == 2 or not git_failed(error):
+                raise
+            print(f"Cloning the template failed, possibly during Git maintenance; retrying once: {error}",
+                  file=sys.stderr)
+
+
 def render(name: str, target: Path, template_path: Path | None, quiet: bool = False) -> None:
     """Run `copier copy` at the CLI's tag, or from `template_path`. Runs no Copier tasks (spec 19.3).
 
@@ -82,11 +126,11 @@ def render(name: str, target: Path, template_path: Path | None, quiet: bool = Fa
     if template_path is not None:
         # HEAD renders the working tree, uncommitted changes included, even when the
         # directory is a Git repository with release tags (E-002).
-        copier.run_copy(str(template_path.resolve()), target, vcs_ref="HEAD", **options)
+        copy(template_path.resolve(), target, "HEAD", options)
         return
     name_tag = tag()
     clone = template_clone(name_tag)
-    copier.run_copy(str(clone), target, vcs_ref=name_tag, **options)
+    copy(clone, target, name_tag, options)
     # Record the repository URL, not this machine's cache path, so the answers file
     # works on every machine and leaks no local path.
     answers = target / ANSWERS

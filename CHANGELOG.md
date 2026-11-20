@@ -2,6 +2,10 @@
 
 All notable changes to `newproj` are recorded here, one section per release (spec section 25).
 
+## Unreleased
+
+- `newproj new` and `newproj adopt` no longer fail intermittently when Git maintenance repacks the local template repository during Copier's clone: they wait for a running maintenance or `gc` to finish, and retry the copy once if a Git command fails (issue #35).
+
 ## v0.1.0
 
 Phase 1, the minimal working system (spec sections 2.3 and 28.1).
