@@ -29,10 +29,37 @@ validating
 - PASS | uv run pytest | 537 passed, 1 skipped; covers AC-1 to AC-5 and AC-7 tests, byte-identical state.py copy, pointer frontmatter | Linux | implementer
 - PASS | git diff docs/spec.md docs/DECISIONS.md; git diff docs/ERRATA.md | spec and decisions unchanged; ERRATA diff is additions only (AC-6) | Linux | implementer
 - NOT RUN | CI on Linux, macOS, and Windows | skipped: runs after the user commits and pushes | | implementer
+- PASS | uv run pytest | 537 passed, 1 skipped; requested remote cases, adopt/doctor integration, skill content, and pointer frontmatter covered (AC-1 to AC-5, AC-7) | Linux, Python 3.13.5 | reviewer
+- FAIL | Push-only remote discovery with a cached remote HEAD | Git lists upstream and can push to it, but configured_remotes returns no remotes; default resolution is unknown and incorrectly says to add a remote (AC-1, AC-2) | Isolated local repositories; upstream has pushurl and fetch configuration but no url | reviewer
+- PASS | Snapshot invariants and git diff --check 1631ad2925a99c48ae43c0cbc6f93e9f0c0ecd83...HEAD | state.py copies byte-identical; earlier errata preserved byte for byte; spec, decisions, and new.py unchanged; no whitespace errors (AC-6) | Recorded base to reviewed HEAD | reviewer
+- PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | No violations found | Linux; uv cache access required outside sandbox | reviewer
+- PASS | CI on Linux and macOS | Both jobs passed tests and the Python 3.9 state checks on the reviewed commit (AC-7) | https://github.com/peejerator/newproj/actions/runs/44884139677 | CI
+- NOT RUN | Completed CI on Windows | environment: the Windows job is still running; its final result is unavailable (AC-7) | https://github.com/peejerator/newproj/actions/runs/44884139677 | reviewer
 
 ## Review
 
-Outcome: none
+Outcome: FAIL
+Reviewer: Codex/GPT-6, 2026-11-21
+Reviewed at: 0a4e1429a6ac53fff75f2aa95300471fd7d6a495
+Contract: a8e8e1c6ed7129776bf72abb6f62215d57e401e2
+Working tree clean at review: yes
+Baseline: base-commit diff
+Artifact coverage: complete
+Validation provenance: reviewer-executed
+
+- AC-1: UNSATISFIED | URL-backed remote cases pass, and the template copy is byte-identical. However, configured_remotes omits configured remotes without remote.<name>.url, including working push-only remotes listed by git remote; their cached HEAD is ignored. See finding 1 and the contract discrepancy in finding 2.
+- AC-2: UNSATISFIED | Named-remote and no-remote tests pass, but the push-only-remote reproduction prints an add-a-remote fix even though upstream exists and has a usable cached HEAD. This follows from finding 1.
+- AC-3: VERIFIED | adopt.set_head uses the selected remote, skips an existing symbolic HEAD, and does nothing without a selected remote; reviewer-executed integration tests cover non-origin and unselected/no-remote cases.
+- AC-4: INFERRED | The complete handoff skill and content tests agree with E-027's reported follow-up selection rule and ask when unresolved. This differs from AC-1's rule incorporated by AC-4; direct user confirmation of the amendment is pending (finding 2).
+- AC-5: VERIFIED | Complete start-task and accept skills read the target/task branch's configured remote respectively and substitute it into the push/delete block; tests verify commands, origin usage, and identical pointer frontmatter.
+- AC-6: INFERRED | E-027 is appended and covers the required sections and skills, with only the requested E-025 sentence superseded. Earlier errata, spec, and decisions are unchanged. Its expanded selection rule awaits resolution of finding 2.
+- AC-7: INFERRED | All requested automated cases exist and the local suite passed (537 passed, 1 skipped). Linux and macOS CI passed on the exact reviewed commit; Windows CI is still running.
+
+Findings:
+1. [P2] Enumerate all configured remotes, including push-only remotes (`src/newproj/state.py:327-335` and the identical template copy). Reproduced in isolated repositories: create and push develop to upstream, set upstream/HEAD, set remote.upstream.pushurl to its existing URL, then unset remote.upstream.url. Git still lists upstream and successfully pushes to it, and upstream/HEAD points to the existing upstream/develop ref. configured_remotes returns [], so state.py reports unknown at step 4 and advises adding a remote instead of resolving develop at step 1. Doctor and adopt share this discovery path. Enumerate Git's remotes consistently with the skills' git remote check and add regression coverage for a remote without a url key.
+2. Open user decision: TASK.md AC-1 requires several remotes without origin to remain unknown; implementation, tests, the handoff skill, and E-027 instead select the sole remote with a remote HEAD. Relevant decisions reports this was approved on 2026-11-21, but the active contract does not contain the amendment. The reviewer asked the user whether to apply the reported follow-up; that question remains open. Do not infer approval from the report or edit the active contract as the reviewer. The remote-discovery failure in finding 1 applies under either rule.
+3. Complete Windows CI verification on the reviewed or corrected commit before marking AC-7 VERIFIED.
+4. Acceptance criteria were user-confirmed on 2026-11-21, as recorded in TASK.md. This is a fresh reviewer session; the implementer's model is not recorded, so model-family independence is not established.
 
 ## Exact next steps
 
