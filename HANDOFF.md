@@ -39,10 +39,35 @@ complete
 - PASS | git diff --check and full diff inspection | No whitespace errors or unintended changes; no dependency or CLI changes | Linux | implementer
 - PASS | python3 template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | No violations found | Linux | implementer
 - NOT RUN | macOS and Windows CI | Requires user commit and push; required before merge | Linux session only | implementer
+- PASS | uv run pytest | 466 passed, 1 skipped (Windows junction test on Linux) at de89d87 | Linux; Python 3.13.5 | reviewer
+- PASS | state.py check --neutral-dir template/.agents/skills/handoff/neutral and git diff --check 0bc980c HEAD | No violations; no whitespace errors | Linux | reviewer
+- PASS | GitHub Actions CI run 44685446259 at de89d87 | Tests passed on ubuntu-latest, macos-latest, windows-latest | Linux, macOS, Windows | CI
 
 ## Review
 
-Outcome: none
+Outcome: FAIL
+Reviewer: Claude Code/claude-opus-5-5, 2026-11-20
+Reviewed at: de89d87c152bb6f4c578363730dc276dfc857e84
+Contract: ce42a00f63cd312915bf9300491de8d7422c47d2
+Working tree clean at review: yes
+Baseline: base-commit diff
+Artifact coverage: complete
+Validation provenance: CI-confirmed
+
+- AC-1: VERIFIED | start-task SKILL.md step 3 defines local-only as a successful `git remote` with no names, stops on a failed check, and for new tasks and resumed drafts skips only fetch and upstream freshness checks with the one-line explanation; interview.md repeats it; test_start_task_local_only_preflight passes (reviewer, CI).
+- AC-2: VERIFIED | Confirm and hand off step 4 prints only `git commit -m "Start <goal>"` for local-only projects and restricts push and further push or PR commands to remote-backed projects; template AGENTS.md.jinja adds no push or PR requirement; test_start_task_final_commands_depend_on_remotes passes.
+- AC-3: VERIFIED | Remote-backed paragraph keeps target upstream, fetch, zero ahead/behind counts, and stops for missing upstream, ahead, behind, diverged, and failed fetch; clean-tree, branch identity and creation, ancestry, confirmation, and staging text unchanged or restated; covered by content tests.
+- AC-4: VERIFIED | start-task step 3, interview.md, and handoff Writing a task each honor a user-specified target, then existing `init.defaultBranch`, `main`, `master`, then ask; matches `resolve_default_branch` step 3 in src/newproj/state.py; test_local_only_target_resolution_agrees passes for all three.
+- AC-5: UNSATISFIED | Amended AC-5 requires an automated non-interactive agent run against local-only new-task and resumed-draft fixtures; none exists at HEAD (no fixture under tests/fixtures/behavior/ for start-task, no runner in scripts/behavior.py). The content-test part holds: seven new content tests and two rendered-equality assertions cover local-only guidance and retained remote safeguards; `uv run pytest` 466 passed, 1 skipped (reviewer); CI run 44685446259 green on Linux, macOS, Windows.
+- AC-6: VERIFIED | docs/ERRATA.md diff is append-only (E-025); docs/spec.md, docs/DECISIONS.md, src/, and tests/fixtures/ unchanged from the base.
+
+Findings:
+- Acceptance criteria were user-confirmed on 2026-11-20; the user approved amending AC-5 and `## Scope` after the first review (TASK.md `## Context` correction), and this record is against the amended contract.
+- Remaining work (AC-5): add a `docs/DECISIONS.md` entry superseding D-008 for the automated run (user decisions in TASK.md `## Context`: `claude -p`, `codex exec`, or both; local only, no CI secret); add local-only new-task and resumed-draft fixtures; add a single command that runs the agent non-interactively and prints PASS or FAIL from scripted checks (skip line, no push or PR command, only TASK.md and HANDOFF.md staged, no commit); add pytest coverage for the fixtures' setup and check; record a real run's result under `## Validation`.
+- AC-1 to AC-4 and AC-6 remain verified at de89d87 and need no rework.
+- Implemented by Codex; reviewed by a different agent and model family (Claude Opus 5.5) in a new session.
+- Non-blocking: remote-backed projects whose only remote is not named `origin` still hit the pre-existing `origin/HEAD` lookup (ask the user) and the `git push -u origin <branch>` template; unchanged by this task and consistent with "remote-backed target resolution remains unchanged".
+- Non-blocking: the new tests are phrase-presence content checks, as the user chose (automated tests only, no behavioral fixtures); they guard wording, not agent behavior.
 
 ## Exact next steps
 

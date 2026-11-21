@@ -35,13 +35,24 @@ Acceptance criteria confirmed by the user: 2026-11-20
   state report's local default resolution: `init.defaultBranch` if that branch
   exists, then existing `main`, then existing `master`. Ask the user if unresolved.
   Align the handoff skill's Writing a task guidance with this rule.
+- Correction (2026-11-20, approved by the user): "automated tests only" meant
+  that agent behavior is tested automatically rather than by the user, not that
+  behavioral testing is omitted. AC-5 and `## Scope` were amended accordingly
+  after the first review.
+- User decisions (2026-11-20): the automated agent run may use `claude -p`,
+  `codex exec`, or both, at the implementer's choice. It runs locally only, not
+  in CI, so no API key or repository secret is added; `uv run pytest` and CI must
+  still pass without agent credentials. Driving agents non-interactively needs a
+  new `docs/DECISIONS.md` entry superseding D-008's "Agents are never driven
+  headless" for this run.
 
 ## Scope
 
 - Change start-task guidance and supporting tests and documentation for issue #40.
 - Coordinate local-only target resolution guidance with the handoff skill.
-- Use automated validation only. No new behavioral fixture scenario or required
-  manual runs in Claude Code or Codex.
+- Use automated validation only: the user runs no agent sessions in Claude Code
+  or Codex by hand. Agent behavior is tested by an automated non-interactive run
+  (AC-5).
 - The user makes every commit. Do not implement while this task is a draft.
 
 ## Acceptance criteria
@@ -62,8 +73,13 @@ Acceptance criteria confirmed by the user: 2026-11-20
   user if unresolved. The start-task skill, interview reference, and handoff
   skill's Writing a task guidance agree on these rules.
 - AC-5: Automated regression tests cover the approved local-only guidance and
-  preserved remote-backed safeguards, and `uv run pytest` passes. No additional
-  behavioral fixtures or manual tool runs are required.
+  preserved remote-backed safeguards, and `uv run pytest` passes. Agent behavior
+  on the local-only start-task path is also tested automatically: one command
+  runs an agent non-interactively against behavioral fixtures for a local-only
+  new task and a local-only resumed draft, and reports PASS or FAIL from
+  scripted checks (skip explained, no push or pull request command printed,
+  only `TASK.md` and `HANDOFF.md` staged, nothing committed). No manual agent
+  session or transcript judgment by the user is required.
 - AC-6: A new append-only erratum documents the approved exceptions to E-018/E-019;
   the frozen spec and existing accepted entries remain unchanged.
 
