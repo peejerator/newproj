@@ -47,32 +47,35 @@ complete
 - PASS | uv run pytest | 466 passed, 1 skipped (Windows junction test on Linux) at de89d87 | Linux; Python 3.13.5 | reviewer
 - PASS | state.py check --neutral-dir template/.agents/skills/handoff/neutral and git diff --check 0bc980c HEAD | No violations; no whitespace errors | Linux | reviewer
 - PASS | GitHub Actions CI run 44685446259 at de89d87 | Tests passed on ubuntu-latest, macos-latest, windows-latest | Linux, macOS, Windows | CI
+- PASS | uv run pytest | 514 passed, 1 skipped (Windows junction test on Linux) at c2a78d7 | Linux; Python 3.13.5 | reviewer
+- PASS | state.py check --neutral-dir template/.agents/skills/handoff/neutral and git diff --check 0bc980c HEAD | No violations; no whitespace errors at c2a78d7 | Linux | reviewer
+- PASS | uv run python scripts/start_task_behavior.py <scratch dir outside any repository> | AC-5: B12 PASS (3 turns), B13 PASS (2 turns), overall PASS at c2a78d7; transcripts show the skip line and a commit-only command block | Linux; Claude Code 2.1.330; claude-opus-5-5 | reviewer
+- PASS | GitHub Actions CI run 44878117963 at c2a78d7 | Tests passed on ubuntu-latest, macos-latest, windows-latest | Linux, macOS, Windows | CI
 
 ## Review
 
-Outcome: FAIL
-Reviewer: Claude Code/claude-opus-5-5, 2026-11-20
-Reviewed at: de89d87c152bb6f4c578363730dc276dfc857e84
+Outcome: PASS
+Reviewer: Claude Code/claude-opus-5-5, 2026-11-21
+Reviewed at: c2a78d7eafa44a6acd2ab2630d7e1a8e6b408ea1
 Contract: ce42a00f63cd312915bf9300491de8d7422c47d2
 Working tree clean at review: yes
 Baseline: base-commit diff
 Artifact coverage: complete
-Validation provenance: CI-confirmed
+Validation provenance: reviewer-executed
 
-- AC-1: VERIFIED | start-task SKILL.md step 3 defines local-only as a successful `git remote` with no names, stops on a failed check, and for new tasks and resumed drafts skips only fetch and upstream freshness checks with the one-line explanation; interview.md repeats it; test_start_task_local_only_preflight passes (reviewer, CI).
-- AC-2: VERIFIED | Confirm and hand off step 4 prints only `git commit -m "Start <goal>"` for local-only projects and restricts push and further push or PR commands to remote-backed projects; template AGENTS.md.jinja adds no push or PR requirement; test_start_task_final_commands_depend_on_remotes passes.
-- AC-3: VERIFIED | Remote-backed paragraph keeps target upstream, fetch, zero ahead/behind counts, and stops for missing upstream, ahead, behind, diverged, and failed fetch; clean-tree, branch identity and creation, ancestry, confirmation, and staging text unchanged or restated; covered by content tests.
-- AC-4: VERIFIED | start-task step 3, interview.md, and handoff Writing a task each honor a user-specified target, then existing `init.defaultBranch`, `main`, `master`, then ask; matches `resolve_default_branch` step 3 in src/newproj/state.py; test_local_only_target_resolution_agrees passes for all three.
-- AC-5: UNSATISFIED | Amended AC-5 requires an automated non-interactive agent run against local-only new-task and resumed-draft fixtures; none exists at HEAD (no fixture under tests/fixtures/behavior/ for start-task, no runner in scripts/behavior.py). The content-test part holds: seven new content tests and two rendered-equality assertions cover local-only guidance and retained remote safeguards; `uv run pytest` 466 passed, 1 skipped (reviewer); CI run 44685446259 green on Linux, macOS, Windows.
-- AC-6: VERIFIED | docs/ERRATA.md diff is append-only (E-025); docs/spec.md, docs/DECISIONS.md, src/, and tests/fixtures/ unchanged from the base.
+- AC-1: VERIFIED | start-task SKILL.md step 3 and interview.md define local-only as a successful `git remote` with no names, stop on a failed check, and for new tasks and resumed drafts skip only fetch and upstream freshness checks with the one-line explanation; unchanged since de89d87; test_start_task_local_only_preflight passes; real B12 and B13 runs printed the skip line (reviewer).
+- AC-2: VERIFIED | Confirm and hand off step 4 prints only `git commit -m "Start <goal>"` for local-only projects and restricts push and PR commands to remote-backed ones; test_start_task_final_commands_depend_on_remotes passes; real B12/B13 transcripts contain a commit command and no `git push` or `gh pr` command (reviewer).
+- AC-3: VERIFIED | Remote-backed paragraph keeps target upstream, fetch, zero ahead/behind counts, and stops for missing upstream, ahead, behind, diverged, and failed fetch; clean-tree, branch identity and creation, ancestry, confirmation, and staging rules retained; covered by test_start_task_remote_preflight_still_blocks_unsafe_states and test_start_task_preserves_branch_and_contract_safeguards.
+- AC-4: VERIFIED | start-task step 3, interview.md, and handoff Writing a task each honor a user-specified target, then existing `init.defaultBranch`, `main`, `master`, then ask; matches `resolve_default_branch` in src/newproj/state.py; test_local_only_target_resolution_agrees passes for all three.
+- AC-5: VERIFIED | `scripts/start_task_behavior.py` runs `claude -p` non-interactively against B12 (local-only new task on main) and B13 (settled draft on existing add-min-length branch), then scripted checks in tests/fixtures/behavior/start_task.py require the skip line, no push/PR command, a commit command, only TASK.md and HANDOFF.md changed and staged, no new commits including reflogs, branch, target, activated contract, and state.py validity; no JUDGE items. Reviewer rerun: overall PASS. Pytest covers setup, passing and 14 failing verdicts per fixture, and the driver with a fake agent, without credentials; `uv run pytest` 514 passed, 1 skipped (reviewer); CI run 44878117963 green on Linux, macOS, Windows. D-009 supersedes D-008 only for this run.
+- AC-6: VERIFIED | docs/ERRATA.md diff against the base is append-only (E-025); docs/DECISIONS.md diff is append-only (D-009); docs/spec.md, src/, and existing behavioral fixtures (B1 to B11) unchanged from the base.
 
 Findings:
-- Acceptance criteria were user-confirmed on 2026-11-20; the user approved amending AC-5 and `## Scope` after the first review (TASK.md `## Context` correction), and this record is against the amended contract.
-- Remaining work (AC-5): add a `docs/DECISIONS.md` entry superseding D-008 for the automated run (user decisions in TASK.md `## Context`: `claude -p`, `codex exec`, or both; local only, no CI secret); add local-only new-task and resumed-draft fixtures; add a single command that runs the agent non-interactively and prints PASS or FAIL from scripted checks (skip line, no push or PR command, only TASK.md and HANDOFF.md staged, no commit); add pytest coverage for the fixtures' setup and check; record a real run's result under `## Validation`.
-- AC-1 to AC-4 and AC-6 remain verified at de89d87 and need no rework.
-- Implemented by Codex; reviewed by a different agent and model family (Claude Opus 5.5) in a new session.
-- Non-blocking: remote-backed projects whose only remote is not named `origin` still hit the pre-existing `origin/HEAD` lookup (ask the user) and the `git push -u origin <branch>` template; unchanged by this task and consistent with "remote-backed target resolution remains unchanged".
-- Non-blocking: the new tests are phrase-presence content checks, as the user chose (automated tests only, no behavioral fixtures); they guard wording, not agent behavior.
+- Acceptance criteria were user-confirmed on 2026-11-20; AC-5 and `## Scope` were amended with user approval after the first review, and this record is against the amended contract (same `Contract:` hash as the first review).
+- Implemented by Codex; reviewed by a different agent and model family (Claude Opus 5.5) in a fresh session. The automated AC-5 run drives the same model as this reviewer, which does not affect independence from the implementer.
+- Non-blocking, recommended before acceptance: E-025 resolution item 4 still says "No additional behavioral fixture scenarios or manual tool runs are required for this change", which contradicts amended AC-5, D-009, and the new B12/B13 fixtures. E-025 is not yet merged to main; correct it or append a superseding erratum so the durable record matches what shipped.
+- Non-blocking: tests/fixtures/behavior/B13/notes.md says the draft's settled criteria must survive, but the scripted check only requires `--min-length` in TASK.md; it does not compare the activated criteria with the draft's AC-1 to AC-3.
+- Non-blocking, carried over: remote-backed projects whose only remote is not named `origin` still hit the pre-existing `origin/HEAD` lookup and `git push -u origin <branch>` template; unchanged by this task.
 
 ## Exact next steps
 
