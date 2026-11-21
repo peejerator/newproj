@@ -1,0 +1,1 @@
+/start-task Resume the draft in TASK.md. All decisions recorded there are settled; show me its final acceptance criteria for confirmation. The user makes every commit. This is an interview only; do not implement.

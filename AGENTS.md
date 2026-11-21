@@ -26,8 +26,9 @@ Each milestone in `docs/ROADMAP.md` is a standard task. Read only the spec secti
 - Create a project from the working tree, for development: `uv run newproj new <name> --no-remote --template-path <path to this repository>` (E-002)
 - Adopt an existing repository from the working tree, for development: `uv run newproj adopt [path] --template-path <path to this repository>` (it never commits; run the `bootstrap` skill afterwards)
 - Check a project: `uv run newproj doctor [path]`
-- Set up a behavioral fixture (spec 23.2, D-008): `uv run python scripts/behavior.py setup <id> <dir>`, where `<id>` is `B1`, `B4`, `B5`, `B6`, `B9`, `B10`, or `B11` and `<dir>` is a new directory outside any Git repository; then follow `tests/fixtures/behavior/<id>/notes.md`
+- Set up a behavioral fixture (spec 23.2, D-008, D-009): `uv run python scripts/behavior.py setup <id> <dir>`, where `<id>` is `B1`, `B4`, `B5`, `B6`, `B9`, `B10`, `B11`, `B12`, or `B13` and `<dir>` is a new directory outside any Git repository; then follow `tests/fixtures/behavior/<id>/notes.md`
 - Check it after the agent session: `uv run python scripts/behavior.py check <id> <dir>` (prints PASS, FAIL, or JUDGE with the items to judge from the transcript)
+- Run both local-only start-task agent fixtures automatically (D-009): `uv run python scripts/start_task_behavior.py <new-directory>`; requires authenticated Claude Code, runs locally only, and reports PASS or FAIL without manual transcript judgment. Pytest and CI never launch the agent.
 
 (Added by milestone M1, extended in M4, M5, M6, and M7; update this section when commands change.)
 

@@ -154,18 +154,18 @@ def test_setup_manifest(projects: dict[str, Path], fixture: str) -> None:
     assert "AGENTS.md" in manifest["files"] and "TASK.md" in manifest["files"]
     assert git(project, "log", "-1", "--format=%s").startswith(("Add ",))
     dirty = [line for line in manifest["status"] if line]
-    assert bool(dirty) == (fixture in ("B9", "B11"))
+    assert bool(dirty) == (fixture in ("B9", "B11", "B13"))
     assert "TODO" not in (project / "AGENTS.md").read_text(encoding="utf-8").split("## Environment")[0]
 
 
-@pytest.mark.parametrize("fixture", behavior.FIXTURE_IDS)
+@pytest.mark.parametrize("fixture", behavior.INTERACTIVE_FIXTURE_IDS)
 def test_check_passing_outcome(projects: dict[str, Path], fixture: str, env: Env, tmp_path: Path) -> None:
     result, output = verdict(fixture, copy(projects, fixture, tmp_path), OUTCOMES[fixture][0])
     assert result == "JUDGE", output
     assert "Judge from the transcript:" in output
 
 
-@pytest.mark.parametrize("fixture", behavior.FIXTURE_IDS)
+@pytest.mark.parametrize("fixture", behavior.INTERACTIVE_FIXTURE_IDS)
 def test_check_failing_outcome(projects: dict[str, Path], fixture: str, env: Env, tmp_path: Path) -> None:
     _, failing, expected = OUTCOMES[fixture]
     result, output = verdict(fixture, copy(projects, fixture, tmp_path), failing)

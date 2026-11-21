@@ -31,7 +31,9 @@ from newproj import state
 
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = ROOT / "tests" / "fixtures" / "behavior"
-FIXTURE_IDS = ["B1", "B4", "B5", "B6", "B9", "B10", "B11"]
+INTERACTIVE_FIXTURE_IDS = ["B1", "B4", "B5", "B6", "B9", "B10", "B11"]
+START_TASK_FIXTURE_IDS = ["B12", "B13"]
+FIXTURE_IDS = INTERACTIVE_FIXTURE_IDS + START_TASK_FIXTURE_IDS
 STATE_PY = ".agents/skills/resume/scripts/state.py"
 NEWPROJ = "import sys; from newproj.cli import main; sys.exit(main(sys.argv[1:]))"
 

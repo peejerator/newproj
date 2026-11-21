@@ -1,6 +1,6 @@
 # Handoff
 
-Last updated: 2026-11-20 by Codex
+Last updated: 2026-11-21 by Codex
 Branch: fix-40-local-start-task
 Task: standard
 Environment: Linux
@@ -15,7 +15,7 @@ complete
 - AC-2: local-only final commands contain only the commit; remote-backed output retains push guidance.
 - AC-3: remote-backed freshness checks and all applicable branch, ancestry, confirmation, and staging safeguards remain required.
 - AC-4: start-task, interview guidance, and handoff honor an explicit target, then existing configured default, main, master, or ask the user.
-- AC-5: automated content regression coverage and rendered skill equality checks are added; focused and full suites pass.
+- AC-5: B12/B13 fixtures and a local `claude -p` driver now exercise new-task and resumed-draft interviews automatically. Both real runs PASS; pytest passes without launching agents or needing credentials. D-009 records the approved exception to D-008.
 - AC-6: E-025 appends the approved exceptions to E-018/E-019.
 
 ## Current working area
@@ -26,6 +26,10 @@ complete
 - `template/.agents/skills/handoff/SKILL.md`
 - `tests/test_agent_content.py`, `tests/test_render.py`
 - `docs/ERRATA.md`
+- `docs/DECISIONS.md`, `scripts/behavior.py`, `scripts/start_task_behavior.py`
+- `tests/test_start_task_behavior.py`, `tests/test_behavior.py`
+- `tests/fixtures/behavior/B12/`, `tests/fixtures/behavior/B13/`, `tests/fixtures/behavior/start_task.py`
+- `AGENTS.md`
 
 ## Validation
 
@@ -34,11 +38,12 @@ complete
 - PASS | AC-2 inspection and test_start_task_final_commands_depend_on_remotes | Local-only output includes only commit; remote-backed output retains push and applicable PR guidance | Linux | implementer
 - PASS | AC-3 instruction diff and remote/branch safeguard content tests | Missing upstream, ahead, behind, divergence, and fetch failure still stop when any remote exists; branch, ancestry, confirmation, and staging rules retained | Linux | implementer
 - PASS | AC-4 inspection and test_local_only_target_resolution_agrees | All three documents honor user target, then existing init.defaultBranch, main, master; unresolved targets ask the user | Linux | implementer
-- PASS | uv run pytest | AC-5: 466 passed, 1 skipped (Windows junction test on Linux); one expected Copier dirty-template warning | Linux; Python 3.13.5 | implementer
-- PASS | AC-6 byte comparison against 3630862 and git diff inspection | E-025 appended; earlier errata, frozen spec, accepted decisions, active contract, state code, and behavioral fixtures unchanged | Linux | implementer
+- PASS | uv run pytest | AC-5: 514 passed, 1 skipped (Windows junction test on Linux); one expected Copier dirty-template warning. Includes real-Git fixture setup, synthetic passing/failing verdicts, and mocked driver coverage for errors, timeout, unexpected replies, and premature activation | Linux; Python 3.13.5 | implementer
+- PASS | uv run python scripts/start_task_behavior.py /tmp/newproj-start-task-20261121-03 | AC-5: B12 PASS, B13 PASS, overall PASS. Skip explained; no push/PR command; only TASK.md and HANDOFF.md changed and staged; no commits including reflogs. Raw events and transcripts under the output directory's .behavior/ | Linux; Claude Code 2.1.330; claude-opus-5-5; synthetic textstats projects | implementer
+- PASS | AC-6 byte comparison against 0bc980c and instruction diff inspection | E-025 and D-009 are append-only; frozen spec, active contract, state code, existing behavioral fixtures, and independent review record unchanged in this follow-up | Linux | implementer
 - PASS | git diff --check and full diff inspection | No whitespace errors or unintended changes; no dependency or CLI changes | Linux | implementer
-- PASS | python3 template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | No violations found | Linux | implementer
-- NOT RUN | macOS and Windows CI | Requires user commit and push; required before merge | Linux session only | implementer
+- PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | No violations found | Linux | implementer
+- NOT RUN | macOS and Windows CI for this follow-up | Requires user commit and push; required before merge. The CI entry below covers only de89d87 | Linux session only | implementer
 - PASS | uv run pytest | 466 passed, 1 skipped (Windows junction test on Linux) at de89d87 | Linux; Python 3.13.5 | reviewer
 - PASS | state.py check --neutral-dir template/.agents/skills/handoff/neutral and git diff --check 0bc980c HEAD | No violations; no whitespace errors | Linux | reviewer
 - PASS | GitHub Actions CI run 44685446259 at de89d87 | Tests passed on ubuntu-latest, macos-latest, windows-latest | Linux, macOS, Windows | CI
@@ -71,9 +76,9 @@ Findings:
 
 ## Exact next steps
 
-1. User commits the staged implementation with `git commit -m "Support local-only start-task interviews (#40)"` and pushes with `git push`.
-2. Run the user-invoked review skill in a different agent on the committed changes; review is expected for these skill instruction changes. Review remains unperformed (Outcome: none).
-3. Verify macOS and Windows CI before acceptance. Open the PR only at acceptance, as AGENTS.md requires. No additional behavioral fixture scenarios or manual tool runs are required.
+1. User commits the staged follow-up with `git commit -m "Automate local-only start-task behavior checks (#40)"` and pushes with `git push`.
+2. Run the user-invoked review skill in a fresh independent session on the committed fix. The recorded FAIL describes de89d87 under the amended contract; its remaining AC-5 finding is addressed by this follow-up, pending re-review.
+3. Verify fresh macOS and Windows CI before acceptance. Open the PR only at acceptance.
 
 ## Blockers / open questions
 
@@ -83,3 +88,4 @@ Findings:
 
 - E-025 supersedes conflicting parts of E-018/E-019 for local-only interviews and aligns handoff target resolution.
 - E-007 and E-008: the baseline records the updated main commit; acceptance criteria describe the finished result.
+- D-009 supersedes D-008 only for the approved local, automated B12/B13 agent run; existing interactive fixtures and recorded results remain unchanged.

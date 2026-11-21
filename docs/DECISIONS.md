@@ -178,3 +178,53 @@ Storing the manifest inside the project (for example in `.git/`): an agent inspe
 ### Supersedes
 
 None
+
+## D-009: Automated local-only start-task behavior checks
+
+Date: 2026-11-21
+Status: Accepted
+
+### Decision
+
+For issue #40, B12 (new task) and B13 (resumed draft) run automatically through
+`uv run python scripts/start_task_behavior.py <new-directory>` using the installed,
+authenticated Claude Code CLI in print mode (`claude -p`). This is a local check,
+never a CI job. No API key or repository secret is added. Pytest exercises fixture
+setup, scripted verdicts, and the driver with synthetic agent responses only.
+
+Each fixture uses a fresh synthetic project and a fresh agent session. The driver
+sends the fixture prompt, accepts numbered recommendation rounds, and confirms
+criteria only after the agent shows them. Unexpected responses, tool permission
+denials, timeouts, or more than five turns fail the run. It uses a limited set of
+tools and normal edit permissions, enables project skills, disables user settings,
+optional hooks and MCP servers,
+and never bypasses permission checks. Existing interactive fixtures and their
+recorded results are unchanged.
+
+Raw agent events, errors, and normalized assistant output stay beside the fixture
+manifests, outside the projects. Scripted checks require the skip explanation, no
+printed push or PR command, a printed commit command, only TASK.md and HANDOFF.md
+changed and staged, no commits including reflogs, the agreed branch and target,
+and a valid activated contract and initial handoff. Both fixtures must report
+PASS; there is no manual transcript judgment. Artifacts remain local and are not
+committed.
+
+### Rationale
+
+The user clarified that automated testing in AC-5 means exercising agent behavior
+without asking the user to drive sessions or judge transcripts. Synthetic runs
+check the interview path directly while keeping the ordinary test suite usable
+without agent credentials on Linux, macOS, and Windows.
+
+### Alternatives considered
+
+Content checks alone do not exercise agent behavior. Manual sessions contradict
+the clarified requirement. Running an authenticated agent in CI would require
+credentials and spend on every CI run. Codex exec is also approved, but one
+supported driver is sufficient for these two scenarios.
+
+### Supersedes
+
+D-008's requirement for interactive sessions and prohibition on headless agents,
+only for the issue #40 automated B12/B13 run. Its existing fixtures and manual
+workflow remain unchanged.
