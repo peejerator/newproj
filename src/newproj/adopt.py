@@ -18,7 +18,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 from newproj import doctor, source, state
-from newproj.new import HOOKS_PATH, NAME, SET_HEAD, command_line, shown
+from newproj.new import HOOKS_PATH, NAME, command_line, shown
 from newproj.tools import run, which
 
 # Project-owned paths in the template: copier.yml _skip_if_exists (spec section 19.2).
@@ -310,15 +310,18 @@ def write(target: Path, rendered: Path, adoption: Plan) -> None:
 
 
 def set_head(git: state.Git) -> list[str]:
-    """Spec 20.2, step 3: run set-head when origin exists without origin/HEAD. Returns notes to print."""
-    if not git.out("config", "--get", "remote.origin.url"):
+    """Spec 20.2, step 3 (ERRATA E-027): run set-head for the selected remote when its
+    refs/remotes/<remote>/HEAD is missing. Returns notes to print."""
+    remote = state.select_remote(git, state.configured_remotes(git))
+    if remote is None:
         return []
-    if git.ok("symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"):
+    if git.ok("symbolic-ref", "--quiet", f"refs/remotes/{remote}/HEAD"):
         return []
-    result = run(*SET_HEAD, cwd=git.root, timeout=state.LS_REMOTE_TIMEOUT)
+    command = ["git", "remote", "set-head", remote, "--auto"]
+    result = run(*command, cwd=git.root, timeout=state.LS_REMOTE_TIMEOUT)
     if result.ok:
-        return [f"Ran {command_line(SET_HEAD)}."]
-    return [f"{command_line(SET_HEAD)} failed ({result.err or f'exit code {result.code}'}); "
+        return [f"Ran {command_line(command)}."]
+    return [f"{command_line(command)} failed ({result.err or f'exit code {result.code}'}); "
             "run it again when the remote is reachable."]
 
 

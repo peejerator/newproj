@@ -167,7 +167,7 @@ def test_accept_prints_one_block() -> None:
     assert steps.index("git switch <target branch>") > 0
     assert steps[1:] == [
         "git push", "git switch <target branch>", "git pull --ff-only", "git merge --ff-only <task branch>",
-        "git push", "git branch -d <task branch>", "git push origin --delete <task branch>",
+        "git push", "git branch -d <task branch>", "git push <remote> --delete <task branch>",
     ]
 
 
@@ -309,7 +309,7 @@ def test_start_task_final_commands_depend_on_remotes() -> None:
     local_blocks = re.findall(r"```text\n(.*?)```", local, re.S)
     assert local_blocks[-1].strip() == 'git commit -m "Start <goal>"'
     assert "Omit push and pull request commands for local-only projects" in local
-    assert 'git commit -m "Start <goal>" && git push -u origin <branch>' in remote
+    assert 'git commit -m "Start <goal>" && git push -u <remote> <branch>' in remote
     assert "For remote-backed projects, append any further push or pull request commands `AGENTS.md` requires" in remote
     assert "commands for the user to run, never commands for the skill to execute" in remote
 
@@ -488,3 +488,39 @@ def test_interview_requires_criteria_the_reviewer_can_check() -> None:
     finish = text.split("The interview is finished when")[1].split("\n\n")[0]
     assert "can be checked by a reviewer with what the review environment has" in finish
     assert "settle with the user how it will be checked, or rewrite it" in finish
+
+
+# Issue #46 (ERRATA E-027): skills resolve the remote instead of assuming origin
+
+
+def test_handoff_selects_remote_for_default_target() -> None:
+    text = read(canonical("handoff")).split("## Writing a task\n", 1)[1].split("\n## Marking the task complete", 1)[0]
+    remote = text.split("Whenever any remote exists,", 1)[1].split("\n", 1)[0]
+    rule = ("select the remote: `origin` if configured, otherwise the only configured remote, otherwise the one"
+            " remote whose `refs/remotes/<remote>/HEAD` exists")
+    assert rule in remote
+    assert "If no remote is selected, ask the user." in remote
+    assert "`git symbolic-ref --short refs/remotes/<remote>/HEAD` for the selected remote" in remote
+    assert "drop the `<remote>/` prefix; if that fails, ask the user" in remote
+    assert "refs/remotes/origin/HEAD" not in text
+
+
+def test_start_task_and_accept_push_to_configured_remote() -> None:
+    start = read(canonical("start-task"))
+    assert "git push -u <remote> <branch>" in start
+    assert "`<remote>` is the target branch's configured remote, read with `git config branch.<target>.remote`" in start
+    accept = read(canonical("accept"))
+    assert "git push <remote> --delete <task branch>" in accept
+    assert ("`<remote>` is the task branch's configured remote, read with"
+            " `git config branch.<task branch>.remote`") in accept
+
+
+@pytest.mark.parametrize("name", ["handoff", "start-task", "accept"])
+def test_skills_do_not_hard_code_origin(name: str) -> None:
+    for path in [canonical(name), *sorted((canonical(name).parent / "references").glob("*.md"))]:
+        for line in read(path).splitlines():
+            for match in re.finditer(r"origin", line):
+                # origin only as part of the selection rule or as an example.
+                context = line[max(0, match.start() - 40):match.end() + 40]
+                assert ("`origin` if configured" in context or "(for example `origin`)" in context
+                        or "other than `origin`" in context), f"{path.name}: {context}"

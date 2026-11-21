@@ -459,6 +459,44 @@ def test_sets_origin_head(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
     assert "Default branch: main (step 1" in out
 
 
+def test_sets_head_for_other_remote(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    # Issue #46 (E-027): the only remote is not origin.
+    repo = make_repo(env)
+    remote = env.remotes / "app.git"
+    git(env.remotes, "init", "--quiet", "--bare", "-b", "main", str(remote))
+    git(repo, "remote", "add", "upstream", str(remote))
+    git(repo, "push", "--quiet", "upstream", "main")
+    code, out, _ = run_adopt(env, repo, capfd)
+    assert code == 0
+    assert git(repo, "symbolic-ref", "refs/remotes/upstream/HEAD") == "refs/remotes/upstream/main"
+    assert "Ran git remote set-head upstream --auto." in out
+    assert "Default branch: main (step 1: refs/remotes/upstream/HEAD)" in out
+    assert "origin" not in out.replace(str(env.tmp), "")
+
+
+def test_no_set_head_without_selected_remote(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    repo = make_repo(env)
+    for name in ["upstream", "fork"]:
+        remote = env.remotes / f"{name}.git"
+        git(env.remotes, "init", "--quiet", "--bare", "-b", "main", str(remote))
+        git(repo, "remote", "add", name, str(remote))
+        git(repo, "push", "--quiet", name, "main")
+    code, out, _ = run_adopt(env, repo, capfd)
+    assert code == 0
+    assert "Ran git remote set-head" not in out
+    for name in ["upstream", "fork"]:
+        assert git(repo, "symbolic-ref", "--quiet", f"refs/remotes/{name}/HEAD", check=False) == ""
+    assert "git remote set-head <remote> --auto` for the remote that holds the default branch" in out
+
+
+def test_no_set_head_without_remote(env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    repo = make_repo(env)
+    code, out, _ = run_adopt(env, repo, capfd)
+    assert code == 0
+    assert "Ran git remote set-head" not in out
+    assert "Default branch: main (step 3: " in out
+
+
 # AC-7: doctor after committing the adoption
 
 

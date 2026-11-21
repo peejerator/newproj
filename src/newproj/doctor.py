@@ -486,7 +486,7 @@ def default_branch(report: Report, git: state.Git) -> None:
     report.add("PASS", f"Default branch: {default.describe()}")
     if default.step > 1:
         hint = default.hint or (f"Resolved through a local fallback; once the project has a remote, run"
-                                f" `{state.SET_HEAD}`")
+                                f" `{state.set_head_command(default.remote or '<remote>')}`")
         report.add("INFO", hint)
 
 

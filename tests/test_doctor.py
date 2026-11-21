@@ -124,7 +124,7 @@ def test_fresh_project_has_no_fail(project: Path, capfd: pytest.CaptureFixture[s
     assert has(checks, "INFO", "Template version: development render from")
     assert has(checks, "INFO", "Template update check: arrives with newproj update")
     assert has(checks, "PASS", "Default branch: main")
-    assert has(checks, "INFO", "git remote set-head origin --auto")
+    assert has(checks, "INFO", "git remote set-head <remote> --auto")
     assert has(checks, "PASS", "the 6 skills, and their pointers")
 
 
@@ -589,7 +589,29 @@ def test_default_branch_unresolved(project: Path, capfd: pytest.CaptureFixture[s
     git(project, "config", "--global", "--unset", "init.defaultBranch")
     _, out, checks = run_doctor(project, capfd)
     assert has(checks, "WARN", "The default branch does not resolve")
-    assert "git remote set-head origin --auto" in out
+    assert "git remote set-head <remote> --auto" in out
+
+
+def test_default_branch_names_selected_remote(project: Path, env: Env, capfd: pytest.CaptureFixture[str]) -> None:
+    # Issue #46 (E-027): a project whose only remote is not origin.
+    remote = env.remotes / "demo.git"
+    git(env.remotes, "init", "--quiet", "--bare", "-b", "main", str(remote))
+    git(project, "remote", "add", "upstream", str(remote))
+    git(project, "push", "--quiet", "upstream", "main")
+    _, out, checks = run_doctor(project, capfd)
+    assert has(checks, "PASS", "Default branch: main (step 2: git ls-remote --symref upstream HEAD)")
+    assert has(checks, "INFO", "`git remote set-head upstream --auto` would let step 1 work offline")
+    assert "set-head origin" not in out
+
+
+def test_default_branch_several_remotes_without_origin(project: Path, env: Env,
+                                                       capfd: pytest.CaptureFixture[str]) -> None:
+    for name in ["upstream", "fork"]:
+        git(project, "remote", "add", name, str(env.remotes / f"{name}.git"))
+    _, out, checks = run_doctor(project, capfd)
+    assert has(checks, "WARN", "The default branch does not resolve")
+    assert "git remote set-head <remote> --auto` for the remote that holds the default branch" in out
+    assert "set-head origin" not in out
 
 
 def test_default_branch_with_remote(env: Env, capfd: pytest.CaptureFixture[str]) -> None:

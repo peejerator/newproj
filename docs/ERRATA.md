@@ -328,3 +328,20 @@ Resolution:
 2. The agent run is local only. Pytest and CI cover fixture setup, scripted verdicts, and the driver without launching an agent or needing credentials.
 
 This entry supersedes only E-025 resolution item 4. All other parts of E-025 remain in force.
+
+## E-027: Resolve the remote instead of assuming origin
+
+Date: 2026-11-21
+Sections: 4 (Default branch); 20.2 step 3; E-025 resolution item 2
+
+Observed failure: spec section 4 steps 1, 2, and 4, `state.py`, `newproj doctor`, `newproj adopt`, and the `handoff`, `start-task`, and `accept` skills name `origin` as the only remote. In a project whose only remote has another name, the default branch resolved through local fallbacks while preflight used the real remote, and printed push commands named a remote that does not exist. The user approved the following on 2026-11-21 (issue #46, active `TASK.md`, and a follow-up decision recorded in `HANDOFF.md`).
+
+Resolution:
+
+1. Remote selection: `origin` if configured, even alongside other remotes; otherwise the only configured remote; otherwise, with several remotes and none named `origin`, the one remote whose `refs/remotes/<remote>/HEAD` is set. Otherwise no remote is selected. Selection never contacts the network. `branch.<target>.remote` is not used for selection, because the target is what is being resolved.
+2. Spec section 4: steps 1 and 2 use `refs/remotes/<remote>/HEAD` and `git ls-remote --symref <remote> HEAD` for the selected remote, and fixes name `git remote set-head <remote> --auto`. When remotes exist but none is selected, the default branch is unknown (step 4) without local fallbacks, and the fix names `git remote set-head <remote> --auto` for the remote that holds the default branch, or a user-specified target. With no remote, the fix says to add a remote and run `git remote set-head <remote> --auto`, without requiring the name `origin`. Repositories with an `origin` remote resolve as before.
+3. Spec section 20.2 step 3: `newproj adopt` runs `git remote set-head <remote> --auto` for the selected remote when its `refs/remotes/<remote>/HEAD` is missing, and not at all when no remote is selected.
+4. Skills: the `handoff` skill's Writing a task resolves the remote-backed default target with the selection rule in item 1 and asks the user when it does not resolve. `start-task` pushes with `git push -u <remote> <branch>`, where `<remote>` is the target branch's configured remote (`git config branch.<target>.remote`). `accept` deletes the task branch with `git push <remote> --delete <task branch>`, where `<remote>` is the task branch's configured remote. With `origin`, the commands are unchanged.
+5. `newproj new` is unchanged; it always creates `origin`. Verification is by automated unit, integration, and content tests, the full suite, and CI, with no new behavioral fixture.
+
+This entry supersedes only E-025 resolution item 2's "Remote-backed target resolution remains unchanged". All other parts of E-025 remain in force.

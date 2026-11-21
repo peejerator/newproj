@@ -32,8 +32,10 @@ Record the user's acceptance of the current task. Acceptance belongs to the user
    On any other branch, it also integrates the task branch:
 
    ```text
-   git commit -m "Accept <task goal in a few words>" && git push && git switch <target branch> && git pull --ff-only && git merge --ff-only <task branch> && git push && git branch -d <task branch> && git push origin --delete <task branch>
+   git commit -m "Accept <task goal in a few words>" && git push && git switch <target branch> && git pull --ff-only && git merge --ff-only <task branch> && git push && git branch -d <task branch> && git push <remote> --delete <task branch>
    ```
+
+   `<remote>` is the task branch's configured remote, read with `git config branch.<task branch>.remote` (for example `origin`).
 
    If `AGENTS.md` requires a pull request command at acceptance, insert it right after the first `git push`, before `git switch <target branch>`.
 

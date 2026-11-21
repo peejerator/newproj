@@ -276,7 +276,8 @@ def test_step_4_unknown(tmp_path: Path, run: Run) -> None:
     git(repo, "config", "init.defaultBranch", "trunk")
     _, out = run(repo)
     assert "unknown (step 4: no step resolved it)" in out
-    assert "not guessed" in out and "git remote set-head origin --auto" in out
+    assert "not guessed; add a remote and run `git remote set-head <remote> --auto`" in out
+    assert "origin" not in out
     assert "feature (step" not in out
 
 
@@ -286,6 +287,110 @@ def test_step_4_unknown_with_unreachable_remote(tmp_path: Path) -> None:
     resolved = state.resolve_default_branch(state.Git(repo))
     assert resolved.name is None and resolved.step == 4
     assert "git remote set-head origin --auto" in resolved.hint
+
+
+# Issue #46 (ERRATA E-027): the selected remote, not always origin
+
+
+def add_named_remote(repo: Path, tmp_path: Path, name: str, head: str = "main") -> Path:
+    """Like add_remote, for a remote called `name`; no refs/remotes/<name>/HEAD is created."""
+    bare = tmp_path / f"{name}.git"
+    git(tmp_path, "init", "-q", "--bare", str(bare))
+    git(repo, "remote", "add", name, str(bare))
+    git(repo, "push", "-q", name, "--all")
+    git(bare, "symbolic-ref", "HEAD", f"refs/heads/{head}")
+    return bare
+
+
+def has_ref(repo: Path, ref: str) -> bool:
+    return subprocess.run(["git", "symbolic-ref", "-q", ref], cwd=repo, capture_output=True).returncode == 0
+
+
+def test_single_other_remote_step_1(repo: Path, tmp_path: Path, run: Run) -> None:
+    git(repo, "branch", "develop")
+    add_named_remote(repo, tmp_path, "upstream", head="develop")
+    git(repo, "remote", "set-head", "upstream", "--auto")
+    _, out = run(repo)
+    assert "develop (step 1: refs/remotes/upstream/HEAD)" in out
+    assert "origin" not in out and "set-head" not in out
+
+
+def test_single_other_remote_step_2(repo: Path, tmp_path: Path, run: Run) -> None:
+    git(repo, "branch", "develop")
+    add_named_remote(repo, tmp_path, "upstream", head="develop")
+    _, out = run(repo)
+    assert "develop (step 2: git ls-remote --symref upstream HEAD)" in out
+    assert ("refs/remotes/upstream/HEAD is missing; `git remote set-head upstream --auto` would let step 1"
+            " work offline") in out
+    assert "origin" not in out
+    assert not has_ref(repo, "refs/remotes/upstream/HEAD")
+
+
+def test_single_other_remote_step_3_offline(repo: Path, tmp_path: Path, run: Run) -> None:
+    git(repo, "remote", "add", "upstream", str(tmp_path / "missing.git"))
+    _, out = run(repo)
+    assert "main (step 3: local branch main, no remote or offline)" in out
+    assert "the remote did not answer; `git remote set-head upstream --auto` would help once it does" in out
+    assert "origin" not in out
+
+
+def test_single_other_remote_step_4_unreachable(tmp_path: Path) -> None:
+    repo = make_repo(tmp_path / "repo", branch="feature")
+    git(repo, "remote", "add", "upstream", str(tmp_path / "missing.git"))
+    resolved = state.resolve_default_branch(state.Git(repo))
+    assert resolved.name is None and resolved.step == 4 and resolved.remote == "upstream"
+    assert "run `git remote set-head upstream --auto` when the remote is reachable" in resolved.hint
+
+
+def test_several_remotes_without_origin_unknown(repo: Path, tmp_path: Path, run: Run) -> None:
+    # Both remotes answer and main exists locally, yet neither is selected: no guess, no local fallback.
+    add_named_remote(repo, tmp_path, "upstream")
+    add_named_remote(repo, tmp_path, "fork")
+    _, out = run(repo)
+    assert "unknown (step 4: several remotes, none selected)" in out
+    assert "none of the remotes (upstream, fork) is origin" in out
+    assert "run `git remote set-head <remote> --auto` for the remote that holds the default branch" in out
+    assert "or name the target branch" in out
+    assert "main (step" not in out
+
+
+def test_several_remotes_without_origin_both_heads_unknown(repo: Path, tmp_path: Path) -> None:
+    for name in ["upstream", "fork"]:
+        add_named_remote(repo, tmp_path, name)
+        git(repo, "remote", "set-head", name, "--auto")
+    resolved = state.resolve_default_branch(state.Git(repo))
+    assert resolved.name is None and resolved.step == 4 and resolved.remote is None
+
+
+def test_several_remotes_without_origin_one_head_selected(repo: Path, tmp_path: Path, run: Run) -> None:
+    git(repo, "branch", "develop")
+    add_named_remote(repo, tmp_path, "upstream", head="develop")
+    add_named_remote(repo, tmp_path, "fork")
+    git(repo, "remote", "set-head", "upstream", "--auto")
+    _, out = run(repo)
+    assert "develop (step 1: refs/remotes/upstream/HEAD)" in out
+
+
+def test_origin_selected_alongside_other_remote(repo: Path, tmp_path: Path, run: Run) -> None:
+    git(repo, "branch", "develop")
+    add_named_remote(repo, tmp_path, "aaa", head="develop")
+    git(repo, "remote", "set-head", "aaa", "--auto")
+    add_remote(repo, tmp_path)
+    _, out = run(repo)
+    # origin wins even though the other remote is listed first and has its HEAD set.
+    assert "main (step 2: git ls-remote --symref origin HEAD)" in out
+    assert "`git remote set-head origin --auto` would let step 1 work offline" in out
+    assert "aaa" not in out
+
+
+def test_select_remote_rule(repo: Path, tmp_path: Path) -> None:
+    g = state.Git(repo)
+    assert state.configured_remotes(g) == [] and state.select_remote(g, []) is None
+    git(repo, "remote", "add", "up.stream", str(tmp_path / "missing.git"))
+    assert state.configured_remotes(g) == ["up.stream"]
+    assert state.select_remote(g, ["up.stream"]) == "up.stream"
+    git(repo, "remote", "add", "origin", str(tmp_path / "missing.git"))
+    assert state.select_remote(g, state.configured_remotes(g)) == "origin"
 
 
 # AC-3

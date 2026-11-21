@@ -56,8 +56,10 @@ Turn the user's intent into a confirmed contract, then hand it to a fresh implem
    Omit push and pull request commands for local-only projects. For remote-backed projects, join commands with `&&`:
 
    ```text
-   git commit -m "Start <goal>" && git push -u origin <branch>
+   git commit -m "Start <goal>" && git push -u <remote> <branch>
    ```
+
+   `<remote>` is the target branch's configured remote, read with `git config branch.<target>.remote` (for example `origin`).
 
    For remote-backed projects, append any further push or pull request commands `AGENTS.md` requires in that same block. These are commands for the user to run, never commands for the skill to execute.
 5. Stop and print this one-line prompt for a fresh session:

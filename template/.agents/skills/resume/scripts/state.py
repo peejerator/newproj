@@ -57,7 +57,6 @@ PROVENANCES = ["implementer", "reviewer", "CI"]
 NEUTRAL_DIR = ".agents/skills/handoff/neutral"
 TASK_FILES = ["TASK.md", "HANDOFF.md"]
 LS_REMOTE_TIMEOUT = 10
-SET_HEAD = "git remote set-head origin --auto"
 
 HEADER_LINE = re.compile(r"([A-Za-z][A-Za-z /-]*):(.*)")
 AC_LINE = re.compile(r"\s*[-*]\s+AC-\d+\b")
@@ -321,12 +320,39 @@ def find_root(start: Path) -> Path | None:
     return Path(out.strip()) if code == 0 and out.strip() else None
 
 
+def set_head_command(remote: str) -> str:
+    return f"git remote set-head {remote} --auto"
+
+
+def configured_remotes(git: Git) -> list[str]:
+    """Remotes with a configured URL, in configuration order."""
+    names = []
+    for line in git.out("config", "--get-regexp", r"^remote\..*\.url$").splitlines():
+        key = line.split(maxsplit=1)[0]
+        name = key[len("remote."):-len(".url")]
+        if name and name not in names:
+            names.append(name)
+    return names
+
+
+def select_remote(git: Git, remotes: list[str]) -> str | None:
+    """Spec section 4 as amended by ERRATA E-027: origin if configured, otherwise the only
+    configured remote, otherwise the one remote whose refs/remotes/<remote>/HEAD is set."""
+    if "origin" in remotes:
+        return "origin"
+    if len(remotes) == 1:
+        return remotes[0]
+    with_head = [name for name in remotes if git.ok("symbolic-ref", "--quiet", f"refs/remotes/{name}/HEAD")]
+    return with_head[0] if len(with_head) == 1 else None
+
+
 @dataclass
 class DefaultBranch:
     name: str | None
     step: int
     how: str
     hint: str = ""
+    remote: str | None = None
 
     def describe(self) -> str:
         if self.name is None:
@@ -335,28 +361,43 @@ class DefaultBranch:
 
 
 def resolve_default_branch(git: Git) -> DefaultBranch:
-    """Spec section 4, steps 1 to 4, stopping at the first that succeeds. Never guesses."""
-    target = git.out("symbolic-ref", "--quiet", "refs/remotes/origin/HEAD")
-    if target.startswith("refs/remotes/origin/"):
-        return DefaultBranch(target[len("refs/remotes/origin/"):], 1, "refs/remotes/origin/HEAD")
-    has_remote = bool(git.out("config", "--get", "remote.origin.url"))
-    if has_remote:
-        code, out = git.run("ls-remote", "--symref", "origin", "HEAD", timeout=LS_REMOTE_TIMEOUT)
-        for line in out.splitlines() if code == 0 else []:
-            match = re.fullmatch(r"ref:\s*refs/heads/(\S+)\s+HEAD", line.strip())
-            if match:
-                return DefaultBranch(match[1], 2, "git ls-remote --symref origin HEAD",
-                                     f"refs/remotes/origin/HEAD is missing; `{SET_HEAD}` would let step 1 work offline")
-    offline = f"the remote did not answer; `{SET_HEAD}` would help once it does" if has_remote else ""
+    """Spec section 4, steps 1 to 4 for the selected remote (E-027), stopping at the first that succeeds.
+    Never guesses."""
+    remotes = configured_remotes(git)
+    remote = select_remote(git, remotes)
+    if remotes and remote is None:
+        listed = ", ".join(remotes)
+        return DefaultBranch(None, 4, "several remotes, none selected",
+                             f"not guessed; none of the remotes ({listed}) is origin and not exactly one has"
+                             f" refs/remotes/<remote>/HEAD; run `{set_head_command('<remote>')}` for the remote"
+                             " that holds the default branch, or name the target branch")
+    if remote is None:
+        return local_default_branch(git, "", "add a remote and run"
+                                    f" `{set_head_command('<remote>')}`")
+    set_head = set_head_command(remote)
+    head_ref = f"refs/remotes/{remote}/HEAD"
+    target = git.out("symbolic-ref", "--quiet", head_ref)
+    if target.startswith(f"refs/remotes/{remote}/"):
+        return DefaultBranch(target[len(f"refs/remotes/{remote}/"):], 1, head_ref, remote=remote)
+    code, out = git.run("ls-remote", "--symref", remote, "HEAD", timeout=LS_REMOTE_TIMEOUT)
+    for line in out.splitlines() if code == 0 else []:
+        match = re.fullmatch(r"ref:\s*refs/heads/(\S+)\s+HEAD", line.strip())
+        if match:
+            return DefaultBranch(match[1], 2, f"git ls-remote --symref {remote} HEAD",
+                                 f"{head_ref} is missing; `{set_head}` would let step 1 work offline", remote)
+    resolved = local_default_branch(git, f"the remote did not answer; `{set_head}` would help once it does",
+                                    f"run `{set_head}` when the remote is reachable")
+    resolved.remote = remote
+    return resolved
+
+
+def local_default_branch(git: Git, offline: str, fix: str) -> DefaultBranch:
+    """Spec section 4, steps 3 and 4."""
     configured = git.out("config", "--get", "init.defaultBranch")
     for candidate, how in [(configured, "init.defaultBranch"), ("main", "local branch main"),
                            ("master", "local branch master")]:
         if candidate and git.ok("show-ref", "--verify", "--quiet", f"refs/heads/{candidate}"):
             return DefaultBranch(candidate, 3, f"{how}, no remote or offline", offline)
-    if has_remote:
-        fix = f"run `{SET_HEAD}` when the remote is reachable"
-    else:
-        fix = f"add the remote as origin and run `{SET_HEAD}`"
     return DefaultBranch(None, 4, "no step resolved it", f"not guessed; {fix}")
 
 
