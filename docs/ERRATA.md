@@ -334,7 +334,7 @@ This entry supersedes only E-025 resolution item 4. All other parts of E-025 rem
 Date: 2026-11-21
 Sections: 4 (Default branch); 20.2 step 3; E-025 resolution item 2
 
-Observed failure: spec section 4 steps 1, 2, and 4, `state.py`, `newproj doctor`, `newproj adopt`, and the `handoff`, `start-task`, and `accept` skills name `origin` as the only remote. In a project whose only remote has another name, the default branch resolved through local fallbacks while preflight used the real remote, and printed push commands named a remote that does not exist. The user approved the following on 2026-11-21 (issue #46, active `TASK.md`, and a follow-up decision recorded in `HANDOFF.md`).
+Observed failure: spec section 4 steps 1, 2, and 4, `state.py`, `newproj doctor`, `newproj adopt`, and the `handoff`, `start-task`, and `accept` skills name `origin` as the only remote. In a project whose only remote has another name, the default branch resolved through local fallbacks while preflight used the real remote, and printed push commands named a remote that does not exist. The user approved the following on 2026-11-21 (issue #46 and its `TASK.md`, including a follow-up decision that amended the selection rule).
 
 Resolution:
 

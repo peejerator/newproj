@@ -30,6 +30,8 @@ User decisions (Round 1, 2026-11-21, all recommendations accepted):
 
 Facts from the repository: spec section 4 (default branch) names `origin` in steps 1, 2, and 4; `resolve_default_branch` (`src/newproj/state.py`) reads only `origin` and is used by `doctor` and `adopt`; `adopt.py` runs `set-head` only when `origin` exists (spec 20.2 step 3); `new.py` creates `origin`.
 
+User decision (follow-up, 2026-11-21): under decision 2 as first written, the suggested fix `git remote set-head <remote> --auto` could never take effect, so selection is extended: with several remotes and none named `origin`, select the one remote whose `refs/remotes/<remote>/HEAD` is set, if exactly one has it. AC-1 amended by the user's authorization, 2026-11-21, resolving review finding 2.
+
 ## Scope
 
 - Implement the decisions above in `src/newproj/state.py` (then `uv run python scripts/sync_state.py`), `src/newproj/doctor.py`, `src/newproj/adopt.py`, and the canonical skills under `template/.agents/skills/` (`handoff`, `start-task` and its interview reference where relevant, `accept`).
@@ -40,7 +42,7 @@ Facts from the repository: spec section 4 (default branch) names `origin` in ste
 
 ## Acceptance criteria
 
-- AC-1: `resolve_default_branch` (in `src/newproj/state.py` and its byte-identical template copy) selects the remote as `origin` if configured, otherwise the only configured remote, otherwise none. Steps 1 and 2 use the selected remote's `refs/remotes/<remote>/HEAD` and `git ls-remote --symref <remote> HEAD`. With several remotes and none named `origin`, it reports the default branch as unknown (step 4) with a fix naming `git remote set-head <remote> --auto` or a user-specified target, and does not fall back to local branches as if there were no remote. Repositories with an `origin` remote resolve exactly as before.
+- AC-1: `resolve_default_branch` (in `src/newproj/state.py` and its byte-identical template copy) selects the remote as `origin` if configured, otherwise the only configured remote, otherwise (several remotes, none named `origin`) the one remote whose `refs/remotes/<remote>/HEAD` is set, otherwise none. Steps 1 and 2 use the selected remote's `refs/remotes/<remote>/HEAD` and `git ls-remote --symref <remote> HEAD`. When remotes exist but none is selected, it reports the default branch as unknown (step 4) with a fix naming `git remote set-head <remote> --auto` or a user-specified target, and does not fall back to local branches as if there were no remote. Repositories with an `origin` remote resolve exactly as before.
 - AC-2: Hints and fixes printed by `state.py`, `newproj doctor`, and `newproj adopt` name the selected remote rather than `origin`. With no remote configured, the fix tells the user to add a remote and run `git remote set-head <remote> --auto`, without requiring the name `origin`.
 - AC-3: `newproj adopt` runs `git remote set-head <remote> --auto` for the selected remote when its `refs/remotes/<remote>/HEAD` is missing, and does not run it when no remote is selected.
 - AC-4: The `handoff` skill's Writing a task resolves the remote-backed default target with the same remote selection rule as AC-1 and asks the user when it does not resolve.

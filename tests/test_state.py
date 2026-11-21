@@ -315,6 +315,19 @@ def test_single_other_remote_step_1(repo: Path, tmp_path: Path, run: Run) -> Non
     assert "origin" not in out and "set-head" not in out
 
 
+def test_push_only_remote_step_1(repo: Path, tmp_path: Path, run: Run) -> None:
+    """Review finding 1: a remote with pushurl but no url is still a configured remote."""
+    git(repo, "branch", "develop")
+    bare = add_named_remote(repo, tmp_path, "upstream", head="develop")
+    git(repo, "remote", "set-head", "upstream", "--auto")
+    git(repo, "config", "remote.upstream.pushurl", str(bare))
+    git(repo, "config", "--unset", "remote.upstream.url")
+    assert state.configured_remotes(state.Git(repo)) == ["upstream"]
+    _, out = run(repo)
+    assert "develop (step 1: refs/remotes/upstream/HEAD)" in out
+    assert "add a remote" not in out
+
+
 def test_single_other_remote_step_2(repo: Path, tmp_path: Path, run: Run) -> None:
     git(repo, "branch", "develop")
     add_named_remote(repo, tmp_path, "upstream", head="develop")
@@ -348,7 +361,7 @@ def test_several_remotes_without_origin_unknown(repo: Path, tmp_path: Path, run:
     add_named_remote(repo, tmp_path, "fork")
     _, out = run(repo)
     assert "unknown (step 4: several remotes, none selected)" in out
-    assert "none of the remotes (upstream, fork) is origin" in out
+    assert "none of the remotes (fork, upstream) is origin" in out
     assert "run `git remote set-head <remote> --auto` for the remote that holds the default branch" in out
     assert "or name the target branch" in out
     assert "main (step" not in out

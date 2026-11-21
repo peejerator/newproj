@@ -6,7 +6,7 @@ Task: standard
 
 ## Status
 
-validating
+in progress
 
 ## Completed
 
@@ -15,6 +15,7 @@ validating
 - AC-3: `adopt.set_head` runs `git remote set-head <remote> --auto` for the selected remote only.
 - AC-4, AC-5: `handoff` Writing a task uses the selection rule and asks when unresolved; `start-task` prints `git push -u <remote> <branch>` (target branch's configured remote); `accept` prints `git push <remote> --delete <task branch>` (task branch's configured remote). Pointer frontmatter unchanged.
 - AC-6: E-027 appended to `docs/ERRATA.md`, including the follow-up decision below.
+- Review finding 1 (push-only remotes): `configured_remotes` now enumerates remotes with `git remote`, so a remote with `pushurl` but no `url` is selected; regression test `test_push_only_remote_step_1`. `git remote` lists names alphabetically, so the several-remotes message lists them in that order.
 - AC-7: tests added in `tests/test_state.py`, `tests/test_doctor.py`, `tests/test_adopt.py`, `tests/test_agent_content.py`; existing no-remote assertions now expect `<remote>`.
 
 ## Current working area
@@ -26,7 +27,7 @@ validating
 
 ## Validation
 
-- PASS | uv run pytest | 537 passed, 1 skipped; covers AC-1 to AC-5 and AC-7 tests, byte-identical state.py copy, pointer frontmatter | Linux | implementer
+- PASS | uv run pytest | 538 passed, 1 skipped, after the finding 1 fix; includes push-only remote regression (AC-1, AC-2, AC-7) | Linux | implementer
 - PASS | git diff docs/spec.md docs/DECISIONS.md; git diff docs/ERRATA.md | spec and decisions unchanged; ERRATA diff is additions only (AC-6) | Linux | implementer
 - NOT RUN | CI on Linux, macOS, and Windows | skipped: runs after the user commits and pushes | | implementer
 - PASS | uv run pytest | 537 passed, 1 skipped; requested remote cases, adopt/doctor integration, skill content, and pointer frontmatter covered (AC-1 to AC-5, AC-7) | Linux, Python 3.13.5 | reviewer
@@ -35,6 +36,7 @@ validating
 - PASS | uv run --no-project template/.agents/skills/resume/scripts/state.py check --neutral-dir template/.agents/skills/handoff/neutral | No violations found | Linux; uv cache access required outside sandbox | reviewer
 - PASS | CI on Linux and macOS | Both jobs passed tests and the Python 3.9 state checks on the reviewed commit (AC-7) | https://github.com/peejerator/newproj/actions/runs/44884139677 | CI
 - NOT RUN | Completed CI on Windows | environment: the Windows job is still running; its final result is unavailable (AC-7) | https://github.com/peejerator/newproj/actions/runs/44884139677 | reviewer
+- PASS | CI on Windows | Windows job passed on 0a4e142 (reviewed commit, before the finding 1 fix) (AC-7) | https://github.com/peejerator/newproj/actions/runs/44884139677 | CI
 
 ## Review
 
@@ -63,14 +65,14 @@ Findings:
 
 ## Exact next steps
 
-1. The user commits the implementation and pushes; confirm CI passes on Linux, macOS, and Windows (AC-7).
-2. Independent review by a different agent (the `review` skill), expected because skill content changed.
+1. The user commits the finding 1 fix and the AC-1 amendment and pushes; confirm CI on Linux, macOS, and Windows (AC-7).
+2. Re-review by a different agent (the `review` skill).
 3. Acceptance via the `accept` skill.
 
 ## Blockers / open questions
 
 ## Relevant decisions
 
-- Remote selection rule and printed push commands: `TASK.md`, `## Context`, decisions 2 and 3.
-- Follow-up user decision (2026-11-21, this session): decision 2's fix for several remotes without `origin` (`git remote set-head <remote> --auto`) could never take effect under the rule as written, so the user chose to extend selection: with several remotes and none named `origin`, select the one remote whose `refs/remotes/<remote>/HEAD` is set, if exactly one has it. Recorded in E-027 item 1.
+- Remote selection rule and printed push commands: `TASK.md`, `## Context`, decisions 2 and 3, and the follow-up decision (AC-1 amended).
+- Follow-up user decision (2026-11-21, this session): decision 2's fix for several remotes without `origin` (`git remote set-head <remote> --auto`) could never take effect under the rule as written, so the user chose to extend selection: with several remotes and none named `origin`, select the one remote whose `refs/remotes/<remote>/HEAD` is set, if exactly one has it. Recorded in E-027 item 1. Review finding 2 resolved: the user confirmed the extension and authorized amending `TASK.md` AC-1 to match (2026-11-21).
 - E-027 supersedes E-025 resolution item 2's "Remote-backed target resolution remains unchanged".

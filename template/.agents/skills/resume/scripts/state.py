@@ -325,11 +325,10 @@ def set_head_command(remote: str) -> str:
 
 
 def configured_remotes(git: Git) -> list[str]:
-    """Remotes with a configured URL, in configuration order."""
+    """Remotes as `git remote` lists them, including push-only remotes without remote.<name>.url."""
     names = []
-    for line in git.out("config", "--get-regexp", r"^remote\..*\.url$").splitlines():
-        key = line.split(maxsplit=1)[0]
-        name = key[len("remote."):-len(".url")]
+    for name in git.out("remote").splitlines():
+        name = name.strip()
         if name and name not in names:
             names.append(name)
     return names
