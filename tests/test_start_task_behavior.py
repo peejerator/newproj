@@ -231,3 +231,34 @@ def test_driver_one_command_runs_both_fixtures_without_real_agent(env: Env, tmp_
 def test_driver_refuses_existing_directory(env: Env, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert driver.main([str(tmp_path)]) == 1
     assert "new output directory" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("change", ["reworded", "dropped", "missing_section"])
+def test_resumed_draft_criteria_must_survive(projects: dict[str, Path], change: str, env: Env,
+                                            tmp_path: Path) -> None:
+    project = copy(projects, "B13", tmp_path)
+    passing(project)
+    task = project / "TASK.md"
+    text = task.read_text(encoding="utf-8")
+    if change == "reworded":
+        text = text.replace("excludes shorter words", "drops short words")
+    elif change == "dropped":
+        text = text.split("- AC-3:", 1)[0] + "\n## Relevant areas\n" + text.split("## Relevant areas\n", 1)[1]
+    else:
+        text = text.replace("## Acceptance criteria\n", "## Criteria\n")
+    task.write_text(text, encoding="utf-8")
+    git(project, "add", "TASK.md")
+    verdict, lines = behavior.check("B13", project)
+    assert verdict == "FAIL"
+    assert "activated criteria differ from the draft's settled criteria" in "\n".join(lines)
+
+
+def test_resumed_draft_criteria_ignore_rewrapping(projects: dict[str, Path], env: Env, tmp_path: Path) -> None:
+    project = copy(projects, "B13", tmp_path)
+    passing(project)
+    task = project / "TASK.md"
+    text = task.read_text(encoding="utf-8").replace("are\n  rejected by argparse", "are rejected\n  by argparse")
+    task.write_text(text, encoding="utf-8")
+    git(project, "add", "TASK.md")
+    verdict, lines = behavior.check("B13", project)
+    assert verdict == "PASS", "\n".join(lines)

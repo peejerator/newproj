@@ -314,3 +314,17 @@ Resolution:
 4. Verify the guidance with automated content and rendering tests and the full test suite. No additional behavioral fixture scenarios or manual tool runs are required for this change.
 
 This entry supersedes only the conflicting parts of E-018 decisions 3 and 8 and E-019, and extends the handoff skill's target resolution guidance. All other interview and draft resumption rules remain in force. No CLI behavior or default branch resolution code changes.
+
+## E-026: Automated agent checks for local-only task interviews
+
+Date: 2026-11-21
+Sections: 23.2; E-025 resolution item 4
+
+Observed problem: E-025 item 4 says no additional behavioral fixture scenarios or manual tool runs are required for the local-only interview change. After the first review of issue #40, the user clarified on 2026-11-20 that "automated tests only" meant agent behavior is tested automatically rather than by the user, not that behavioral testing is omitted, and approved amending the task's AC-5 (active `TASK.md`, `## Context`).
+
+Resolution:
+
+1. The local-only guidance is verified by automated content and rendering tests, the full test suite, and two behavioral fixtures: B12 (local-only new task) and B13 (local-only resumed draft). `uv run python scripts/start_task_behavior.py <new-directory>` runs both with an agent non-interactively and reports PASS or FAIL from scripted checks, with no manual agent session or transcript judgment by the user (D-009).
+2. The agent run is local only. Pytest and CI cover fixture setup, scripted verdicts, and the driver without launching an agent or needing credentials.
+
+This entry supersedes only E-025 resolution item 4. All other parts of E-025 remain in force.
